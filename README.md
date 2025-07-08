@@ -1,22 +1,28 @@
-# Soccer Player Scouting App
+# Draft AI - Soccer Player Scouting App
 
-A modern web application for scouting soccer players from USL League One and MLS Next Pro. Built with React frontend and Flask API backend.
+A web application for scouting USL League One and MLS Next Pro soccer players.
 
 ## Features
+- Player database with stats and profiles
+- YouTube highlights integration
+- Advanced filtering and search
+- Modern React frontend with Flask backend
 
-- **Player Database**: Comprehensive player profiles from USL League One and MLS Next Pro
-- **Advanced Filtering**: Filter by league, position, and nationality
-- **Player Statistics**: Goals, assists, matches played, and minutes
-- **YouTube Highlights**: Direct links to player highlight videos
-- **Modern UI**: Clean, responsive design with glass-morphism styling
-- **Real-time Search**: Instant player search functionality
+## Deployment
+- Frontend: Vercel
+- Backend: Render
+- Data: GitHub raw URLs
+
+## API Endpoints
+- `/api/players` - Get filtered players
+- `/api/youtube-highlights` - Get YouTube videos for players
+- `/api/health` - Health check
 
 ## Tech Stack
 
 - **Frontend**: React, Vite, CSS3
 - **Backend**: Flask, Python
 - **Data**: JSON files with player statistics
-- **Deployment**: Vercel
 
 ## Local Development
 
@@ -80,14 +86,6 @@ git push -u origin main
 5. Add environment variables in Vercel dashboard:
    - `YOUTUBE_API_KEY`: Your YouTube API key
 6. Deploy!
-
-## API Endpoints
-
-- `GET /api/players` - Get filtered players
-  - Query params: `league`, `position`, `nationality`
-- `GET /api/youtube-highlights` - Get player YouTube highlights
-  - Query params: `player_name`, `club_name`
-- `GET /api/health` - Health check
 
 ## Data Sources
 

@@ -22,7 +22,7 @@ except ImportError as e:
         }]
 
 app = Flask(__name__)
-CORS(app, origins=['https://aiscoutingassistant.vercel.app', 'http://localhost:5173'])
+CORS(app, origins=['*'])
 
 @app.route('/', methods=['GET'])
 def root():
@@ -128,9 +128,18 @@ def get_players():
         print(f"Error in get_players: {e}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/youtube-highlights', methods=['GET'])
+@app.route('/api/youtube-highlights', methods=['GET', 'OPTIONS'])
 def get_youtube_highlights():
     """Get YouTube highlights for a player"""
+    
+    # Handle OPTIONS request for CORS preflight
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        return response
+    
     try:
         player_name = request.args.get('player_name')
         club_name = request.args.get('club_name')
@@ -141,11 +150,18 @@ def get_youtube_highlights():
         # Search for YouTube videos
         videos = search_youtube_videos(player_name, club_name)
         
-        return jsonify({
+        response = jsonify({
             'videos': videos,
             'player_name': player_name,
             'club_name': club_name
         })
+        
+        # Add CORS headers manually
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        
+        return response
         
     except Exception as e:
         print(f"Error in get_youtube_highlights: {e}")
