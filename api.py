@@ -1,52 +1,65 @@
 from flask import Flask, request, jsonify
 import json
 import os
+import requests
 from backend.college.youtube_highlights import search_youtube_videos
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
-# Load data files
-USL_DATA_FILE = 'usl_league_one_players_api.json'
-MLS_DATA_FILE = 'mls_next_pro_players_api.json'
+# External data URLs (you can host these on GitHub, AWS S3, or any CDN)
+USL_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/usl_league_one_players_api.json'
+MLS_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/mls_next_pro_players_api.json'
 
-def load_player_data():
-    """Load player data from JSON files"""
+def fetch_player_data():
+    """Fetch player data from external URLs"""
     players = []
     
-    # Load USL League One players
-    if os.path.exists(USL_DATA_FILE):
-        try:
-            with open(USL_DATA_FILE, 'r', encoding='utf-8') as f:
-                usl_players = json.load(f)
-                # Add league info to each player
-                for player in usl_players:
-                    player['league'] = 'USL League One'
-                players.extend(usl_players)
-        except Exception as e:
-            print(f"Error loading USL data: {e}")
+    # Fetch USL League One players
+    try:
+        response = requests.get(USL_DATA_URL, timeout=10)
+        if response.status_code == 200:
+            usl_players = response.json()
+            # Add league info to each player
+            for player in usl_players:
+                player['league'] = 'USL League One'
+            players.extend(usl_players)
+            print(f"Loaded {len(usl_players)} USL players")
+        else:
+            print(f"Failed to load USL data: {response.status_code}")
+    except Exception as e:
+        print(f"Error loading USL data: {e}")
     
-    # Load MLS Next Pro players
-    if os.path.exists(MLS_DATA_FILE):
-        try:
-            with open(MLS_DATA_FILE, 'r', encoding='utf-8') as f:
-                mls_players = json.load(f)
-                # Add league info to each player
-                for player in mls_players:
-                    player['league'] = 'MLS Next Pro'
-                players.extend(mls_players)
-        except Exception as e:
-            print(f"Error loading MLS data: {e}")
+    # Fetch MLS Next Pro players
+    try:
+        response = requests.get(MLS_DATA_URL, timeout=10)
+        if response.status_code == 200:
+            mls_players = response.json()
+            # Add league info to each player
+            for player in mls_players:
+                player['league'] = 'MLS Next Pro'
+            players.extend(mls_players)
+            print(f"Loaded {len(mls_players)} MLS players")
+        else:
+            print(f"Failed to load MLS data: {response.status_code}")
+    except Exception as e:
+        print(f"Error loading MLS data: {e}")
     
     return players
 
-# Load all players at startup
-ALL_PLAYERS = load_player_data()
+# Cache for player data (will be populated on first request)
+ALL_PLAYERS = None
 
 @app.route('/api/players')
 def get_players():
     """Get filtered players based on query parameters"""
+    global ALL_PLAYERS
+    
+    # Load data on first request
+    if ALL_PLAYERS is None:
+        ALL_PLAYERS = fetch_player_data()
+    
     league = request.args.get('league', None)
     position = request.args.get('position', None)
     nationality = request.args.get('nationality', None)
@@ -105,7 +118,10 @@ def get_youtube_highlights():
 @app.route('/api/health')
 def health_check():
     """Health check endpoint"""
-    return jsonify({'status': 'healthy', 'total_players': len(ALL_PLAYERS)})
+    global ALL_PLAYERS
+    if ALL_PLAYERS is None:
+        ALL_PLAYERS = fetch_player_data()
+    return jsonify({'status': 'healthy', 'total_players': len(ALL_PLAYERS) if ALL_PLAYERS else 0})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001) 

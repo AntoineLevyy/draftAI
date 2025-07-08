@@ -80,6 +80,6 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# Data files (keep these for now but you might want to exclude them later)
-# *.json
-# *.csv
+# Large data files (exclude from deployment to avoid size limits)
+backend/pro/*.json
+frontend/public/*.json
