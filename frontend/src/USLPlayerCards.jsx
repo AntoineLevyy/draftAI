@@ -233,7 +233,7 @@ const PlayerCard = memo(({ player, getPlayerImage, getClubImage, translatePositi
         </div>
         
         <div className="league-badge">
-          {selectedLeague || 'Unknown League'}
+          {player.league || 'Unknown League'}
         </div>
 
         {player.profile && (
