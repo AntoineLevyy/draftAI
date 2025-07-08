@@ -11,12 +11,18 @@ try:
 except ImportError as e:
     print(f"YouTube highlights import failed: {e}")
     YOUTUBE_AVAILABLE = False
-    # Create a dummy function
+    # Create a dummy function that returns a simple response
     def search_youtube_videos(player_name, club_name):
-        return []
+        return [{
+            'title': f'{player_name} Highlights',
+            'video_url': f'https://www.youtube.com/results?search_query={player_name}+{club_name}+highlights',
+            'channel': 'YouTube Search',
+            'published_at': 'N/A',
+            'description': f'Search results for {player_name} from {club_name}'
+        }]
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=['https://aiscoutingassistant.vercel.app', 'http://localhost:5173'])
 
 @app.route('/', methods=['GET'])
 def root():
