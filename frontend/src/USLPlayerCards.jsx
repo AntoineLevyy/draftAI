@@ -470,8 +470,10 @@ const PlayerCards = ({ filters, onBack }) => {
       // Fetch USL League One players
       try {
         const uslResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/usl_league_one_players_api.json');
+        console.log('USL fetch status:', uslResponse.status);
         if (uslResponse.ok) {
           const uslData = await uslResponse.json();
+          console.log('USL data:', uslData);
           const uslPlayers = uslData.players || [];
           // Add league info to each player
           uslPlayers.forEach(player => {
@@ -487,8 +489,10 @@ const PlayerCards = ({ filters, onBack }) => {
       // Fetch MLS Next Pro players
       try {
         const mlsResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/mls_next_pro_players_api.json');
+        console.log('MLS fetch status:', mlsResponse.status);
         if (mlsResponse.ok) {
           const mlsData = await mlsResponse.json();
+          console.log('MLS data:', mlsData);
           const mlsPlayers = mlsData.players || [];
           // Add league info to each player
           mlsPlayers.forEach(player => {
@@ -502,6 +506,7 @@ const PlayerCards = ({ filters, onBack }) => {
       }
       
       console.log('Total players loaded:', allPlayers.length);
+      console.log('All players:', allPlayers);
       
       // Apply filters
       let filteredPlayers = allPlayers;
