@@ -579,7 +579,10 @@ const PlayerCards = ({ filters, onBack }) => {
       console.log('First player structure:', players[0]);
       console.log('First player position field:', players[0].profile?.playerProfile?.position);
       console.log('First player playerMainPosition field:', players[0].profile?.playerProfile?.playerMainPosition);
+      console.log('First player name:', players[0].profile?.playerProfile?.playerName);
     }
+    
+    let filteredCount = 0;
     
     return players
       .filter(player => {
@@ -588,6 +591,11 @@ const PlayerCards = ({ filters, onBack }) => {
         if (!playerName || playerName === 'Unknown Player' || playerName.trim() === '') {
           console.log('Filtering out player with invalid name:', playerName);
           return false;
+        }
+        
+        filteredCount++;
+        if (filteredCount <= 5) {
+          console.log(`Player ${filteredCount}: ${playerName} passed name filter`);
         }
         
         // Filter by position (convert English position back to German for comparison)
