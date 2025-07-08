@@ -4,7 +4,7 @@ const config = {
     apiBaseUrl: 'http://localhost:5001'
   },
   production: {
-    apiBaseUrl: 'https://draft-ai-api.onrender.com' // This will be your deployed API URL
+    apiBaseUrl: 'https://draft-ai-api.onrender.com' // Update this with your actual deployed URL
   }
 };
 
