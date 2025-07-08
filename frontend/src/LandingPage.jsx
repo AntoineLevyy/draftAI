@@ -55,10 +55,9 @@ const labelStyle = {
   fontWeight: 600,
   marginBottom: '12px',
   color: '#374151',
-  fontSize: '0.95rem',
+  fontSize: '0.8rem',
   letterSpacing: '0.025em',
   textTransform: 'uppercase',
-  fontSize: '0.8rem',
 };
 
 const selectStyle = {
