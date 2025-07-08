@@ -507,27 +507,43 @@ const PlayerCards = ({ filters, onBack }) => {
       
       console.log('Total players loaded:', allPlayers.length);
       console.log('All players:', allPlayers);
+      console.log('First player structure:', allPlayers[0]);
       
       // Apply filters
       let filteredPlayers = allPlayers;
       
+      console.log('Before filtering:', filteredPlayers.length, 'players');
+      
       if (filters?.league && filters.league !== 'All') {
+        console.log('Filtering by league:', filters.league);
         filteredPlayers = filteredPlayers.filter(player => player.league === filters.league);
+        console.log('After league filter:', filteredPlayers.length, 'players');
       }
       
       if (filters?.position && filters.position !== 'All Positions') {
+        console.log('Filtering by position:', filters.position);
         filteredPlayers = filteredPlayers.filter(player => {
           const playerPosition = player.profile?.playerProfile?.position || '';
-          return playerPosition.toLowerCase().includes(filters.position.toLowerCase());
+          const matches = playerPosition.toLowerCase().includes(filters.position.toLowerCase());
+          console.log(`Player ${player.profile?.playerProfile?.name || 'Unknown'}: position "${playerPosition}" matches "${filters.position}"? ${matches}`);
+          return matches;
         });
+        console.log('After position filter:', filteredPlayers.length, 'players');
       }
       
       if (filters?.nationality && filters.nationality !== 'All') {
+        console.log('Filtering by nationality:', filters.nationality);
         filteredPlayers = filteredPlayers.filter(player => {
           const playerNationality = player.profile?.playerProfile?.nationality || '';
-          return playerNationality.toLowerCase().includes(filters.nationality.toLowerCase());
+          const matches = playerNationality.toLowerCase().includes(filters.nationality.toLowerCase());
+          console.log(`Player ${player.profile?.playerProfile?.name || 'Unknown'}: nationality "${playerNationality}" matches "${filters.nationality}"? ${matches}`);
+          return matches;
         });
+        console.log('After nationality filter:', filteredPlayers.length, 'players');
       }
+      
+      console.log('Final filtered players:', filteredPlayers.length);
+      console.log('First few players:', filteredPlayers.slice(0, 3));
       
       setPlayers(filteredPlayers);
       setLoading(false);
