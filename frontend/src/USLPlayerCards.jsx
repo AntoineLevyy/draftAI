@@ -506,46 +506,10 @@ const PlayerCards = ({ filters, onBack }) => {
       }
       
       console.log('Total players loaded:', allPlayers.length);
-      console.log('All players:', allPlayers);
       console.log('First player structure:', allPlayers[0]);
       
-      // Apply filters
-      let filteredPlayers = allPlayers;
-      
-      console.log('Before filtering:', filteredPlayers.length, 'players');
-      
-      if (filters?.league && filters.league !== 'All') {
-        console.log('Filtering by league:', filters.league);
-        filteredPlayers = filteredPlayers.filter(player => player.league === filters.league);
-        console.log('After league filter:', filteredPlayers.length, 'players');
-      }
-      
-      if (filters?.position && filters.position !== 'All Positions') {
-        console.log('Filtering by position:', filters.position);
-        filteredPlayers = filteredPlayers.filter(player => {
-          const playerPosition = player.profile?.playerProfile?.position || '';
-          const matches = playerPosition.toLowerCase().includes(filters.position.toLowerCase());
-          console.log(`Player ${player.profile?.playerProfile?.name || 'Unknown'}: position "${playerPosition}" matches "${filters.position}"? ${matches}`);
-          return matches;
-        });
-        console.log('After position filter:', filteredPlayers.length, 'players');
-      }
-      
-      if (filters?.nationality && filters.nationality !== 'All') {
-        console.log('Filtering by nationality:', filters.nationality);
-        filteredPlayers = filteredPlayers.filter(player => {
-          const playerNationality = player.profile?.playerProfile?.nationality || '';
-          const matches = playerNationality.toLowerCase().includes(filters.nationality.toLowerCase());
-          console.log(`Player ${player.profile?.playerProfile?.name || 'Unknown'}: nationality "${playerNationality}" matches "${filters.nationality}"? ${matches}`);
-          return matches;
-        });
-        console.log('After nationality filter:', filteredPlayers.length, 'players');
-      }
-      
-      console.log('Final filtered players:', filteredPlayers.length);
-      console.log('First few players:', filteredPlayers.slice(0, 3));
-      
-      setPlayers(filteredPlayers);
+      // Set all players - filtering will be done in filteredAndSortedPlayers
+      setPlayers(allPlayers);
       setLoading(false);
       
     } catch (error) {
@@ -600,29 +564,64 @@ const PlayerCards = ({ filters, onBack }) => {
     console.log('Filters:', filters);
     console.log('Search term:', searchTerm);
     
+    // Debug: Log first few players to see their structure
+    if (players.length > 0) {
+      console.log('First player structure:', players[0]);
+      console.log('First player position field:', players[0].profile?.playerProfile?.position);
+      console.log('First player playerMainPosition field:', players[0].profile?.playerProfile?.playerMainPosition);
+    }
+    
     return players
       .filter(player => {
         // Filter out players with missing or invalid names
         const playerName = player.profile?.playerProfile?.playerName;
         if (!playerName || playerName === 'Unknown Player' || playerName.trim() === '') {
+          console.log('Filtering out player with invalid name:', playerName);
           return false;
         }
+        
         // Filter by position (convert English position back to German for comparison)
         if (filters?.position && filters.position !== 'All Positions') {
           const germanPosition = reverseTranslatePosition(filters.position);
-          if (player.profile?.playerProfile?.playerMainPosition !== germanPosition) {
+          const playerPosition = player.profile?.playerProfile?.position || player.profile?.playerProfile?.playerMainPosition || '';
+          console.log(`Checking position for ${playerName}: player position "${playerPosition}" vs filter "${germanPosition}"`);
+          if (playerPosition !== germanPosition) {
+            console.log(`Position mismatch for ${playerName}: "${playerPosition}" !== "${germanPosition}"`);
             return false;
           }
         }
-        // Filter by nationality (if not 'All')
-        if (filters?.nationality && filters.nationality !== 'All' && translateNationality(player.profile?.playerProfile?.birthplaceCountry) !== filters.nationality) {
-          return false;
+        
+        // Filter by league (if not 'All')
+        if (filters?.league && filters.league !== 'All') {
+          console.log(`Checking league for ${playerName}: player league "${player.league}" vs filter "${filters.league}"`);
+          if (player.league !== filters.league) {
+            console.log(`League mismatch for ${playerName}: "${player.league}" !== "${filters.league}"`);
+            return false;
+          }
         }
-        // League is always USL League One, so no need to filter
+        
+        // Filter by nationality (if not 'All')
+        if (filters?.nationality && filters.nationality !== 'All') {
+          const playerNationality = translateNationality(player.profile?.playerProfile?.birthplaceCountry);
+          console.log(`Checking nationality for ${playerName}: player nationality "${playerNationality}" vs filter "${filters.nationality}"`);
+          if (playerNationality !== filters.nationality) {
+            console.log(`Nationality mismatch for ${playerName}: "${playerNationality}" !== "${filters.nationality}"`);
+            return false;
+          }
+        }
+        
+        // Search term filtering
         const searchLower = searchTerm.toLowerCase();
         const clubName = player.profile?.playerProfile?.club || player.club?.name || 'Unknown';
-        return playerName.toLowerCase().includes(searchLower) || 
-               clubName.toLowerCase().includes(searchLower);
+        const matchesSearch = playerName.toLowerCase().includes(searchLower) || 
+                             clubName.toLowerCase().includes(searchLower);
+        
+        if (!matchesSearch && searchTerm) {
+          console.log(`Search term mismatch for ${playerName}: "${playerName}" or "${clubName}" doesn't include "${searchTerm}"`);
+          return false;
+        }
+        
+        return true;
       })
       .sort((a, b) => {
         let aValue, bValue;
