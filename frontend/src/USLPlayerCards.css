@@ -758,4 +758,49 @@ body, html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #5a6fd8;
+}
+
+/* YouTube Search Section */
+.youtube-search-section {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.youtube-search-section p {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.youtube-search-button {
+  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(255, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  margin-bottom: 15px;
+}
+
+.youtube-search-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 0, 0, 0.4);
+  background: linear-gradient(135deg, #cc0000 0%, #990000 100%);
+}
+
+.youtube-search-button:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+}
+
+.search-tip {
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+  margin-top: 10px;
 } 

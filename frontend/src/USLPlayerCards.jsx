@@ -697,48 +697,10 @@ const PlayerCards = ({ filters, onBack }) => {
   }, []);
 
   const fetchYoutubeVideos = useCallback(async (playerName, clubName) => {
-    const cacheKey = `${playerName}-${clubName}`;
-    
-    // Check if we already have videos for this player
-    if (youtubeVideos[cacheKey]) {
-      console.log('Using cached videos for:', cacheKey);
-      return youtubeVideos[cacheKey];
-    }
-    
-    // Set loading state
-    setLoadingVideos(prev => ({ ...prev, [cacheKey]: true }));
-    
-    try {
-      console.log('Fetching videos for:', playerName, 'from club:', clubName);
-      const response = await fetch(`/api/youtube-highlights?player_name=${encodeURIComponent(playerName)}&club_name=${encodeURIComponent(clubName)}`);
-      console.log('Response status:', response.status);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log('YouTube API response:', data);
-      
-              if (data.success) {
-          console.log('Videos found:', data.videos?.length || 0);
-          if (data.videos && data.videos.length > 0) {
-            console.log('First video URL:', data.videos[0].video_url);
-            console.log('First video title:', data.videos[0].title);
-          }
-        setYoutubeVideos(prev => ({ ...prev, [cacheKey]: data.videos }));
-        return data.videos;
-      } else {
-        console.error('Error fetching YouTube videos:', data.error);
-        return [];
-      }
-    } catch (error) {
-      console.error('Error fetching YouTube videos:', error);
-      return [];
-    } finally {
-      setLoadingVideos(prev => ({ ...prev, [cacheKey]: false }));
-    }
-  }, [youtubeVideos]);
+    // Since we don't have a backend API in production, we'll just return an empty array
+    // and let the modal handle opening YouTube search directly
+    return [];
+  }, []);
 
   const handleViewFootage = useCallback(async (player) => {
     const playerName = player.profile?.playerProfile?.playerName;
@@ -854,53 +816,22 @@ const PlayerCards = ({ filters, onBack }) => {
               </button>
             </div>
             <div className="video-modal-content">
-              {loadingVideos[`${selectedPlayer.profile?.playerProfile?.playerName}-${selectedPlayer.profile?.playerProfile?.club}`] ? (
-                <div className="loading-videos">Loading videos...</div>
-              ) : youtubeVideos[`${selectedPlayer.profile?.playerProfile?.playerName}-${selectedPlayer.profile?.playerProfile?.club}`]?.length > 0 ? (
-                <div className="videos-grid">
-                  {youtubeVideos[`${selectedPlayer.profile?.playerProfile?.playerName}-${selectedPlayer.profile?.playerProfile?.club}`].map((video, index) => {
-                    console.log('Rendering video:', video);
-                    return (
-                      <a 
-                        key={index} 
-                        href={video.video_url || video.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="video-card"
-                        style={{ textDecoration: 'none' }}
-                        onClick={(e) => {
-                          const videoUrl = video.video_url || video.url;
-                          console.log('Video clicked! URL:', videoUrl);
-                          if (!videoUrl || videoUrl === '') {
-                            e.preventDefault();
-                            alert('Video URL is not available');
-                          }
-                        }}
-                      >
-                        <div className="video-thumbnail">
-                          <img 
-                            src={video.thumbnail || `https://img.youtube.com/vi/${(video.video_url || video.url)?.split('v=')[1]}/mqdefault.jpg`} 
-                            alt={video.title} 
-                            onError={(e) => {
-                              e.target.src = 'https://via.placeholder.com/320x180?text=Video+Thumbnail';
-                            }}
-                          />
-                        </div>
-                        <div className="video-info">
-                          <div className="video-title">{video.title}</div>
-                          <div className="video-channel">{video.channel}</div>
-                          <div className="video-date">{video.published_at || video.publishedAt}</div>
-                          <div className="watch-video-button">
-                            Watch Video
-                          </div>
-                        </div>
-                      </a>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="no-videos">No highlight videos found for this player.</div>
-              )}
+              <div className="youtube-search-section">
+                <p>Search for {selectedPlayer.profile?.playerProfile?.playerName} highlights on YouTube:</p>
+                <button 
+                  className="youtube-search-button"
+                  onClick={() => {
+                    const playerName = selectedPlayer.profile?.playerProfile?.playerName;
+                    const clubName = selectedPlayer.profile?.playerProfile?.club;
+                    const searchQuery = `${playerName} ${clubName} highlights`;
+                    const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`;
+                    window.open(youtubeSearchUrl, '_blank');
+                  }}
+                >
+                  🔍 Search YouTube for Highlights
+                </button>
+                <p className="search-tip">This will open YouTube in a new tab with search results for this player's highlights.</p>
+              </div>
             </div>
           </div>
         </div>
