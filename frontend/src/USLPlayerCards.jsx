@@ -508,8 +508,16 @@ const PlayerCards = ({ filters, onBack }) => {
       console.log('Total players loaded:', allPlayers.length);
       console.log('First player structure:', allPlayers[0]);
       
-      // Set all players - filtering will be done in filteredAndSortedPlayers
-      setPlayers(allPlayers);
+      // Apply league filter if specified
+      let filteredPlayers = allPlayers;
+      
+      if (filters?.league && filters.league !== 'All') {
+        console.log('Filtering by league:', filters.league);
+        filteredPlayers = allPlayers.filter(player => player.league === filters.league);
+        console.log('After league filter:', filteredPlayers.length, 'players');
+      }
+      
+      setPlayers(filteredPlayers);
       setLoading(false);
       
     } catch (error) {
@@ -593,19 +601,7 @@ const PlayerCards = ({ filters, onBack }) => {
           }
         }
         
-        // Filter by league (if not 'All')
-        if (filters?.league && filters.league !== 'All') {
-          const playerLeague = player.league?.trim() || '';
-          const filterLeague = filters.league?.trim() || '';
-          console.log(`Checking league for ${playerName}: player league "${playerLeague}" vs filter "${filterLeague}"`);
-          console.log(`Player league type: ${typeof player.league}, length: ${player.league?.length}`);
-          console.log(`Filter league type: ${typeof filters.league}, length: ${filters.league?.length}`);
-          console.log(`League comparison: "${playerLeague}" === "${filterLeague}"? ${playerLeague === filterLeague}`);
-          if (playerLeague !== filterLeague) {
-            console.log(`League mismatch for ${playerName}: "${playerLeague}" !== "${filterLeague}"`);
-            return false;
-          }
-        }
+        // League filtering is handled in fetchPlayers, so we don't need to filter here
         
         // Filter by nationality (if not 'All')
         if (filters?.nationality && filters.nationality !== 'All') {
