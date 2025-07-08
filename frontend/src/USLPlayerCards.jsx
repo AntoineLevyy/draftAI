@@ -513,7 +513,9 @@ const PlayerCards = ({ filters, onBack }) => {
       
       if (filters?.league && filters.league !== 'All') {
         console.log('Filtering by league:', filters.league);
-        filteredPlayers = allPlayers.filter(player => player.league === filters.league);
+        // Handle both single league and array of leagues
+        const leagueFilter = Array.isArray(filters.league) ? filters.league : [filters.league];
+        filteredPlayers = allPlayers.filter(player => leagueFilter.includes(player.league));
         console.log('After league filter:', filteredPlayers.length, 'players');
       }
       
