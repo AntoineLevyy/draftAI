@@ -442,6 +442,7 @@ const PlayerCards = ({ filters, onBack }) => {
   const [loadingVideos, setLoadingVideos] = useState({});
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [videoLoading, setVideoLoading] = useState(false);
 
   const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
@@ -463,36 +464,72 @@ const PlayerCards = ({ filters, onBack }) => {
     try {
       console.log('Fetching players with filters:', filters);
       
-      // Build query parameters
-      const params = new URLSearchParams();
+      // Fetch data from GitHub raw URLs
+      let allPlayers = [];
+      
+      // Fetch USL League One players
+      try {
+        const uslResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/usl_league_one_players_api.json');
+        if (uslResponse.ok) {
+          const uslData = await uslResponse.json();
+          const uslPlayers = uslData.players || [];
+          // Add league info to each player
+          uslPlayers.forEach(player => {
+            player.league = 'USL League One';
+          });
+          allPlayers = allPlayers.concat(uslPlayers);
+          console.log(`Loaded ${uslPlayers.length} USL players`);
+        }
+      } catch (error) {
+        console.error('Error fetching USL data:', error);
+      }
+      
+      // Fetch MLS Next Pro players
+      try {
+        const mlsResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/mls_next_pro_players_api.json');
+        if (mlsResponse.ok) {
+          const mlsData = await mlsResponse.json();
+          const mlsPlayers = mlsData.players || [];
+          // Add league info to each player
+          mlsPlayers.forEach(player => {
+            player.league = 'MLS Next Pro';
+          });
+          allPlayers = allPlayers.concat(mlsPlayers);
+          console.log(`Loaded ${mlsPlayers.length} MLS players`);
+        }
+      } catch (error) {
+        console.error('Error fetching MLS data:', error);
+      }
+      
+      console.log('Total players loaded:', allPlayers.length);
+      
+      // Apply filters
+      let filteredPlayers = allPlayers;
+      
       if (filters?.league && filters.league !== 'All') {
-        params.append('league', filters.league);
+        filteredPlayers = filteredPlayers.filter(player => player.league === filters.league);
       }
+      
       if (filters?.position && filters.position !== 'All Positions') {
-        params.append('position', filters.position);
+        filteredPlayers = filteredPlayers.filter(player => {
+          const playerPosition = player.profile?.playerProfile?.position || '';
+          return playerPosition.toLowerCase().includes(filters.position.toLowerCase());
+        });
       }
+      
       if (filters?.nationality && filters.nationality !== 'All') {
-        params.append('nationality', filters.nationality);
+        filteredPlayers = filteredPlayers.filter(player => {
+          const playerNationality = player.profile?.playerProfile?.nationality || '';
+          return playerNationality.toLowerCase().includes(filters.nationality.toLowerCase());
+        });
       }
       
-      const url = `/api/players?${params.toString()}`;
-      console.log('Fetching from:', url);
+      setPlayers(filteredPlayers);
+      setLoading(false);
       
-      const response = await fetch(url);
-      console.log('Response status:', response.status);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch player data: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log('Players loaded:', data.length);
-      
-      setPlayers(data || []);
-    } catch (err) {
-      console.error('Error fetching players:', err);
-      setError(err.message);
-    } finally {
+    } catch (error) {
+      console.error('Error fetching players:', error);
+      setError('Failed to load player data');
       setLoading(false);
     }
   };
@@ -688,6 +725,24 @@ const PlayerCards = ({ filters, onBack }) => {
       await fetchYoutubeVideos(playerName, clubName);
     }
   }, [youtubeVideos, fetchYoutubeVideos]);
+
+  const handleVideoClick = async (playerName, clubName) => {
+    try {
+      setVideoLoading(true);
+      
+      // For now, create a simple YouTube search URL
+      const searchQuery = `${playerName} ${clubName} highlights`;
+      const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`;
+      
+      // Open YouTube search in a new tab
+      window.open(youtubeSearchUrl, '_blank');
+      
+      setVideoLoading(false);
+    } catch (error) {
+      console.error('Error opening YouTube:', error);
+      setVideoLoading(false);
+    }
+  };
 
   if (loading) {
     return (
