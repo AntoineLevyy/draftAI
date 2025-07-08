@@ -1,0 +1,245 @@
+{
+  "total_players": 310,
+  "total_goals": 231,
+  "total_assists": 158,
+  "total_matches": 2529,
+  "total_minutes": 163999,
+  "avg_goals_per_player": 0.7451612903225806,
+  "avg_assists_per_player": 0.5096774193548387,
+  "top_scorers": [
+    {
+      "id": 92055,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 7,
+      "assists": 2,
+      "matches": 13
+    },
+    {
+      "id": 1317108,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 7,
+      "assists": 1,
+      "matches": 14
+    },
+    {
+      "id": 358597,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 6,
+      "assists": 2,
+      "matches": 11
+    },
+    {
+      "id": 358957,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 6,
+      "assists": 2,
+      "matches": 12
+    },
+    {
+      "id": 426894,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 6,
+      "assists": 1,
+      "matches": 13
+    },
+    {
+      "id": 469790,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 6,
+      "assists": 1,
+      "matches": 12
+    },
+    {
+      "id": 885079,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 6,
+      "assists": 1,
+      "matches": 13
+    },
+    {
+      "id": 1232582,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 6,
+      "assists": 2,
+      "matches": 13
+    },
+    {
+      "id": 638967,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 5,
+      "assists": 1,
+      "matches": 13
+    },
+    {
+      "id": 975649,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 5,
+      "assists": 0,
+      "matches": 11
+    }
+  ],
+  "top_assists": [
+    {
+      "id": 575779,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 1,
+      "assists": 4,
+      "matches": 12
+    },
+    {
+      "id": 636194,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 0,
+      "assists": 4,
+      "matches": 10
+    },
+    {
+      "id": 637397,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 0,
+      "assists": 4,
+      "matches": 9
+    },
+    {
+      "id": 724398,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 0,
+      "assists": 4,
+      "matches": 11
+    },
+    {
+      "id": 1243244,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 5,
+      "assists": 4,
+      "matches": 11
+    },
+    {
+      "id": 1245700,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 1,
+      "assists": 4,
+      "matches": 7
+    },
+    {
+      "id": 279064,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 1,
+      "assists": 3,
+      "matches": 13
+    },
+    {
+      "id": 387480,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 0,
+      "assists": 3,
+      "matches": 8
+    },
+    {
+      "id": 429454,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 1,
+      "assists": 3,
+      "matches": 7
+    },
+    {
+      "id": 589634,
+      "name": "Unknown",
+      "club": "Unknown",
+      "goals": 0,
+      "assists": 3,
+      "matches": 11
+    }
+  ],
+  "most_minutes": [
+    {
+      "id": 248109,
+      "name": "Unknown",
+      "club": "Unknown",
+      "minutes": 1260,
+      "matches": 14
+    },
+    {
+      "id": 488787,
+      "name": "Unknown",
+      "club": "Unknown",
+      "minutes": 1260,
+      "matches": 14
+    },
+    {
+      "id": 644926,
+      "name": "Unknown",
+      "club": "Unknown",
+      "minutes": 1260,
+      "matches": 14
+    },
+    {
+      "id": 1147673,
+      "name": "Unknown",
+      "club": "Unknown",
+      "minutes": 1260,
+      "matches": 14
+    },
+    {
+      "id": 226628,
+      "name": "Unknown",
+      "club": "Unknown",
+      "minutes": 1170,
+      "matches": 13
+    },
+    {
+      "id": 656433,
+      "name": "Unknown",
+      "club": "Unknown",
+      "minutes": 1170,
+      "matches": 13
+    },
+    {
+      "id": 680444,
+      "name": "Unknown",
+      "club": "Unknown",
+      "minutes": 1170,
+      "matches": 13
+    },
+    {
+      "id": 736654,
+      "name": "Unknown",
+      "club": "Unknown",
+      "minutes": 1170,
+      "matches": 13
+    },
+    {
+      "id": 748991,
+      "name": "Unknown",
+      "club": "Unknown",
+      "minutes": 1170,
+      "matches": 13
+    },
+    {
+      "id": 798496,
+      "name": "Unknown",
+      "club": "Unknown",
+      "minutes": 1170,
+      "matches": 13
+    }
+  ]
+}
