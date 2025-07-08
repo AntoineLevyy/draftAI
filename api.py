@@ -2,11 +2,34 @@ from flask import Flask, request, jsonify
 import json
 import os
 import requests
-from backend.college.youtube_highlights import search_youtube_videos
 from flask_cors import CORS
+
+# Try to import YouTube highlights, but handle import errors gracefully
+try:
+    from backend.college.youtube_highlights import search_youtube_videos
+    YOUTUBE_AVAILABLE = True
+except ImportError as e:
+    print(f"YouTube highlights import failed: {e}")
+    YOUTUBE_AVAILABLE = False
+    # Create a dummy function
+    def search_youtube_videos(player_name, club_name):
+        return []
 
 app = Flask(__name__)
 CORS(app)
+
+@app.route('/', methods=['GET'])
+def root():
+    """Root endpoint for testing"""
+    return jsonify({
+        'message': 'Draft AI API is running',
+        'youtube_available': YOUTUBE_AVAILABLE,
+        'endpoints': [
+            '/api/health',
+            '/api/players',
+            '/api/youtube-highlights'
+        ]
+    })
 
 # GitHub raw URLs for the player data
 USL_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/usl_league_one_players_api.json'
