@@ -8,120 +8,124 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# External data URLs (you can host these on GitHub, AWS S3, or any CDN)
+# GitHub raw URLs for the player data
 USL_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/usl_league_one_players_api.json'
 MLS_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/mls_next_pro_players_api.json'
 
+# Cache for loaded data
+_player_cache = {}
+
 def fetch_player_data():
-    """Fetch player data from external URLs"""
+    """Fetch player data from GitHub raw URLs"""
+    global _player_cache
+    
+    if _player_cache:
+        return _player_cache
+    
     players = []
     
     # Fetch USL League One players
     try:
-        response = requests.get(USL_DATA_URL, timeout=10)
+        print("Fetching USL data from GitHub...")
+        response = requests.get(USL_DATA_URL, timeout=30)
         if response.status_code == 200:
-            usl_players = response.json()
+            usl_data = response.json()
+            usl_players = usl_data.get('players', [])
             # Add league info to each player
             for player in usl_players:
                 player['league'] = 'USL League One'
             players.extend(usl_players)
             print(f"Loaded {len(usl_players)} USL players")
         else:
-            print(f"Failed to load USL data: {response.status_code}")
+            print(f"Failed to fetch USL data: {response.status_code}")
     except Exception as e:
-        print(f"Error loading USL data: {e}")
+        print(f"Error fetching USL data: {e}")
     
     # Fetch MLS Next Pro players
     try:
-        response = requests.get(MLS_DATA_URL, timeout=10)
+        print("Fetching MLS data from GitHub...")
+        response = requests.get(MLS_DATA_URL, timeout=30)
         if response.status_code == 200:
-            mls_players = response.json()
+            mls_data = response.json()
+            mls_players = mls_data.get('players', [])
             # Add league info to each player
             for player in mls_players:
                 player['league'] = 'MLS Next Pro'
             players.extend(mls_players)
             print(f"Loaded {len(mls_players)} MLS players")
         else:
-            print(f"Failed to load MLS data: {response.status_code}")
+            print(f"Failed to fetch MLS data: {response.status_code}")
     except Exception as e:
-        print(f"Error loading MLS data: {e}")
+        print(f"Error fetching MLS data: {e}")
     
+    _player_cache = players
     return players
 
-# Cache for player data (will be populated on first request)
-ALL_PLAYERS = None
-
-@app.route('/api/players')
+@app.route('/api/players', methods=['GET'])
 def get_players():
-    """Get filtered players based on query parameters"""
-    global ALL_PLAYERS
-    
-    # Load data on first request
-    if ALL_PLAYERS is None:
-        ALL_PLAYERS = fetch_player_data()
-    
-    league = request.args.get('league', None)
-    position = request.args.get('position', None)
-    nationality = request.args.get('nationality', None)
-    
-    def match(player):
-        # League filter
-        if league and league != 'All' and player.get('league') not in league:
-            return False
+    """Get filtered players"""
+    try:
+        # Get query parameters
+        league_filter = request.args.get('league')
+        position_filter = request.args.get('position')
+        nationality_filter = request.args.get('nationality')
         
-        # Position filter
-        if position and position != 'All Positions':
-            player_position = player.get('profile', {}).get('playerProfile', {}).get('position', '')
-            if position.lower() not in player_position.lower():
-                return False
+        # Fetch all players
+        players = fetch_player_data()
         
-        # Nationality filter
-        if nationality and nationality != 'All':
-            player_nationality = player.get('profile', {}).get('playerProfile', {}).get('nationality', '')
-            if nationality.lower() not in player_nationality.lower():
-                return False
+        # Apply filters
+        filtered_players = players
         
-        return True
-    
-    filtered = [p for p in ALL_PLAYERS if match(p)]
-    return jsonify(filtered)
+        if league_filter and league_filter != 'All':
+            filtered_players = [p for p in filtered_players if p.get('league') == league_filter]
+        
+        if position_filter and position_filter != 'All Positions':
+            filtered_players = [p for p in filtered_players if p.get('position') == position_filter]
+        
+        if nationality_filter and nationality_filter != 'All':
+            filtered_players = [p for p in filtered_players if p.get('nationality') == nationality_filter]
+        
+        return jsonify({
+            'players': filtered_players,
+            'total': len(filtered_players),
+            'filters_applied': {
+                'league': league_filter,
+                'position': position_filter,
+                'nationality': nationality_filter
+            }
+        })
+        
+    except Exception as e:
+        print(f"Error in get_players: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/youtube-highlights', methods=['GET'])
 def get_youtube_highlights():
-    """Get YouTube highlights for a specific player"""
+    """Get YouTube highlights for a player"""
     try:
         player_name = request.args.get('player_name')
         club_name = request.args.get('club_name')
         
-        if not player_name or not club_name:
-            return jsonify({'error': 'Player name and club name are required'}), 400
-        
-        # Get YouTube API key from environment
-        youtube_api_key = os.getenv('YOUTUBE_API_KEY')
-        if not youtube_api_key:
-            return jsonify({'error': 'YouTube API key not configured'}), 500
+        if not player_name:
+            return jsonify({'error': 'Player name is required'}), 400
         
         # Search for YouTube videos
-        videos = search_youtube_videos(player_name, club_name, youtube_api_key, max_results=5)
+        videos = search_youtube_videos(player_name, club_name)
         
         return jsonify({
-            'success': True,
-            'player_name': player_name,
-            'club_name': club_name,
             'videos': videos,
-            'total_videos': len(videos)
+            'player_name': player_name,
+            'club_name': club_name
         })
         
     except Exception as e:
+        print(f"Error in get_youtube_highlights: {e}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/health')
+@app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
-    global ALL_PLAYERS
-    if ALL_PLAYERS is None:
-        ALL_PLAYERS = fetch_player_data()
-    return jsonify({'status': 'healthy', 'total_players': len(ALL_PLAYERS) if ALL_PLAYERS else 0})
+    return jsonify({'status': 'healthy', 'message': 'API is running'})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001) 
+    app.run(debug=True, host='0.0.0.0', port=5001) 

@@ -19,5 +19,10 @@
       "src": "/(.*)",
       "dest": "/frontend/$1"
     }
-  ]
+  ],
+  "functions": {
+    "api.py": {
+      "excludeFiles": "{scraper_env,venv,env,__pycache__,*.pyc,*.pyo,*.pyd,*.db,*.sqlite3,*.log,*.csv,*.xlsx,*.ipynb,backend/pro/*.json,backend/pro/chunks,*.md,.DS_Store}/**"
+    }
+  }
 } 
