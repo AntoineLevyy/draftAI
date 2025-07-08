@@ -562,6 +562,8 @@ const PlayerCards = ({ filters, onBack }) => {
   const filteredAndSortedPlayers = useMemo(() => {
     console.log('Filtering players. Total players:', players.length);
     console.log('Filters:', filters);
+    console.log('Filter league value:', filters?.league);
+    console.log('Filter league type:', typeof filters?.league);
     console.log('Search term:', searchTerm);
     
     // Debug: Log first few players to see their structure
@@ -593,9 +595,14 @@ const PlayerCards = ({ filters, onBack }) => {
         
         // Filter by league (if not 'All')
         if (filters?.league && filters.league !== 'All') {
-          console.log(`Checking league for ${playerName}: player league "${player.league}" vs filter "${filters.league}"`);
-          if (player.league !== filters.league) {
-            console.log(`League mismatch for ${playerName}: "${player.league}" !== "${filters.league}"`);
+          const playerLeague = player.league?.trim() || '';
+          const filterLeague = filters.league?.trim() || '';
+          console.log(`Checking league for ${playerName}: player league "${playerLeague}" vs filter "${filterLeague}"`);
+          console.log(`Player league type: ${typeof player.league}, length: ${player.league?.length}`);
+          console.log(`Filter league type: ${typeof filters.league}, length: ${filters.league?.length}`);
+          console.log(`League comparison: "${playerLeague}" === "${filterLeague}"? ${playerLeague === filterLeague}`);
+          if (playerLeague !== filterLeague) {
+            console.log(`League mismatch for ${playerName}: "${playerLeague}" !== "${filterLeague}"`);
             return false;
           }
         }
