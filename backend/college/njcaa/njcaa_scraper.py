@@ -39,6 +39,7 @@ def fetch_njcaa_players():
             "playerStatus": p.get("playerStatus", {}),
             "eventCount": p.get("eventCount"),
             "lastUpdated": p.get("lastUpdated"),
+            "league": "NJCAA D1",
         }
         results.append(player)
     logger.info(f"Saving {len(results)} players to {OUTPUT_FILE}")

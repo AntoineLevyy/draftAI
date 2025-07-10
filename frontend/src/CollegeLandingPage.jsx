@@ -188,6 +188,7 @@ const graduationYears = [
 const collegeLeagues = [
   'All',
   'NJCAA D1',
+  'NJCAA D2',
   // Add more college leagues here as needed
 ];
 
