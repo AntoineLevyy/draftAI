@@ -134,6 +134,7 @@ const nationalities = [
 
 const leagues = [
   'All',
+  'USL Championship',
   'USL League One',
   'MLS Next Pro',
 ];

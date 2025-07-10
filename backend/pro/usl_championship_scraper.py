@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-USL League One Player Data Scraper using Transfermarkt API
+USL Championship Player Data Scraper using Transfermarkt API
 """
 
 import requests
@@ -9,11 +9,11 @@ import time
 from typing import Dict, List, Optional
 import os
 
-class USLAPIScraper:
+class USLChampionshipAPIScraper:
     def __init__(self):
         self.api_key = "3239a3729emsha33e79a3ad07beep1b4d22jsn57e37ca1df6f"
         self.host = "transfermarkt6.p.rapidapi.com"
-        self.competition_id = "USC3"  # USL League One
+        self.competition_id = "USL"  # USL Championship
         self.season_id = "2024"
         
     def _make_api_request(self, endpoint: str) -> Dict:
@@ -34,12 +34,12 @@ class USLAPIScraper:
             return {"status": False, "message": str(e)}
     
     def get_competition_info(self) -> Dict:
-        """Get USL League One competition information"""
+        """Get USL Championship competition information"""
         endpoint = f"/competitions/info?id={self.competition_id}"
         return self._make_api_request(endpoint)
     
     def get_clubs(self) -> List[Dict]:
-        """Get all clubs in USL League One"""
+        """Get all clubs in USL Championship"""
         endpoint = f"/competitions/clubs?id={self.competition_id}"
         response = self._make_api_request(endpoint)
         
@@ -73,7 +73,7 @@ class USLAPIScraper:
     
     def scrape_all_players(self, include_detailed_stats: bool = True, include_match_details: bool = False) -> List[Dict]:
         """
-        Scrape comprehensive data for all USL League One players
+        Scrape comprehensive data for all USL Championship players
         
         Args:
             include_detailed_stats: Whether to include detailed performance stats
@@ -82,7 +82,7 @@ class USLAPIScraper:
         Returns:
             List of player data dictionaries
         """
-        print("Starting USL League One player data collection...")
+        print("Starting USL Championship player data collection...")
         
         # Get competition info
         print("Getting competition information...")
@@ -121,7 +121,12 @@ class USLAPIScraper:
                 "performance": player_perf,
                 "profile": {},
                 "detailed_stats": {},
-                "match_details": []
+                "match_details": [],
+                "league": {
+                    "id": self.competition_id,
+                    "name": "USL Championship",
+                    "short_name": "USLC"
+                }
             }
             
             if profile_response.get("status") and "data" in profile_response:
@@ -146,11 +151,11 @@ class USLAPIScraper:
         
         return all_players
     
-    def save_data(self, players: List[Dict], filename: str = "usl_league_one_players_api.json"):
+    def save_data(self, players: List[Dict], filename: str = "usl_championship_players_api.json"):
         """Save player data to JSON file"""
         data = {
             "metadata": {
-                "competition": "USL League One",
+                "competition": "USL Championship",
                 "competition_id": self.competition_id,
                 "season": self.season_id,
                 "total_players": len(players),
@@ -226,7 +231,7 @@ class USLAPIScraper:
 
 def main():
     """Main function to run the scraper"""
-    scraper = USLAPIScraper()
+    scraper = USLChampionshipAPIScraper()
     
     # Get basic competition info first
     competition_info = scraper.get_competition_info()
@@ -270,9 +275,9 @@ def main():
             print(f"{i}. {player['name']} ({player['club']}) - {player['assists']} assists, {player['goals']} goals")
         
         # Save summary stats
-        with open("usl_league_one_summary_stats.json", 'w', encoding='utf-8') as f:
+        with open("usl_championship_summary_stats.json", 'w', encoding='utf-8') as f:
             json.dump(summary, f, indent=2, ensure_ascii=False)
-        print(f"\nSummary stats saved to usl_league_one_summary_stats.json")
+        print(f"\nSummary stats saved to usl_championship_summary_stats.json")
         
     else:
         print("No players found!")

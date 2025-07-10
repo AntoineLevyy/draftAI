@@ -468,23 +468,42 @@ const PlayerCards = ({ filters, onBack }) => {
       // Fetch data from GitHub raw URLs
       let allPlayers = [];
       
+      // Fetch USL Championship players
+      try {
+        const uslChampionshipResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/usl_championship_players_api.json');
+        console.log('USL Championship fetch status:', uslChampionshipResponse.status);
+        if (uslChampionshipResponse.ok) {
+          const uslChampionshipData = await uslChampionshipResponse.json();
+          console.log('USL Championship data:', uslChampionshipData);
+          const uslChampionshipPlayers = uslChampionshipData.players || [];
+          // Add league info to each player
+          uslChampionshipPlayers.forEach(player => {
+            player.league = 'USL Championship';
+          });
+          allPlayers = allPlayers.concat(uslChampionshipPlayers);
+          console.log(`Loaded ${uslChampionshipPlayers.length} USL Championship players`);
+        }
+      } catch (error) {
+        console.error('Error fetching USL Championship data:', error);
+      }
+      
       // Fetch USL League One players
       try {
         const uslResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/usl_league_one_players_api.json');
-        console.log('USL fetch status:', uslResponse.status);
+        console.log('USL League One fetch status:', uslResponse.status);
         if (uslResponse.ok) {
           const uslData = await uslResponse.json();
-          console.log('USL data:', uslData);
+          console.log('USL League One data:', uslData);
           const uslPlayers = uslData.players || [];
           // Add league info to each player
           uslPlayers.forEach(player => {
             player.league = 'USL League One';
           });
           allPlayers = allPlayers.concat(uslPlayers);
-          console.log(`Loaded ${uslPlayers.length} USL players`);
+          console.log(`Loaded ${uslPlayers.length} USL League One players`);
         }
       } catch (error) {
-        console.error('Error fetching USL data:', error);
+        console.error('Error fetching USL League One data:', error);
       }
       
       // Fetch MLS Next Pro players

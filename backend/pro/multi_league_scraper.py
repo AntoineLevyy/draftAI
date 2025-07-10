@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Multi-League Player Data Scraper using Transfermarkt API
-Supports USL League One and MLS Next Pro
+Supports USL Championship, USL League One, and MLS Next Pro
 """
 
 import requests
@@ -18,6 +18,12 @@ class MultiLeagueAPIScraper:
         
         # League configurations
         self.leagues = {
+            "USL Championship": {
+                "id": "USL",
+                "name": "USL Championship",
+                "short_name": "USLC"
+            },
+            
             "USL League One": {
                 "id": "USC3",
                 "name": "USL League One",
@@ -40,7 +46,7 @@ class MultiLeagueAPIScraper:
                 'x-rapidapi-host': self.host
             }
             
-            response = requests.get(url, headers=headers, timeout=30)
+            response = requests.get(url, headers=headers, timeout=60)
             response.raise_for_status()
             
             return response.json()
