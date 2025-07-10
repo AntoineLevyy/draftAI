@@ -216,49 +216,49 @@ body, html {
 }
 
 .card-body {
-  padding: 15px;
+  padding: 12px;
 }
 
 .player-name {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #333;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   text-align: center;
 }
 
 .club-name {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #666;
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-weight: 500;
 }
 
 .league-badge {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #4f8cff;
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   font-weight: 600;
   background: rgba(79, 140, 255, 0.1);
-  padding: 4px 8px;
-  border-radius: 8px;
+  padding: 3px 6px;
+  border-radius: 6px;
   display: inline-block;
-  margin: 0 auto 12px auto;
+  margin: 0 auto 8px auto;
 }
 
 .player-info {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 .info-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 0;
+  padding: 4px 0;
   border-bottom: 1px solid #eee;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .info-item:last-child {
@@ -277,20 +277,20 @@ body, html {
 }
 
 .performance-stats {
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 .stat-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 6px;
+  margin-bottom: 6px;
 }
 
 .stat-item-card {
   background: #f8f9fa;
-  padding: 8px 6px;
-  border-radius: 8px;
+  padding: 6px 4px;
+  border-radius: 6px;
   text-align: center;
   transition: all 0.3s ease;
 }
@@ -302,30 +302,30 @@ body, html {
 
 .stat-value {
   display: block;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: #667eea;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 .stat-label-card {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: #666;
   font-weight: 500;
 }
 
 .more-stats-section {
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 .more-stats-button {
   width: 100%;
-  padding: 10px;
+  padding: 8px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -382,17 +382,17 @@ body, html {
 }
 
 .footage-section {
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 .view-footage-button {
   width: 100%;
-  padding: 10px;
+  padding: 8px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;

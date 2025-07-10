@@ -2,29 +2,31 @@ import React, { useState } from 'react';
 
 const bgStyle = {
   minHeight: '100vh',
-  width: '100vw',
+  width: '100%',
   background: 'linear-gradient(120deg, #f8fafc 0%, #e0e7ff 40%, #c7d2fe 100%)',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
   padding: '0',
+  overflow: 'hidden',
 };
 
 const mainContainer = {
   maxWidth: 900,
   width: '100%',
-  margin: '24px 0',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  padding: '0 2rem',
+  padding: '2rem',
+  justifyContent: 'center',
+  flex: 1,
 };
 
 const headlineStyle = {
   fontWeight: 800,
-  fontSize: '2.5rem',
-  marginBottom: '3rem',
+  fontSize: '2rem',
+  marginBottom: '1.5rem',
   background: 'linear-gradient(90deg, #4f8cff, #6f6fff 60%, #38bdf8 100%)',
   WebkitBackgroundClip: 'text',
   color: 'transparent',
@@ -35,10 +37,10 @@ const headlineStyle = {
 const filtersRow = {
   display: 'flex',
   flexDirection: 'row',
-  gap: '2rem',
+  gap: '1.5rem',
   width: '100%',
   justifyContent: 'center',
-  marginBottom: '2.5rem',
+  marginBottom: '1.5rem',
   alignItems: 'flex-start',
 };
 
@@ -62,10 +64,10 @@ const labelStyle = {
 
 const selectStyle = {
   width: '100%',
-  padding: '0.875rem 1rem',
+  padding: '0.75rem 1rem',
   borderRadius: '12px',
   border: '2px solid rgba(79,140,255,0.2)',
-  fontSize: '1rem',
+  fontSize: '0.9rem',
   background: 'rgba(255,255,255,0.9)',
   boxShadow: '0 2px 8px rgba(79,140,255,0.08)',
   outline: 'none',
@@ -91,18 +93,18 @@ const selectStyleHover = {
 };
 
 const buttonStyle = {
-  padding: '1rem 2.5rem',
+  padding: '0.875rem 2rem',
   borderRadius: '2rem',
   border: 'none',
   background: 'linear-gradient(90deg, #4f8cff 0%, #6f6fff 100%)',
   color: 'white',
   fontWeight: 700,
-  fontSize: '1.1rem',
+  fontSize: '1rem',
   cursor: 'pointer',
   boxShadow: '0 4px 16px rgba(79,140,255,0.3)',
   transition: 'all 0.2s ease',
   outline: 'none',
-  marginTop: '1rem',
+  marginTop: '0.75rem',
   letterSpacing: '0.01em',
 };
 
@@ -113,18 +115,18 @@ const buttonStyleHover = {
 
 const positions = [
   'All Positions',
-  'Defensive Midfielder',
+  'Goalkeeper',
   'Center Back',
   'Left Back',
-  'Left Midfielder',
-  'Left Winger',
-  'Center Forward',
-  'Attacking Midfielder',
   'Right Back',
-  'Right Midfielder',
-  'Right Winger',
-  'Goalkeeper',
+  'Defensive Midfielder',
   'Central Midfielder',
+  'Left Midfielder',
+  'Right Midfielder',
+  'Attacking Midfielder',
+  'Left Winger',
+  'Right Winger',
+  'Center Forward',
 ];
 
 const nationalities = [
@@ -134,9 +136,9 @@ const nationalities = [
 
 const leagues = [
   'All',
-  'USL Championship',
-  'USL League One',
-  'MLS Next Pro',
+  'USL Championship (Tier 2 USA)',
+  'USL League One (Tier 3 USA)',
+  'MLS Next Pro (Tier 3 USA)',
 ];
 
 function LandingPage({ onApplyFilters }) {
@@ -153,7 +155,14 @@ function LandingPage({ onApplyFilters }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     // If 'All' is selected, pass all leagues except 'All'
-    const leagueToSend = selectedLeague === 'All' ? leagues.slice(1) : [selectedLeague];
+    let leagueToSend;
+    if (selectedLeague === 'All') {
+      // Extract base league names from display text
+      leagueToSend = leagues.slice(1).map(league => league.split(' (')[0]);
+    } else {
+      // Extract base league name from selected display text
+      leagueToSend = [selectedLeague.split(' (')[0]];
+    }
     onApplyFilters({ league: leagueToSend, position, nationality });
   };
 
@@ -243,6 +252,8 @@ function LandingPage({ onApplyFilters }) {
             </button>
           </div>
         </form>
+        
+
       </div>
     </div>
   );

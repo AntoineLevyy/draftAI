@@ -444,6 +444,11 @@ const PlayerCards = ({ filters, onBack }) => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [videoLoading, setVideoLoading] = useState(false);
+  
+  // Filter state
+  const [currentLeague, setCurrentLeague] = useState(filters?.league?.[0] || 'All');
+  const [currentPosition, setCurrentPosition] = useState(filters?.position || 'All Positions');
+  const [currentNationality, setCurrentNationality] = useState(filters?.nationality || 'All');
 
   const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
@@ -606,9 +611,7 @@ const PlayerCards = ({ filters, onBack }) => {
 
   const filteredAndSortedPlayers = useMemo(() => {
     console.log('Filtering players. Total players:', players.length);
-    console.log('Filters:', filters);
-    console.log('Filter league value:', filters?.league);
-    console.log('Filter league type:', typeof filters?.league);
+    console.log('Current filters - League:', currentLeague, 'Position:', currentPosition, 'Nationality:', currentNationality);
     console.log('Search term:', searchTerm);
     
     // Debug: Log first few players to see their structure
@@ -621,7 +624,7 @@ const PlayerCards = ({ filters, onBack }) => {
     
     let filteredCount = 0;
     
-    return players
+    const filteredPlayers = players
       .filter(player => {
         // Filter out players with missing or invalid names
         const playerName = player.profile?.playerProfile?.playerName;
@@ -635,9 +638,18 @@ const PlayerCards = ({ filters, onBack }) => {
           console.log(`Player ${filteredCount}: ${playerName} passed name filter`);
         }
         
+        // Filter by league
+        if (currentLeague && currentLeague !== 'All') {
+          console.log(`League filter: currentLeague="${currentLeague}", player.league="${player.league}"`);
+          if (player.league !== currentLeague) {
+            console.log(`League mismatch for ${playerName}: player.league="${player.league}" !== currentLeague="${currentLeague}"`);
+            return false;
+          }
+        }
+        
         // Filter by position (convert English position back to German for comparison)
-        if (filters?.position && filters.position !== 'All Positions') {
-          const germanPosition = reverseTranslatePosition(filters.position);
+        if (currentPosition && currentPosition !== 'All Positions') {
+          const germanPosition = reverseTranslatePosition(currentPosition);
           const playerPosition = player.profile?.playerProfile?.position || player.profile?.playerProfile?.playerMainPosition || '';
           console.log(`Checking position for ${playerName}: player position "${playerPosition}" vs filter "${germanPosition}"`);
           if (playerPosition !== germanPosition) {
@@ -646,14 +658,12 @@ const PlayerCards = ({ filters, onBack }) => {
           }
         }
         
-        // League filtering is handled in fetchPlayers, so we don't need to filter here
-        
         // Filter by nationality (if not 'All')
-        if (filters?.nationality && filters.nationality !== 'All') {
+        if (currentNationality && currentNationality !== 'All') {
           const playerNationality = translateNationality(player.profile?.playerProfile?.birthplaceCountry);
-          console.log(`Checking nationality for ${playerName}: player nationality "${playerNationality}" vs filter "${filters.nationality}"`);
-          if (playerNationality !== filters.nationality) {
-            console.log(`Nationality mismatch for ${playerName}: "${playerNationality}" !== "${filters.nationality}"`);
+          console.log(`Checking nationality for ${playerName}: player nationality "${playerNationality}" vs filter "${currentNationality}"`);
+          if (playerNationality !== currentNationality) {
+            console.log(`Nationality mismatch for ${playerName}: "${playerNationality}" !== "${currentNationality}"`);
             return false;
           }
         }
@@ -704,7 +714,9 @@ const PlayerCards = ({ filters, onBack }) => {
           return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
         }
       });
-  }, [players, searchTerm, sortBy, sortOrder, filters, reverseTranslatePosition, translateNationality]);
+    
+    return filteredPlayers;
+  }, [players, searchTerm, sortBy, sortOrder, currentLeague, currentPosition, currentNationality, reverseTranslatePosition, translateNationality]);
 
   const formatMinutes = useCallback((minutes) => {
     if (!minutes) return '0';
@@ -769,6 +781,8 @@ const PlayerCards = ({ filters, onBack }) => {
       }
     } catch (error) {
       console.error('Error fetching YouTube videos:', error);
+      // Set an empty array to prevent repeated failed requests
+      setYoutubeVideos(prev => ({ ...prev, [cacheKey]: [] }));
       return [];
     } finally {
       setLoadingVideos(prev => ({ ...prev, [cacheKey]: false }));
@@ -835,6 +849,137 @@ const PlayerCards = ({ filters, onBack }) => {
             {sortOrder === 'desc' ? '↓' : '↑'}
           </button>
         </div>
+      </div>
+      
+      {/* Filter Controls */}
+      <div style={{
+        display: 'flex',
+        gap: '2rem',
+        justifyContent: 'center',
+        margin: '2rem 0',
+        padding: '1.5rem',
+        background: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(10px)',
+        borderRadius: '12px',
+        border: '1px solid rgba(255, 255, 255, 0.2)'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+            League
+          </label>
+          <select
+            value={currentLeague}
+            onChange={(e) => setCurrentLeague(e.target.value)}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '8px',
+              border: '2px solid rgba(79,140,255,0.2)',
+              background: 'rgba(255,255,255,0.9)',
+              fontSize: '0.9rem',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="All">All Leagues</option>
+            <option value="USL Championship">USL Championship (Tier 2 USA)</option>
+            <option value="USL League One">USL League One (Tier 3 USA)</option>
+            <option value="MLS Next Pro">MLS Next Pro (Tier 3 USA)</option>
+          </select>
+        </div>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+            Position
+          </label>
+          <select
+            value={currentPosition}
+            onChange={(e) => setCurrentPosition(e.target.value)}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '8px',
+              border: '2px solid rgba(79,140,255,0.2)',
+              background: 'rgba(255,255,255,0.9)',
+              fontSize: '0.9rem',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="All Positions">All Positions</option>
+            <option value="Goalkeeper">Goalkeeper</option>
+            <option value="Center Back">Center Back</option>
+            <option value="Left Back">Left Back</option>
+            <option value="Right Back">Right Back</option>
+            <option value="Defensive Midfielder">Defensive Midfielder</option>
+            <option value="Central Midfielder">Central Midfielder</option>
+            <option value="Left Midfielder">Left Midfielder</option>
+            <option value="Right Midfielder">Right Midfielder</option>
+            <option value="Attacking Midfielder">Attacking Midfielder</option>
+            <option value="Left Winger">Left Winger</option>
+            <option value="Right Winger">Right Winger</option>
+            <option value="Center Forward">Center Forward</option>
+          </select>
+        </div>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+            Nationality
+          </label>
+          <select
+            value={currentNationality}
+            onChange={(e) => setCurrentNationality(e.target.value)}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '8px',
+              border: '2px solid rgba(79,140,255,0.2)',
+              background: 'rgba(255,255,255,0.9)',
+              fontSize: '0.9rem',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="All">All</option>
+            <option value="United States">United States</option>
+            <option value="Canada">Canada</option>
+            <option value="Mexico">Mexico</option>
+            <option value="Brazil">Brazil</option>
+            <option value="Argentina">Argentina</option>
+            <option value="England">England</option>
+            <option value="France">France</option>
+            <option value="Germany">Germany</option>
+            <option value="Spain">Spain</option>
+            <option value="Italy">Italy</option>
+            <option value="Netherlands">Netherlands</option>
+            <option value="Japan">Japan</option>
+            <option value="Nigeria">Nigeria</option>
+            <option value="Ghana">Ghana</option>
+            <option value="Senegal">Senegal</option>
+            <option value="Cameroon">Cameroon</option>
+            <option value="Colombia">Colombia</option>
+            <option value="Chile">Chile</option>
+            <option value="Venezuela">Venezuela</option>
+            <option value="Honduras">Honduras</option>
+            <option value="Guatemala">Guatemala</option>
+            <option value="Panama">Panama</option>
+            <option value="Jamaica">Jamaica</option>
+            <option value="Trinidad and Tobago">Trinidad and Tobago</option>
+            <option value="Haiti">Haiti</option>
+            <option value="Puerto Rico">Puerto Rico</option>
+            <option value="Barbados">Barbados</option>
+            <option value="Scotland">Scotland</option>
+            <option value="Ireland">Ireland</option>
+            <option value="Norway">Norway</option>
+            <option value="Austria">Austria</option>
+          </select>
+        </div>
+      </div>
+      <div style={{
+        textAlign: 'center',
+        margin: '2rem 0',
+        fontWeight: 900,
+        fontSize: '1.5rem',
+        letterSpacing: '-1px',
+        background: 'linear-gradient(90deg, #4f8cff, #6f6fff 60%, #38bdf8 100%)',
+        WebkitBackgroundClip: 'text',
+        color: 'transparent'
+      }}>
+        We found {filteredAndSortedPlayers.length} players for you
       </div>
       <div className="player-cards-grid">
         {filteredAndSortedPlayers.map(player => (
@@ -916,7 +1061,12 @@ const PlayerCards = ({ filters, onBack }) => {
                   })}
                 </div>
               ) : (
-                <div className="no-videos">No highlight videos found for this player.</div>
+                <div className="no-videos">
+                  <p>No highlight videos found for this player.</p>
+                  <p style={{ fontSize: '0.9rem', color: '#666', marginTop: '10px' }}>
+                    This feature requires the backend API to be running. Please ensure the server is started.
+                  </p>
+                </div>
               )}
             </div>
           </div>

@@ -27,6 +27,8 @@ const headerInner = {
   padding: '0 2rem',
 };
 
+
+
 const logoStyle = {
   fontWeight: 900,
   fontSize: '1.5rem',
@@ -109,6 +111,7 @@ function App() {
           >
             Draft AI
           </a>
+
           <div></div>
         </div>
       </header>
