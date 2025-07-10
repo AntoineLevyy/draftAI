@@ -136,6 +136,14 @@ def fetch_player_data():
             for player in njcaa_players:
                 # Extract stats from the stats object
                 stats = player.get('stats', {})
+                
+                # Clean up height and weight data - handle encoding issues
+                raw_height = player.get('dataMap', {}).get('height', '')
+                clean_height = raw_height.replace('Ã', '').strip() if raw_height else ''
+                
+                raw_weight = player.get('dataMap', {}).get('weight', '')
+                clean_weight = raw_weight.replace('Ã', '').strip() if raw_weight else ''
+                
                 transformed_player = {
                     'name': player.get('fullName', f"{player.get('firstName', '')} {player.get('lastName', '')}"),
                     'position': player.get('position', ''),
@@ -152,8 +160,8 @@ def fetch_player_data():
                     'game_winning_goals': int(stats.get('gw', 0)),
                     'nationality': 'USA',  # Default for college players
                     'age': 0,  # Not available in NJCAA data
-                    'height': player.get('dataMap', {}).get('height', ''),
-                    'weight': player.get('dataMap', {}).get('weight', ''),
+                    'height': clean_height,
+                    'weight': clean_weight,
                     'year': player.get('year', ''),
                     'region': player.get('region', ''),
                     'uniform': player.get('uniform', ''),

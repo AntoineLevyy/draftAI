@@ -50,18 +50,31 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
   const playerName = player.name || player.profile?.playerProfile?.playerName || 'Unknown Player';
   const position = translatePosition(player.position || player.profile?.playerProfile?.position || player.profile?.playerProfile?.playerMainPosition || 'Unknown');
   const teamName = player.team || player.profile?.playerProfile?.club || player.club?.name || 'Unknown Team';
-  const nationality = translateNationality(player.nationality || player.profile?.playerProfile?.birthplaceCountry || 'Unknown');
-  const age = player.age || player.profile?.playerProfile?.age || 'Unknown';
-  const height = player.height || player.profile?.playerProfile?.height || 'Unknown';
-  const weight = player.weight || player.profile?.playerProfile?.weight || 'Unknown';
+  const nationality = translateNationality(player.nationality || player.profile?.playerProfile?.birthplaceCountry || 'USA');
   
-  // College-specific fields
-  const academicLevel = player.league || player.profile?.playerProfile?.academicLevel || 'Unknown';
-  const region = player.region || player.profile?.playerProfile?.region || 'Unknown';
-  const graduationYear = player.year || player.profile?.playerProfile?.graduationYear || 'Unknown';
-  const gpa = player.gpa || player.profile?.playerProfile?.gpa || 'Unknown';
-  const satScore = player.satScore || player.profile?.playerProfile?.satScore || 'Unknown';
-  const actScore = player.actScore || player.profile?.playerProfile?.actScore || 'Unknown';
+  // Clean up height and weight data - handle encoding issues
+  const cleanHeight = (player.height || player.profile?.playerProfile?.height || '')
+    .replace(/Ã.*/g, '') // Remove encoding artifacts
+    .trim();
+  const height = cleanHeight || 'N/A';
+  
+  const cleanWeight = (player.weight || player.profile?.playerProfile?.weight || '')
+    .replace(/Ã.*/g, '') // Remove encoding artifacts
+    .trim();
+  const weight = cleanWeight || 'N/A';
+  
+  // College-specific fields - remove tier from league name
+  const academicLevel = (player.league || player.profile?.playerProfile?.academicLevel || 'Unknown')
+    .replace(' (Tier 2 USA)', '')
+    .replace(' (Tier 1 USA)', '')
+    .replace(' (Tier 3 USA)', '');
+  
+  // Fix region mapping - use actual region data, not age
+  const region = player.region || player.profile?.playerProfile?.region || 'N/A';
+  const graduationYear = player.year || player.profile?.playerProfile?.graduationYear || 'N/A';
+  const gpa = player.gpa || player.profile?.playerProfile?.gpa || 'N/A';
+  const satScore = player.satScore || player.profile?.playerProfile?.satScore || 'N/A';
+  const actScore = player.actScore || player.profile?.playerProfile?.actScore || 'N/A';
 
   const goals = player.goals || player.performance?.goals || 0;
   const assists = player.assists || player.performance?.assists || 0;
@@ -83,7 +96,7 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
             alt={playerName}
             className="player-image"
             onError={(e) => {
-              e.target.src = 'https://via.placeholder.com/150x150?text=Player';
+              e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iNDgiIGZpbGw9IiM0ZjhjZmYiLz4KPHN2ZyB4PSIyNCIgeT0iMjQiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xMiAyQzEzLjEgMiAxNCAyLjkgMTQgNFY2QzE0IDcuMSAxMy4xIDggMTIgOEMxMC45IDggMTAgNy4xIDEwIDZWNEMxMCAyLjkgMTAuOSAyIDEyIDJaIi8+CjxwYXRoIGQ9Ik0xOCA4QzE5LjEgOCAyMCA4LjkgMjAgMTBWMTRDMjAgMTUuMSAxOS4xIDE2IDE4IDE2SDE2QzE0LjkgMTYgMTQgMTUuMSAxNCAxNFYxMEMxNCA4LjkgMTQuOSA4IDE2IDhIMThaIi8+CjxwYXRoIGQ9Ik04IDhDOS4xIDggMTAgOC45IDEwIDEwVjE0QzEwIDE1LjEgOS4xIDE2IDggMTZINkM0LjkgMTYgNCAxNS4xIDQgMTRWMTBDNCA4LjkgNC45IDggNiA4SDhaIi8+Cjwvc3ZnPgo8L3N2Zz4K';
             }}
           />
         </div>
@@ -93,7 +106,7 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
             alt={teamName}
             className="club-image"
             onError={(e) => {
-              e.target.src = 'https://via.placeholder.com/50x50?text=Team';
+              e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjQiIGZpbGw9IiM2ZjZmZmYiLz4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjAiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNCA0QzI2LjIgNCAyOCA1LjggMjggOFYxNkMyOCAxOC4yIDI2LjIgMjAgMjQgMjBDMjEuOCAyMCAyMCAxOC4yIDIwIDE2VjhDMjAgNS44IDIxLjggNCAyNCA0WiIgZmlsbD0iIzZmNmZmZiIvPgo8L3N2Zz4K';
             }}
           />
         </div>
@@ -117,11 +130,11 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
           </div>
           <div className="info-item">
             <span className="info-label">Height:</span>
-            <span className="info-value">{height}</span>
+            <span className="info-value">{height && height !== 'Unknown' ? height : 'N/A'}</span>
           </div>
           <div className="info-item">
             <span className="info-label">Weight:</span>
-            <span className="info-value">{weight}</span>
+            <span className="info-value">{weight && weight !== 'Unknown' ? weight : 'N/A'}</span>
           </div>
           <div className="info-item">
             <span className="info-label">Year:</span>
@@ -229,15 +242,17 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
           )}
         </div>
 
-        <button 
-          className="view-footage-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleViewFootage(player);
-          }}
-        >
-          View Highlights
-        </button>
+        <div className="footage-section">
+          <button 
+            className="view-footage-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewFootage(player);
+            }}
+          >
+            🎥 View Footage
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -257,8 +272,9 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [videoLoading, setVideoLoading] = useState(false);
   
-  // Use filters passed from landing page
-  const currentFilters = filters || {};
+  // Use filters passed from landing page, with local state for adjustments
+  const [localFilters, setLocalFilters] = useState(filters || {});
+  const currentFilters = localFilters;
 
   const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
@@ -274,7 +290,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
 
   useEffect(() => {
     fetchPlayers();
-  }, [filters?.league, filters?.position, filters?.region, filters?.graduationYear]);
+  }, [localFilters.league, localFilters.position, localFilters.region, localFilters.academicLevel]);
 
   const fetchPlayers = async () => {
     try {
@@ -451,15 +467,13 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   }, []);
 
   const getPlayerImage = useCallback((player) => {
-    return player.profile?.playerProfile?.playerImage || 
-           player.club?.image || 
-           'https://via.placeholder.com/150x150?text=Player';
+    // For college players, use a simple data URI
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iNDgiIGZpbGw9IiM0ZjhjZmYiLz4KPHN2ZyB4PSIyNCIgeT0iMjQiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xMiAyQzEzLjEgMiAxNCAyLjkgMTQgNFY2QzE0IDcuMSAxMy4xIDggMTIgOEMxMC45IDggMTAgNy4xIDEwIDZWNEMxMCAyLjkgMTAuOSAyIDEyIDJaIi8+CjxwYXRoIGQ9Ik0xOCA4QzE5LjEgOCAyMCA4LjkgMjAgMTBWMTRDMjAgMTUuMSAxOS4xIDE2IDE4IDE2SDE2QzE0LjkgMTYgMTQgMTUuMSAxNCAxNFYxMEMxNCA4LjkgMTQuOSA4IDE2IDhIMThaIi8+CjxwYXRoIGQ9Ik04IDhDOS4xIDggMTAgOC45IDEwIDEwVjE0QzEwIDE1LjEgOS4xIDE2IDggMTZINkM0LjkgMTYgNCAxNS4xIDQgMTRWMTBDNCA4LjkgNC45IDggNiA4SDhaIi8+Cjwvc3ZnPgo8L3N2Zz4K';
   }, []);
 
   const getClubImage = useCallback((player) => {
-    return player.profile?.playerProfile?.clubImage || 
-           player.club?.image || 
-           'https://via.placeholder.com/50x50?text=Club';
+    // For college teams, use a simple data URI
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjQiIGZpbGw9IiM2ZjZmZmYiLz4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjAiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNCA0QzI2LjIgNCAyOCA1LjggMjggOFYxNkMyOCAxOC4yIDI2LjIgMjAgMjQgMjBDMjEuOCAyMCAyMCAxOC4yIDIwIDE2VjhDMjAgNS44IDIxLjggNCAyNCA0WiIgZmlsbD0iIzZmNmZmZiIvPgo8L3N2Zz4K';
   }, []);
 
   const isValidPlayer = useCallback((player) => {
@@ -514,11 +528,12 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   }, [youtubeVideos]);
 
   const handleViewFootage = useCallback(async (player) => {
-    const playerName = player.profile?.playerProfile?.playerName;
-    const clubName = player.profile?.playerProfile?.club;
+    // Support both NJCAA data structure and legacy structure
+    const playerName = player.name || player.profile?.playerProfile?.playerName;
+    const teamName = player.team || player.profile?.playerProfile?.club || player.club?.name;
     
-    if (!playerName || !clubName) {
-      alert('Player name or club information is missing');
+    if (!playerName || !teamName || playerName === 'Unknown Player' || teamName === 'Unknown Team') {
+      alert('Player name or team information is missing');
       return;
     }
     
@@ -526,9 +541,9 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     setShowVideoModal(true);
     
     // Fetch videos if we don't have them already
-    const cacheKey = `${playerName}-${clubName}`;
+    const cacheKey = `${playerName}-${teamName}`;
     if (!youtubeVideos[cacheKey]) {
-      await fetchYoutubeVideos(playerName, clubName);
+      await fetchYoutubeVideos(playerName, teamName);
     }
   }, [youtubeVideos, fetchYoutubeVideos]);
 
@@ -576,62 +591,121 @@ const CollegePlayerCards = ({ filters, onBack }) => {
         </div>
       </div>
       
-      {/* Filter Summary */}
+      {/* Filter Controls */}
       <div style={{
         display: 'flex',
+        gap: '2rem',
         justifyContent: 'center',
         margin: '2rem 0',
-        padding: '1rem',
+        padding: '1.5rem',
         background: 'rgba(255, 255, 255, 0.1)',
         backdropFilter: 'blur(10px)',
         borderRadius: '12px',
         border: '1px solid rgba(255, 255, 255, 0.2)'
       }}>
-        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {currentFilters.position && currentFilters.position !== 'All Positions' && (
-            <span style={{ 
-              padding: '0.5rem 1rem', 
-              background: 'rgba(79,140,255,0.2)', 
-              borderRadius: '20px', 
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+            Position
+          </label>
+          <select
+            value={currentFilters.position || 'All Positions'}
+            onChange={(e) => setLocalFilters(prev => ({ ...prev, position: e.target.value }))}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '8px',
+              border: '2px solid rgba(79,140,255,0.2)',
+              background: 'rgba(255,255,255,0.9)',
               fontSize: '0.9rem',
-              color: '#374151'
-            }}>
-              Position: {currentFilters.position}
-            </span>
-          )}
-          {currentFilters.league && currentFilters.league !== 'All' && (
-            <span style={{ 
-              padding: '0.5rem 1rem', 
-              background: 'rgba(79,140,255,0.2)', 
-              borderRadius: '20px', 
+              cursor: 'pointer'
+            }}
+          >
+            <option value="All Positions">All Positions</option>
+            <option value="Goalkeeper">Goalkeeper</option>
+            <option value="Center Back">Center Back</option>
+            <option value="Left Back">Left Back</option>
+            <option value="Right Back">Right Back</option>
+            <option value="Defensive Midfielder">Defensive Midfielder</option>
+            <option value="Central Midfielder">Central Midfielder</option>
+            <option value="Left Midfielder">Left Midfielder</option>
+            <option value="Right Midfielder">Right Midfielder</option>
+            <option value="Attacking Midfielder">Attacking Midfielder</option>
+            <option value="Left Winger">Left Winger</option>
+            <option value="Right Winger">Right Winger</option>
+            <option value="Center Forward">Center Forward</option>
+          </select>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+            League
+          </label>
+          <select
+            value={currentFilters.league || 'All'}
+            onChange={(e) => setLocalFilters(prev => ({ ...prev, league: e.target.value }))}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '8px',
+              border: '2px solid rgba(79,140,255,0.2)',
+              background: 'rgba(255,255,255,0.9)',
               fontSize: '0.9rem',
-              color: '#374151'
-            }}>
-              League: {currentFilters.league}
-            </span>
-          )}
-          {currentFilters.academicLevel && currentFilters.academicLevel !== 'All Academic Levels' && (
-            <span style={{ 
-              padding: '0.5rem 1rem', 
-              background: 'rgba(79,140,255,0.2)', 
-              borderRadius: '20px', 
+              cursor: 'pointer'
+            }}
+          >
+            <option value="All">All</option>
+            <option value="NJCAA D1">NJCAA D1</option>
+          </select>
+        </div>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+            Academic Level
+          </label>
+          <select
+            value={currentFilters.academicLevel || 'All Academic Levels'}
+            onChange={(e) => setLocalFilters(prev => ({ ...prev, academicLevel: e.target.value }))}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '8px',
+              border: '2px solid rgba(79,140,255,0.2)',
+              background: 'rgba(255,255,255,0.9)',
               fontSize: '0.9rem',
-              color: '#374151'
-            }}>
-              Year: {currentFilters.academicLevel}
-            </span>
-          )}
-          {currentFilters.region && currentFilters.region !== 'All Regions' && (
-            <span style={{ 
-              padding: '0.5rem 1rem', 
-              background: 'rgba(79,140,255,0.2)', 
-              borderRadius: '20px', 
+              cursor: 'pointer'
+            }}
+          >
+            <option value="All Academic Levels">All Academic Levels</option>
+            <option value="Freshman">Freshman</option>
+            <option value="Sophomore">Sophomore</option>
+            <option value="Junior">Junior</option>
+            <option value="Senior">Senior</option>
+            <option value="Graduate Student">Graduate Student</option>
+            <option value="Transfer Student">Transfer Student</option>
+          </select>
+        </div>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+            Region
+          </label>
+          <select
+            value={currentFilters.region || 'All Regions'}
+            onChange={(e) => setLocalFilters(prev => ({ ...prev, region: e.target.value }))}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '8px',
+              border: '2px solid rgba(79,140,255,0.2)',
+              background: 'rgba(255,255,255,0.9)',
               fontSize: '0.9rem',
-              color: '#374151'
-            }}>
-              Region: {currentFilters.region}
-            </span>
-          )}
+              cursor: 'pointer'
+            }}
+          >
+            <option value="All Regions">All Regions</option>
+            <option value="Northeast">Northeast</option>
+            <option value="Southeast">Southeast</option>
+            <option value="Midwest">Midwest</option>
+            <option value="Southwest">Southwest</option>
+            <option value="West Coast">West Coast</option>
+            <option value="International">International</option>
+          </select>
         </div>
       </div>
       
