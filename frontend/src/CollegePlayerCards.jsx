@@ -257,11 +257,8 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [videoLoading, setVideoLoading] = useState(false);
   
-  // Filter state
-  const [currentAcademicLevel, setCurrentAcademicLevel] = useState(filters?.academicLevel || 'All Levels');
-  const [currentPosition, setCurrentPosition] = useState(filters?.position || 'All Positions');
-  const [currentRegion, setCurrentRegion] = useState(filters?.region || 'All Regions');
-  const [currentGraduationYear, setCurrentGraduationYear] = useState(filters?.graduationYear || 'All Years');
+  // Use filters passed from landing page
+  const currentFilters = filters || {};
 
   const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
@@ -277,7 +274,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
 
   useEffect(() => {
     fetchPlayers();
-  }, [filters?.academicLevel, filters?.position, filters?.region, filters?.graduationYear]);
+  }, [filters?.league, filters?.position, filters?.region, filters?.graduationYear]);
 
   const fetchPlayers = async () => {
     try {
@@ -285,20 +282,23 @@ const CollegePlayerCards = ({ filters, onBack }) => {
       setError(null);
       let query = [];
       
-      // Map academic level to league filter
-      if (filters?.academicLevel && filters.academicLevel !== 'All Academic Levels') {
-        if (filters.academicLevel === 'NJCAA D1') {
+      // Map league filter to backend league name
+      if (filters?.league && filters.league !== 'All') {
+        if (filters.league === 'NJCAA D1') {
           query.push(`league=${encodeURIComponent('NJCAA D1 (Tier 2 USA)')}`);
         }
-        // Add more academic level mappings as needed
+        // Add more league mappings as needed
+      } else {
+        // If no specific league is selected, only fetch college players
+        // This prevents pro players from showing up in the college section
+        query.push(`league=${encodeURIComponent('NJCAA D1 (Tier 2 USA)')}`);
       }
       
       if (filters?.position && filters.position !== 'All Positions') {
         query.push(`position=${encodeURIComponent(filters.position)}`);
       }
       
-      // For now, fetch all college players and filter client-side for region/graduation year
-      // since these aren't in the backend API yet
+      // Fetch college players with the appropriate filters
       const url = `${apiBaseUrl}/api/players${query.length ? '?' + query.join('&') : ''}`;
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch players');
@@ -349,7 +349,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
 
   const filteredAndSortedPlayers = useMemo(() => {
     console.log('Filtering college players. Total players:', players.length);
-    console.log('Current filters - Academic Level:', currentAcademicLevel, 'Position:', currentPosition, 'Region:', currentRegion, 'Graduation Year:', currentGraduationYear);
+    console.log('Current filters:', currentFilters);
     console.log('Search term:', searchTerm);
     
     const filteredPlayers = players
@@ -360,34 +360,34 @@ const CollegePlayerCards = ({ filters, onBack }) => {
           return false;
         }
         
-        // Filter by academic level (for NJCAA, this maps to league)
-        if (currentAcademicLevel && currentAcademicLevel !== 'All Academic Levels') {
+        // Filter by league
+        if (currentFilters.league && currentFilters.league !== 'All') {
           const playerLeague = player.league || '';
-          if (currentAcademicLevel === 'NJCAA D1' && playerLeague !== 'NJCAA D1 (Tier 2 USA)') {
+          if (currentFilters.league === 'NJCAA D1' && playerLeague !== 'NJCAA D1 (Tier 2 USA)') {
             return false;
           }
         }
         
         // Filter by position
-        if (currentPosition && currentPosition !== 'All Positions') {
+        if (currentFilters.position && currentFilters.position !== 'All Positions') {
           const playerPosition = player.position || player.profile?.playerProfile?.position || '';
-          if (playerPosition !== currentPosition) {
+          if (playerPosition !== currentFilters.position) {
+            return false;
+          }
+        }
+        
+        // Filter by academic level (college year)
+        if (currentFilters.academicLevel && currentFilters.academicLevel !== 'All Academic Levels') {
+          const playerYear = player.year || player.profile?.playerProfile?.graduationYear || '';
+          if (playerYear !== currentFilters.academicLevel) {
             return false;
           }
         }
         
         // Filter by region
-        if (currentRegion && currentRegion !== 'All Regions') {
+        if (currentFilters.region && currentFilters.region !== 'All Regions') {
           const playerRegion = player.region || player.profile?.playerProfile?.region || '';
-          if (playerRegion && !playerRegion.includes(currentRegion)) {
-            return false;
-          }
-        }
-        
-        // Filter by graduation year
-        if (currentGraduationYear && currentGraduationYear !== 'All Graduation Years') {
-          const playerYear = player.year || player.profile?.playerProfile?.graduationYear || '';
-          if (playerYear !== currentGraduationYear) {
+          if (playerRegion && !playerRegion.includes(currentFilters.region)) {
             return false;
           }
         }
@@ -443,7 +443,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
       });
     
     return filteredPlayers;
-  }, [players, searchTerm, sortBy, sortOrder, currentAcademicLevel, currentPosition, currentRegion, currentGraduationYear]);
+  }, [players, searchTerm, sortBy, sortOrder, currentFilters]);
 
   const formatMinutes = useCallback((minutes) => {
     if (!minutes) return '0';
@@ -576,128 +576,62 @@ const CollegePlayerCards = ({ filters, onBack }) => {
         </div>
       </div>
       
-      {/* Filter Controls */}
+      {/* Filter Summary */}
       <div style={{
         display: 'flex',
-        gap: '2rem',
         justifyContent: 'center',
         margin: '2rem 0',
-        padding: '1.5rem',
+        padding: '1rem',
         background: 'rgba(255, 255, 255, 0.1)',
         backdropFilter: 'blur(10px)',
         borderRadius: '12px',
         border: '1px solid rgba(255, 255, 255, 0.2)'
       }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
-            Academic Level
-          </label>
-          <select
-            value={currentAcademicLevel}
-            onChange={(e) => setCurrentAcademicLevel(e.target.value)}
-            style={{
-              padding: '0.5rem',
-              borderRadius: '8px',
-              border: '2px solid rgba(79,140,255,0.2)',
-              background: 'rgba(255,255,255,0.9)',
+        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {currentFilters.position && currentFilters.position !== 'All Positions' && (
+            <span style={{ 
+              padding: '0.5rem 1rem', 
+              background: 'rgba(79,140,255,0.2)', 
+              borderRadius: '20px', 
               fontSize: '0.9rem',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="All Levels">All Levels</option>
-            <option value="NCAA D1">NCAA D1</option>
-            <option value="NCAA D2">NCAA D2</option>
-            <option value="NCAA D3">NCAA D3</option>
-            <option value="NJCAA D1">NJCAA D1</option>
-            <option value="NJCAA D2">NJCAA D2</option>
-            <option value="NJCAA D3">NJCAA D3</option>
-            <option value="NAIA">NAIA</option>
-          </select>
-        </div>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
-            Position
-          </label>
-          <select
-            value={currentPosition}
-            onChange={(e) => setCurrentPosition(e.target.value)}
-            style={{
-              padding: '0.5rem',
-              borderRadius: '8px',
-              border: '2px solid rgba(79,140,255,0.2)',
-              background: 'rgba(255,255,255,0.9)',
+              color: '#374151'
+            }}>
+              Position: {currentFilters.position}
+            </span>
+          )}
+          {currentFilters.league && currentFilters.league !== 'All' && (
+            <span style={{ 
+              padding: '0.5rem 1rem', 
+              background: 'rgba(79,140,255,0.2)', 
+              borderRadius: '20px', 
               fontSize: '0.9rem',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="All Positions">All Positions</option>
-            <option value="Goalkeeper">Goalkeeper</option>
-            <option value="Center Back">Center Back</option>
-            <option value="Left Back">Left Back</option>
-            <option value="Right Back">Right Back</option>
-            <option value="Defensive Midfielder">Defensive Midfielder</option>
-            <option value="Central Midfielder">Central Midfielder</option>
-            <option value="Left Midfielder">Left Midfielder</option>
-            <option value="Right Midfielder">Right Midfielder</option>
-            <option value="Attacking Midfielder">Attacking Midfielder</option>
-            <option value="Left Winger">Left Winger</option>
-            <option value="Right Winger">Right Winger</option>
-            <option value="Center Forward">Center Forward</option>
-          </select>
-        </div>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
-            Region
-          </label>
-          <select
-            value={currentRegion}
-            onChange={(e) => setCurrentRegion(e.target.value)}
-            style={{
-              padding: '0.5rem',
-              borderRadius: '8px',
-              border: '2px solid rgba(79,140,255,0.2)',
-              background: 'rgba(255,255,255,0.9)',
+              color: '#374151'
+            }}>
+              League: {currentFilters.league}
+            </span>
+          )}
+          {currentFilters.academicLevel && currentFilters.academicLevel !== 'All Academic Levels' && (
+            <span style={{ 
+              padding: '0.5rem 1rem', 
+              background: 'rgba(79,140,255,0.2)', 
+              borderRadius: '20px', 
               fontSize: '0.9rem',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="All Regions">All Regions</option>
-            <option value="Northeast">Northeast</option>
-            <option value="Southeast">Southeast</option>
-            <option value="Midwest">Midwest</option>
-            <option value="Southwest">Southwest</option>
-            <option value="West">West</option>
-            <option value="Northwest">Northwest</option>
-          </select>
-        </div>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
-            Graduation Year
-          </label>
-          <select
-            value={currentGraduationYear}
-            onChange={(e) => setCurrentGraduationYear(e.target.value)}
-            style={{
-              padding: '0.5rem',
-              borderRadius: '8px',
-              border: '2px solid rgba(79,140,255,0.2)',
-              background: 'rgba(255,255,255,0.9)',
+              color: '#374151'
+            }}>
+              Year: {currentFilters.academicLevel}
+            </span>
+          )}
+          {currentFilters.region && currentFilters.region !== 'All Regions' && (
+            <span style={{ 
+              padding: '0.5rem 1rem', 
+              background: 'rgba(79,140,255,0.2)', 
+              borderRadius: '20px', 
               fontSize: '0.9rem',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="All Years">All Years</option>
-            <option value="2024">2024</option>
-            <option value="2025">2025</option>
-            <option value="2026">2026</option>
-            <option value="2027">2027</option>
-            <option value="2028">2028</option>
-            <option value="2029">2029</option>
-            <option value="2030">2030</option>
-          </select>
+              color: '#374151'
+            }}>
+              Region: {currentFilters.region}
+            </span>
+          )}
         </div>
       </div>
       

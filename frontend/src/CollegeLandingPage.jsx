@@ -157,12 +157,11 @@ const positions = [
 
 const academicLevels = [
   'All Academic Levels',
-  'High School Freshman',
-  'High School Sophomore',
-  'High School Junior',
-  'High School Senior',
-  'Community College',
-  'NJCAA D1',
+  'Freshman',
+  'Sophomore',
+  'Junior',
+  'Senior',
+  'Graduate Student',
   'Transfer Student',
 ];
 
@@ -188,7 +187,7 @@ const graduationYears = [
 
 const collegeLeagues = [
   'All',
-  'NJCAA D1 (Tier 2 USA)',
+  'NJCAA D1',
   // Add more college leagues here as needed
 ];
 
@@ -260,6 +259,24 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
                 ))}
               </select>
             </div>
+
+            {/* League Filter */}
+            <div style={filterGroup}>
+              <label style={labelStyle}>League</label>
+              <select
+                style={getSelectStyle('league')}
+                value={selectedLeague}
+                onChange={e => setSelectedLeague(e.target.value)}
+                onFocus={() => setActiveSelect('league')}
+                onBlur={() => setActiveSelect('')}
+                onMouseEnter={() => setHoveredSelect('league')}
+                onMouseLeave={() => setHoveredSelect('')}
+              >
+                {collegeLeagues.map(l => (
+                  <option key={l} value={l}>{l}</option>
+                ))}
+              </select>
+            </div>
             
             <div style={filterGroup}>
               <label style={labelStyle} htmlFor="academicLevel">Academic Level</label>
@@ -293,42 +310,6 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
               >
                 {regions.map(r => (
                   <option key={r} value={r}>{r}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div style={filterGroup}>
-              <label style={labelStyle} htmlFor="graduationYear">Graduation Year</label>
-              <select
-                style={getSelectStyle('graduationYear')}
-                id="graduationYear"
-                value={graduationYear}
-                onChange={e => setGraduationYear(e.target.value)}
-                onFocus={()=>setActiveSelect('graduationYear')}
-                onBlur={()=>setActiveSelect('')}
-                onMouseEnter={()=>setHoveredSelect('graduationYear')}
-                onMouseLeave={()=>setHoveredSelect('')}
-              >
-                {graduationYears.map(year => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* League Filter */}
-            <div style={filterGroup}>
-              <label style={labelStyle}>League</label>
-              <select
-                style={getSelectStyle('league')}
-                value={selectedLeague}
-                onChange={e => setSelectedLeague(e.target.value)}
-                onFocus={() => setActiveSelect('league')}
-                onBlur={() => setActiveSelect('')}
-                onMouseEnter={() => setHoveredSelect('league')}
-                onMouseLeave={() => setHoveredSelect('')}
-              >
-                {collegeLeagues.map(l => (
-                  <option key={l} value={l}>{l}</option>
                 ))}
               </select>
             </div>
