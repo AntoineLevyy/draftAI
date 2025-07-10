@@ -45,26 +45,27 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
     return null;
   }
 
-  const playerName = player.profile?.playerProfile?.playerName || 'Unknown Player';
-  const position = translatePosition(player.profile?.playerProfile?.position || player.profile?.playerProfile?.playerMainPosition || 'Unknown');
-  const clubName = player.profile?.playerProfile?.club || player.club?.name || 'Unknown Club';
-  const nationality = translateNationality(player.profile?.playerProfile?.birthplaceCountry || 'Unknown');
-  const age = player.profile?.playerProfile?.age || 'Unknown';
-  const height = player.profile?.playerProfile?.height || 'Unknown';
-  const weight = player.profile?.playerProfile?.weight || 'Unknown';
+  // Support both NJCAA data structure and legacy structure
+  const playerName = player.name || player.profile?.playerProfile?.playerName || 'Unknown Player';
+  const position = translatePosition(player.position || player.profile?.playerProfile?.position || player.profile?.playerProfile?.playerMainPosition || 'Unknown');
+  const teamName = player.team || player.profile?.playerProfile?.club || player.club?.name || 'Unknown Team';
+  const nationality = translateNationality(player.nationality || player.profile?.playerProfile?.birthplaceCountry || 'Unknown');
+  const age = player.age || player.profile?.playerProfile?.age || 'Unknown';
+  const height = player.height || player.profile?.playerProfile?.height || 'Unknown';
+  const weight = player.weight || player.profile?.playerProfile?.weight || 'Unknown';
   
   // College-specific fields
-  const academicLevel = player.profile?.playerProfile?.academicLevel || 'Unknown';
-  const region = player.profile?.playerProfile?.region || 'Unknown';
-  const graduationYear = player.profile?.playerProfile?.graduationYear || 'Unknown';
-  const gpa = player.profile?.playerProfile?.gpa || 'Unknown';
-  const satScore = player.profile?.playerProfile?.satScore || 'Unknown';
-  const actScore = player.profile?.playerProfile?.actScore || 'Unknown';
+  const academicLevel = player.league || player.profile?.playerProfile?.academicLevel || 'Unknown';
+  const region = player.region || player.profile?.playerProfile?.region || 'Unknown';
+  const graduationYear = player.year || player.profile?.playerProfile?.graduationYear || 'Unknown';
+  const gpa = player.gpa || player.profile?.playerProfile?.gpa || 'Unknown';
+  const satScore = player.satScore || player.profile?.playerProfile?.satScore || 'Unknown';
+  const actScore = player.actScore || player.profile?.playerProfile?.actScore || 'Unknown';
 
-  const goals = player.performance?.goals || 0;
-  const assists = player.performance?.assists || 0;
-  const matches = player.performance?.matches || 0;
-  const minutesPlayed = player.performance?.minutesPlayed || 0;
+  const goals = player.goals || player.performance?.goals || 0;
+  const assists = player.assists || player.performance?.assists || 0;
+  const matches = player.games || player.performance?.matches || 0;
+  const minutesPlayed = player.minutesPlayed || player.performance?.minutesPlayed || 0;
 
   const handleCardClick = () => {
     setIsExpanded(!isExpanded);
@@ -92,16 +93,16 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
         <div className="player-info">
           <h3 className="player-name">{playerName}</h3>
           <p className="player-position">{position}</p>
-          <p className="player-club">{clubName}</p>
+          <p className="player-club">{teamName}</p>
           <p className="player-nationality">{nationality}</p>
         </div>
         <div className="club-image-container">
           <img 
             src={getClubImage(player)} 
-            alt={clubName}
+            alt={teamName}
             className="club-image"
             onError={(e) => {
-              e.target.src = 'https://via.placeholder.com/50x50?text=Club';
+              e.target.src = 'https://via.placeholder.com/50x50?text=Team';
             }}
           />
         </div>
@@ -215,27 +216,51 @@ const CollegePlayerCards = ({ filters, onBack }) => {
 
   useEffect(() => {
     fetchPlayers();
-  }, [filters?.league, filters?.academicLevel, filters?.position, filters?.region, filters?.graduationYear]);
+  }, [filters?.academicLevel, filters?.position, filters?.region, filters?.graduationYear]);
 
   const fetchPlayers = async () => {
     try {
       setLoading(true);
       setError(null);
       let query = [];
-      if (filters?.league && filters.league !== 'All') {
-        query.push(`league=${encodeURIComponent(filters.league)}`);
+      
+      // Map academic level to league filter
+      if (filters?.academicLevel && filters.academicLevel !== 'All Academic Levels') {
+        if (filters.academicLevel === 'NJCAA D1') {
+          query.push(`league=${encodeURIComponent('NJCAA D1 (Tier 2 USA)')}`);
+        }
+        // Add more academic level mappings as needed
       }
+      
       if (filters?.position && filters.position !== 'All Positions') {
         query.push(`position=${encodeURIComponent(filters.position)}`);
       }
-      // Add more filters as needed (academicLevel, region, graduationYear)
+      
+      // For now, fetch all college players and filter client-side for region/graduation year
+      // since these aren't in the backend API yet
       const url = `${apiBaseUrl}/api/players${query.length ? '?' + query.join('&') : ''}`;
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch players');
       const data = await response.json();
-      setPlayers(data.players || []);
+      
+      // Apply client-side filters for fields not supported by backend yet
+      let filteredPlayers = data.players || [];
+      
+      if (filters?.region && filters.region !== 'All Regions') {
+        filteredPlayers = filteredPlayers.filter(player => 
+          player.region && player.region.includes(filters.region)
+        );
+      }
+      
+      if (filters?.graduationYear && filters.graduationYear !== 'All Graduation Years') {
+        // This would need to be implemented based on your data structure
+        // For now, we'll skip this filter
+      }
+      
+      setPlayers(filteredPlayers);
       setLoading(false);
     } catch (error) {
+      console.error('Error fetching players:', error);
       setError('Failed to load college player data');
       setPlayers([]);
       setLoading(false);
@@ -269,22 +294,22 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     const filteredPlayers = players
       .filter(player => {
         // Filter out players with missing or invalid names
-        const playerName = player.profile?.playerProfile?.playerName;
+        const playerName = player.name || player.profile?.playerProfile?.playerName;
         if (!playerName || playerName === 'Unknown Player' || playerName.trim() === '') {
           return false;
         }
         
-        // Filter by academic level
-        if (currentAcademicLevel && currentAcademicLevel !== 'All Levels') {
-          const playerAcademicLevel = player.profile?.playerProfile?.academicLevel || '';
-          if (playerAcademicLevel !== currentAcademicLevel) {
+        // Filter by academic level (for NJCAA, this maps to league)
+        if (currentAcademicLevel && currentAcademicLevel !== 'All Academic Levels') {
+          const playerLeague = player.league || '';
+          if (currentAcademicLevel === 'NJCAA D1' && playerLeague !== 'NJCAA D1 (Tier 2 USA)') {
             return false;
           }
         }
         
         // Filter by position
         if (currentPosition && currentPosition !== 'All Positions') {
-          const playerPosition = player.profile?.playerProfile?.position || player.profile?.playerProfile?.playerMainPosition || '';
+          const playerPosition = player.position || player.profile?.playerProfile?.position || '';
           if (playerPosition !== currentPosition) {
             return false;
           }
@@ -292,25 +317,25 @@ const CollegePlayerCards = ({ filters, onBack }) => {
         
         // Filter by region
         if (currentRegion && currentRegion !== 'All Regions') {
-          const playerRegion = player.profile?.playerProfile?.region || '';
-          if (playerRegion !== currentRegion) {
+          const playerRegion = player.region || player.profile?.playerProfile?.region || '';
+          if (playerRegion && !playerRegion.includes(currentRegion)) {
             return false;
           }
         }
         
         // Filter by graduation year
-        if (currentGraduationYear && currentGraduationYear !== 'All Years') {
-          const playerGraduationYear = player.profile?.playerProfile?.graduationYear || '';
-          if (playerGraduationYear !== currentGraduationYear) {
+        if (currentGraduationYear && currentGraduationYear !== 'All Graduation Years') {
+          const playerYear = player.year || player.profile?.playerProfile?.graduationYear || '';
+          if (playerYear !== currentGraduationYear) {
             return false;
           }
         }
         
         // Search term filtering
         const searchLower = searchTerm.toLowerCase();
-        const clubName = player.profile?.playerProfile?.club || player.club?.name || 'Unknown';
+        const teamName = player.team || player.profile?.playerProfile?.club || player.club?.name || 'Unknown';
         const matchesSearch = playerName.toLowerCase().includes(searchLower) || 
-                             clubName.toLowerCase().includes(searchLower);
+                             teamName.toLowerCase().includes(searchLower);
         
         if (!matchesSearch && searchTerm) {
           return false;
@@ -322,32 +347,32 @@ const CollegePlayerCards = ({ filters, onBack }) => {
         let aValue, bValue;
         switch (sortBy) {
           case 'goals':
-            aValue = a.performance?.goals || 0;
-            bValue = b.performance?.goals || 0;
+            aValue = a.goals || a.performance?.goals || 0;
+            bValue = b.goals || b.performance?.goals || 0;
             break;
           case 'assists':
-            aValue = a.performance?.assists || 0;
-            bValue = b.performance?.assists || 0;
+            aValue = a.assists || a.performance?.assists || 0;
+            bValue = b.assists || b.performance?.assists || 0;
             break;
           case 'matches':
-            aValue = a.performance?.matches || 0;
-            bValue = b.performance?.matches || 0;
+            aValue = a.games || a.performance?.matches || 0;
+            bValue = b.games || b.performance?.matches || 0;
             break;
           case 'minutes':
-            aValue = a.performance?.minutesPlayed || 0;
-            bValue = b.performance?.minutesPlayed || 0;
+            aValue = a.minutesPlayed || a.performance?.minutesPlayed || 0;
+            bValue = b.minutesPlayed || b.performance?.minutesPlayed || 0;
             break;
           case 'name':
-            aValue = a.profile?.playerProfile?.playerName || 'Unknown';
-            bValue = b.profile?.playerProfile?.playerName || 'Unknown';
+            aValue = a.name || a.profile?.playerProfile?.playerName || 'Unknown';
+            bValue = b.name || b.profile?.playerProfile?.playerName || 'Unknown';
             break;
           case 'gpa':
-            aValue = parseFloat(a.profile?.playerProfile?.gpa) || 0;
-            bValue = parseFloat(b.profile?.playerProfile?.gpa) || 0;
+            aValue = parseFloat(a.gpa || a.profile?.playerProfile?.gpa) || 0;
+            bValue = parseFloat(b.gpa || b.profile?.playerProfile?.gpa) || 0;
             break;
           default:
-            aValue = a.performance?.goals || 0;
-            bValue = b.performance?.goals || 0;
+            aValue = a.goals || a.performance?.goals || 0;
+            bValue = b.goals || b.performance?.goals || 0;
         }
         if (sortOrder === 'desc') {
           return bValue > aValue ? 1 : bValue < aValue ? -1 : 0;
@@ -378,10 +403,11 @@ const CollegePlayerCards = ({ filters, onBack }) => {
 
   const isValidPlayer = useCallback((player) => {
     return player && 
-           player.profile && 
-           player.profile.playerProfile && 
-           player.profile.playerProfile.playerName &&
-           player.profile.playerProfile.playerName.trim() !== '';
+           ((player.name && player.name.trim() !== '') ||
+            (player.profile && 
+             player.profile.playerProfile && 
+             player.profile.playerProfile.playerName &&
+             player.profile.playerProfile.playerName.trim() !== ''));
   }, []);
 
   const fetchYoutubeVideos = useCallback(async (playerName, clubName) => {
