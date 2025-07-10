@@ -42,7 +42,8 @@ USL_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/back
 MLS_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/mls_next_pro_players_api.json'
 CPL_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/cpl_players_api.json'
 LIGA_MX_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/liga_mx_players_api.json'
-NJCAA_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/chunks/njcaa_d1_players.json'
+NJCAA_D1_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/chunks/njcaa_d1_players.json'
+NJCAA_D2_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/chunks/njcaa_d2_players.json'
 
 # Cache for loaded data
 _player_cache = {}
@@ -127,7 +128,7 @@ def fetch_player_data():
     # Fetch NJCAA D1 players
     try:
         print("Fetching NJCAA D1 data from GitHub...")
-        response = requests.get(NJCAA_DATA_URL, timeout=30)
+        response = requests.get(NJCAA_D1_DATA_URL, timeout=30)
         if response.status_code == 200:
             njcaa_data = response.json()
             # NJCAA data is already an array, not wrapped in 'players' key
@@ -170,9 +171,59 @@ def fetch_player_data():
                 players.append(transformed_player)
             print(f"Loaded {len(njcaa_players)} NJCAA D1 players")
         else:
-            print(f"Failed to fetch NJCAA data: {response.status_code}")
+            print(f"Failed to fetch NJCAA D1 data: {response.status_code}")
     except Exception as e:
-        print(f"Error fetching NJCAA data: {e}")
+        print(f"Error fetching NJCAA D1 data: {e}")
+    
+    # Fetch NJCAA D2 players
+    try:
+        print("Fetching NJCAA D2 data from GitHub...")
+        response = requests.get(NJCAA_D2_DATA_URL, timeout=30)
+        if response.status_code == 200:
+            njcaa_data = response.json()
+            # NJCAA data is already an array, not wrapped in 'players' key
+            njcaa_players = njcaa_data if isinstance(njcaa_data, list) else []
+            # Transform NJCAA data to match our format
+            for player in njcaa_players:
+                # Extract stats from the stats object
+                stats = player.get('stats', {})
+                
+                # Clean up height and weight data - handle encoding issues
+                raw_height = player.get('dataMap', {}).get('height', '')
+                clean_height = raw_height.replace('Ã', '').strip() if raw_height else ''
+                
+                raw_weight = player.get('dataMap', {}).get('weight', '')
+                clean_weight = raw_weight.replace('Ã', '').strip() if raw_weight else ''
+                
+                transformed_player = {
+                    'name': player.get('fullName', f"{player.get('firstName', '')} {player.get('lastName', '')}"),
+                    'position': player.get('position', ''),
+                    'team': player.get('team', ''),
+                    'league': 'NJCAA D2 (Tier 3 USA)',
+                    'games': int(stats.get('gp', 0)),
+                    'games_started': int(stats.get('gs', 0)),
+                    'goals': int(stats.get('g', 0)),
+                    'assists': int(stats.get('a', 0)),
+                    'points': int(stats.get('p', 0)),
+                    'shots': int(stats.get('sh', 0)),
+                    'shot_pct': float(stats.get('shpt', 0)),
+                    'penalty_kicks': int(stats.get('pkm', 0)),
+                    'game_winning_goals': int(stats.get('gw', 0)),
+                    'nationality': 'USA',  # Default for college players
+                    'age': 0,  # Not available in NJCAA data
+                    'height': clean_height,
+                    'weight': clean_weight,
+                    'year': player.get('year', ''),
+                    'region': player.get('region', ''),
+                    'uniform': player.get('uniform', ''),
+                    'url': f"https://njcaastats.prestosports.com/sports/msoc/2024-25/div2/players/{player.get('pageName', '')}"
+                }
+                players.append(transformed_player)
+            print(f"Loaded {len(njcaa_players)} NJCAA D2 players")
+        else:
+            print(f"Failed to fetch NJCAA D2 data: {response.status_code}")
+    except Exception as e:
+        print(f"Error fetching NJCAA D2 data: {e}")
     
     _player_cache = players
     return players

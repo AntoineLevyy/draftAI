@@ -605,6 +605,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
           >
             <option value="All">All</option>
             <option value="NJCAA D1">NJCAA D1</option>
+            <option value="NJCAA D2">NJCAA D2</option>
           </select>
         </div>
         
