@@ -157,7 +157,7 @@ function MainLandingPage({ onSelectCoachType }) {
             }} />
             <h2 style={optionTitle}>For Club Coaches</h2>
             <p style={optionDescription}>
-              Professional talent across North American leagues
+              Professional talent for your club
             </p>
           </div>
 

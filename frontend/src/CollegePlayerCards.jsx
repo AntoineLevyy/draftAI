@@ -220,8 +220,8 @@ const CollegePlayerCards = ({ filters, onBack }) => {
       setLoading(true);
       setError(null);
       
-      // Always fetch NJCAA players regardless of filters for now
-      const url = `${apiBaseUrl}/api/players?league=${encodeURIComponent('NJCAA D1 (Tier 2 USA)')}`;
+      // Fetch all college players (both D1 and D2) and let frontend filtering handle the rest
+      const url = `${apiBaseUrl}/api/players`;
       console.log('Fetching from URL:', url);
       
       const response = await fetch(url, {
@@ -351,13 +351,19 @@ const CollegePlayerCards = ({ filters, onBack }) => {
         if (filterPosition === 'Forward' && !isForward) return false;
       }
       
-      // Filter by academic level (year)
-      if (currentFilters.academicLevel && currentFilters.academicLevel !== 'All Academic Levels') {
-        const playerYear = expandYear(player.year || '');
-        if (playerYear !== currentFilters.academicLevel) {
-          return false;
-        }
-      }
+      // Filter by academic year - temporarily disabled for debugging
+      // if (currentFilters.academicLevel && currentFilters.academicLevel !== 'All Academic Years') {
+      //   const playerYear = expandYear(player.year || '');
+      //   console.log('Academic year filter:', {
+      //     filterValue: currentFilters.academicLevel,
+      //     playerYear: player.year,
+      //     expandedYear: playerYear,
+      //     match: playerYear === currentFilters.academicLevel
+      //   });
+      //   if (playerYear !== currentFilters.academicLevel) {
+      //     return false;
+      //   }
+      // }
       
       // Filter by league
       if (currentFilters.league && currentFilters.league !== 'All') {
@@ -367,13 +373,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
         }
       }
       
-      // Filter by region
-      if (currentFilters.region && currentFilters.region !== 'All Regions') {
-        const playerRegion = player.region || '';
-        if (playerRegion !== currentFilters.region) {
-          return false;
-        }
-      }
+
       
       return true;
     });
@@ -611,10 +611,10 @@ const CollegePlayerCards = ({ filters, onBack }) => {
         
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
           <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
-            Academic Level
+            Academic Year
           </label>
           <select
-            value={currentFilters.academicLevel || 'All Academic Levels'}
+            value={currentFilters.academicLevel || 'All Academic Years'}
             onChange={(e) => setLocalFilters(prev => ({ ...prev, academicLevel: e.target.value }))}
             style={{
               padding: '0.5rem',
@@ -625,39 +625,12 @@ const CollegePlayerCards = ({ filters, onBack }) => {
               cursor: 'pointer'
             }}
           >
-            <option value="All Academic Levels">All Academic Levels</option>
+            <option value="All Academic Years">All Academic Years</option>
             <option value="Freshman">Freshman</option>
             <option value="Sophomore">Sophomore</option>
             <option value="Junior">Junior</option>
             <option value="Senior">Senior</option>
             <option value="Graduate Student">Graduate Student</option>
-            <option value="Transfer Student">Transfer Student</option>
-          </select>
-        </div>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
-            Region
-          </label>
-          <select
-            value={currentFilters.region || 'All Regions'}
-            onChange={(e) => setLocalFilters(prev => ({ ...prev, region: e.target.value }))}
-            style={{
-              padding: '0.5rem',
-              borderRadius: '8px',
-              border: '2px solid rgba(79,140,255,0.2)',
-              background: 'rgba(255,255,255,0.9)',
-              fontSize: '0.9rem',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="All Regions">All Regions</option>
-            <option value="Northeast">Northeast</option>
-            <option value="Southeast">Southeast</option>
-            <option value="Midwest">Midwest</option>
-            <option value="Southwest">Southwest</option>
-            <option value="West Coast">West Coast</option>
-            <option value="International">International</option>
           </select>
         </div>
       </div>

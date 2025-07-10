@@ -156,13 +156,12 @@ const positions = [
 ];
 
 const academicLevels = [
-  'All Academic Levels',
+  'All Academic Years',
   'Freshman',
   'Sophomore',
   'Junior',
   'Senior',
   'Graduate Student',
-  'Transfer Student',
 ];
 
 const regions = [
@@ -194,8 +193,7 @@ const collegeLeagues = [
 
 function CollegeLandingPage({ onApplyFilters, onBack }) {
   const [selectedPosition, setSelectedPosition] = useState('All Positions');
-  const [academicLevel, setAcademicLevel] = useState('All Academic Levels');
-  const [region, setRegion] = useState('All Regions');
+  const [academicLevel, setAcademicLevel] = useState('All Academic Years');
   const [graduationYear, setGraduationYear] = useState('All Graduation Years');
   const [selectedLeague, setSelectedLeague] = useState('All');
   const [activeSelect, setActiveSelect] = useState('');
@@ -206,7 +204,6 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
     onApplyFilters({ 
       position: selectedPosition, 
       academicLevel, 
-      region, 
       graduationYear, 
       league: selectedLeague
     });
@@ -280,7 +277,7 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
             </div>
             
             <div style={filterGroup}>
-              <label style={labelStyle} htmlFor="academicLevel">Academic Level</label>
+              <label style={labelStyle} htmlFor="academicLevel">Academic Year</label>
               <select
                 style={getSelectStyle('academicLevel')}
                 id="academicLevel"
@@ -293,24 +290,6 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
               >
                 {academicLevels.map(level => (
                   <option key={level} value={level}>{level}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div style={filterGroup}>
-              <label style={labelStyle} htmlFor="region">Region</label>
-              <select
-                style={getSelectStyle('region')}
-                id="region"
-                value={region}
-                onChange={e => setRegion(e.target.value)}
-                onFocus={()=>setActiveSelect('region')}
-                onBlur={()=>setActiveSelect('')}
-                onMouseEnter={()=>setHoveredSelect('region')}
-                onMouseLeave={()=>setHoveredSelect('')}
-              >
-                {regions.map(r => (
-                  <option key={r} value={r}>{r}</option>
                 ))}
               </select>
             </div>
