@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import MainLandingPage from './MainLandingPage';
 import LandingPage from './LandingPage';
+import CollegeLandingPage from './CollegeLandingPage';
 import PlayerCards from './USLPlayerCards';
+import CollegePlayerCards from './CollegePlayerCards';
 
 const headerStyle = {
   width: '100%',
@@ -79,18 +82,37 @@ const mainContentStyle = {
 };
 
 function App() {
+  const [currentView, setCurrentView] = useState('main'); // 'main', 'club', 'college'
   const [filters, setFilters] = useState(null);
+
+  const handleSelectCoachType = (coachType) => {
+    setCurrentView(coachType);
+  };
 
   const handleApplyFilters = (selectedFilters) => {
     setFilters(selectedFilters);
   };
 
   const handleBack = () => {
-    setFilters(null);
+    if (filters) {
+      setFilters(null);
+    } else {
+      setCurrentView('main');
+    }
   };
 
+  // Determine which player view to show based on currentView
+  let playerView = null;
+  if (filters) {
+    if (currentView === 'club') {
+      playerView = <PlayerCards filters={filters} onBack={handleBack} />;
+    } else if (currentView === 'college') {
+      playerView = <CollegePlayerCards filters={filters} onBack={handleBack} />;
+    }
+  }
+
   return (
-          <div>
+    <div>
       <header style={headerStyle}>
         <div style={headerInner}>
           <a 
@@ -98,9 +120,7 @@ function App() {
             style={logoStyle}
             onClick={(e) => {
               e.preventDefault();
-              if (filters) {
-                handleBack();
-              }
+              handleBack();
             }}
             onMouseEnter={(e) => {
               e.target.style.opacity = '0.8';
@@ -116,11 +136,16 @@ function App() {
         </div>
       </header>
       <main style={mainContentStyle}>
-        {filters ? (
-          <PlayerCards filters={filters} onBack={handleBack} />
-        ) : (
-          <LandingPage onApplyFilters={handleApplyFilters} />
+        {currentView === 'main' && (
+          <MainLandingPage onSelectCoachType={handleSelectCoachType} />
         )}
+        {currentView === 'club' && !filters && (
+          <LandingPage onApplyFilters={handleApplyFilters} onBack={handleBack} />
+        )}
+        {currentView === 'college' && !filters && (
+          <CollegeLandingPage onApplyFilters={handleApplyFilters} onBack={handleBack} />
+        )}
+        {playerView}
       </main>
       <footer style={footerStyle}>
         <div style={footerContent}>

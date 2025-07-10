@@ -18,15 +18,16 @@ const mainContainer = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  padding: '2rem',
+  padding: '1rem',
   justifyContent: 'center',
   flex: 1,
+  marginTop: '-6rem',
 };
 
 const headlineStyle = {
   fontWeight: 800,
   fontSize: '2rem',
-  marginBottom: '1.5rem',
+  marginBottom: '4.5rem',
   background: 'linear-gradient(90deg, #4f8cff, #6f6fff 60%, #38bdf8 100%)',
   WebkitBackgroundClip: 'text',
   color: 'transparent',
@@ -139,9 +140,11 @@ const leagues = [
   'USL Championship (Tier 2 USA)',
   'USL League One (Tier 3 USA)',
   'MLS Next Pro (Tier 3 USA)',
+  'Canadian Premier League (Tier 1 Canada)',
+  'Liga MX Apertura (Tier 1 Mexico)',
 ];
 
-function LandingPage({ onApplyFilters }) {
+function LandingPage({ onApplyFilters, onBack }) {
   const [selectedLeague, setSelectedLeague] = useState('All');
   const [position, setPosition] = useState('All Positions');
   const [nationality, setNationality] = useState('All');
@@ -178,6 +181,32 @@ function LandingPage({ onApplyFilters }) {
 
   return (
     <div style={bgStyle}>
+      <button 
+        style={{
+          position: 'absolute',
+          top: '2rem',
+          left: '2rem',
+          padding: '0.5rem 1rem',
+          borderRadius: '8px',
+          border: '1px solid rgba(255,255,255,0.3)',
+          background: 'rgba(255,255,255,0.1)',
+          color: 'white',
+          cursor: 'pointer',
+          fontSize: '0.9rem',
+          transition: 'all 0.2s ease',
+          backdropFilter: 'blur(10px)',
+        }}
+        onClick={onBack}
+        onMouseEnter={(e) => {
+          e.target.style.background = 'rgba(255,255,255,0.2)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.background = 'rgba(255,255,255,0.1)';
+        }}
+      >
+        ← Back to Main Menu
+      </button>
+      
       <div style={mainContainer}>
         <h1 style={headlineStyle}>Find your next player</h1>
         <form onSubmit={handleSubmit} style={{width: '100%'}}>

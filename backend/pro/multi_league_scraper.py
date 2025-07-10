@@ -34,6 +34,18 @@ class MultiLeagueAPIScraper:
                 "id": "MNP3", 
                 "name": "MLS Next Pro",
                 "short_name": "MLSNP"
+            },
+            
+            "Canadian Premier League": {
+                "id": "CDN1",
+                "name": "Canadian Premier League",
+                "short_name": "CPL"
+            },
+            
+            "Liga MX Apertura": {
+                "id": "MEXA",
+                "name": "Liga MX Apertura",
+                "short_name": "Liga MX"
             }
         }
         

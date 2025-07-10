@@ -1,7 +1,7 @@
 // Configuration for different environments
 const config = {
   development: {
-    apiBaseUrl: 'http://localhost:5001'
+    apiBaseUrl: 'https://draftai.onrender.com' // Use live API even in development
   },
   production: {
     apiBaseUrl: 'https://draftai.onrender.com' // Your actual deployed API URL

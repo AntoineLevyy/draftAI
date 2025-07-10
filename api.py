@@ -40,6 +40,9 @@ def root():
 # GitHub raw URLs for the player data
 USL_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/usl_league_one_players_api.json'
 MLS_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/mls_next_pro_players_api.json'
+CPL_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/cpl_players_api.json'
+LIGA_MX_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/liga_mx_players_api.json'
+NJCAA_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/chunks/njcaa_d1_players.json'
 
 # Cache for loaded data
 _player_cache = {}
@@ -86,6 +89,82 @@ def fetch_player_data():
             print(f"Failed to fetch MLS data: {response.status_code}")
     except Exception as e:
         print(f"Error fetching MLS data: {e}")
+    
+    # Fetch Canadian Premier League players
+    try:
+        print("Fetching CPL data from GitHub...")
+        response = requests.get(CPL_DATA_URL, timeout=30)
+        if response.status_code == 200:
+            cpl_data = response.json()
+            cpl_players = cpl_data.get('players', [])
+            # Add league info to each player
+            for player in cpl_players:
+                player['league'] = 'Canadian Premier League'
+            players.extend(cpl_players)
+            print(f"Loaded {len(cpl_players)} CPL players")
+        else:
+            print(f"Failed to fetch CPL data: {response.status_code}")
+    except Exception as e:
+        print(f"Error fetching CPL data: {e}")
+    
+    # Fetch Liga MX Apertura players
+    try:
+        print("Fetching Liga MX data from GitHub...")
+        response = requests.get(LIGA_MX_DATA_URL, timeout=30)
+        if response.status_code == 200:
+            liga_mx_data = response.json()
+            liga_mx_players = liga_mx_data.get('players', [])
+            # Add league info to each player
+            for player in liga_mx_players:
+                player['league'] = 'Liga MX Apertura'
+            players.extend(liga_mx_players)
+            print(f"Loaded {len(liga_mx_players)} Liga MX players")
+        else:
+            print(f"Failed to fetch Liga MX data: {response.status_code}")
+    except Exception as e:
+        print(f"Error fetching Liga MX data: {e}")
+    
+    # Fetch NJCAA D1 players
+    try:
+        print("Fetching NJCAA D1 data from GitHub...")
+        response = requests.get(NJCAA_DATA_URL, timeout=30)
+        if response.status_code == 200:
+            njcaa_data = response.json()
+            # NJCAA data is already an array, not wrapped in 'players' key
+            njcaa_players = njcaa_data if isinstance(njcaa_data, list) else []
+            # Transform NJCAA data to match our format
+            for player in njcaa_players:
+                # Extract stats from the stats object
+                stats = player.get('stats', {})
+                transformed_player = {
+                    'name': player.get('fullName', f"{player.get('firstName', '')} {player.get('lastName', '')}"),
+                    'position': player.get('position', ''),
+                    'team': player.get('team', ''),
+                    'league': 'NJCAA D1 (Tier 2 USA)',
+                    'games': int(stats.get('gp', 0)),
+                    'games_started': int(stats.get('gs', 0)),
+                    'goals': int(stats.get('g', 0)),
+                    'assists': int(stats.get('a', 0)),
+                    'points': int(stats.get('p', 0)),
+                    'shots': int(stats.get('sh', 0)),
+                    'shot_pct': float(stats.get('shpt', 0)),
+                    'penalty_kicks': int(stats.get('pkm', 0)),
+                    'game_winning_goals': int(stats.get('gw', 0)),
+                    'nationality': 'USA',  # Default for college players
+                    'age': 0,  # Not available in NJCAA data
+                    'height': player.get('dataMap', {}).get('height', ''),
+                    'weight': player.get('dataMap', {}).get('weight', ''),
+                    'year': player.get('year', ''),
+                    'region': player.get('region', ''),
+                    'uniform': player.get('uniform', ''),
+                    'url': f"https://njcaastats.prestosports.com/sports/msoc/2024-25/div1/players/{player.get('pageName', '')}"
+                }
+                players.append(transformed_player)
+            print(f"Loaded {len(njcaa_players)} NJCAA D1 players")
+        else:
+            print(f"Failed to fetch NJCAA data: {response.status_code}")
+    except Exception as e:
+        print(f"Error fetching NJCAA data: {e}")
     
     _player_cache = players
     return players

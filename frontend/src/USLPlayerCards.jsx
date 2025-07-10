@@ -446,7 +446,13 @@ const PlayerCards = ({ filters, onBack }) => {
   const [videoLoading, setVideoLoading] = useState(false);
   
   // Filter state
-  const [currentLeague, setCurrentLeague] = useState(filters?.league?.[0] || 'All');
+  const [currentLeague, setCurrentLeague] = useState(() => {
+    // If filters.league is an array with multiple leagues, it means "All" was selected
+    if (Array.isArray(filters?.league) && filters.league.length > 1) {
+      return 'All';
+    }
+    return filters?.league?.[0] || 'All';
+  });
   const [currentPosition, setCurrentPosition] = useState(filters?.position || 'All Positions');
   const [currentNationality, setCurrentNationality] = useState(filters?.nationality || 'All');
 
@@ -533,6 +539,44 @@ const PlayerCards = ({ filters, onBack }) => {
         }
       } catch (error) {
         console.error('Error fetching MLS data:', error);
+      }
+      
+      // Fetch Canadian Premier League players
+      try {
+        const cplResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/cpl_players_api.json');
+        console.log('CPL fetch status:', cplResponse.status);
+        if (cplResponse.ok) {
+          const cplData = await cplResponse.json();
+          console.log('CPL data:', cplData);
+          const cplPlayers = cplData.players || [];
+          // Add league info to each player
+          cplPlayers.forEach(player => {
+            player.league = 'Canadian Premier League';
+          });
+          allPlayers = allPlayers.concat(cplPlayers);
+          console.log(`Loaded ${cplPlayers.length} CPL players`);
+        }
+      } catch (error) {
+        console.error('Error fetching CPL data:', error);
+      }
+      
+      // Fetch Liga MX Apertura players
+      try {
+        const ligaMxResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/liga_mx_players_api.json');
+        console.log('Liga MX fetch status:', ligaMxResponse.status);
+        if (ligaMxResponse.ok) {
+          const ligaMxData = await ligaMxResponse.json();
+          console.log('Liga MX data:', ligaMxData);
+          const ligaMxPlayers = ligaMxData.players || [];
+          // Add league info to each player
+          ligaMxPlayers.forEach(player => {
+            player.league = 'Liga MX Apertura';
+          });
+          allPlayers = allPlayers.concat(ligaMxPlayers);
+          console.log(`Loaded ${ligaMxPlayers.length} Liga MX players`);
+        }
+      } catch (error) {
+        console.error('Error fetching Liga MX data:', error);
       }
       
       console.log('Total players loaded:', allPlayers.length);
@@ -883,6 +927,8 @@ const PlayerCards = ({ filters, onBack }) => {
             <option value="USL Championship">USL Championship (Tier 2 USA)</option>
             <option value="USL League One">USL League One (Tier 3 USA)</option>
             <option value="MLS Next Pro">MLS Next Pro (Tier 3 USA)</option>
+            <option value="Canadian Premier League">Canadian Premier League (Tier 1 Canada)</option>
+            <option value="Liga MX Apertura">Liga MX Apertura (Tier 1 Mexico)</option>
           </select>
         </div>
         
