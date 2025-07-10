@@ -476,12 +476,17 @@ const PlayerCards = ({ filters, onBack }) => {
           const uslChampionshipData = await uslChampionshipResponse.json();
           console.log('USL Championship data:', uslChampionshipData);
           const uslChampionshipPlayers = uslChampionshipData.players || [];
+          console.log('USL Championship players array length:', uslChampionshipPlayers.length);
+          console.log('First USL Championship player:', uslChampionshipPlayers[0]);
           // Add league info to each player
           uslChampionshipPlayers.forEach(player => {
             player.league = 'USL Championship';
           });
           allPlayers = allPlayers.concat(uslChampionshipPlayers);
           console.log(`Loaded ${uslChampionshipPlayers.length} USL Championship players`);
+          console.log('Total players after USL Championship:', allPlayers.length);
+        } else {
+          console.error('USL Championship response not ok:', uslChampionshipResponse.status, uslChampionshipResponse.statusText);
         }
       } catch (error) {
         console.error('Error fetching USL Championship data:', error);
@@ -533,9 +538,19 @@ const PlayerCards = ({ filters, onBack }) => {
       
       if (filters?.league && filters.league !== 'All') {
         console.log('Filtering by league:', filters.league);
+        console.log('League filter type:', typeof filters.league);
+        console.log('League filter value:', filters.league);
         // Handle both single league and array of leagues
         const leagueFilter = Array.isArray(filters.league) ? filters.league : [filters.league];
-        filteredPlayers = allPlayers.filter(player => leagueFilter.includes(player.league));
+        console.log('League filter array:', leagueFilter);
+        console.log('Sample player leagues:', allPlayers.slice(0, 5).map(p => p.league));
+        filteredPlayers = allPlayers.filter(player => {
+          const matches = leagueFilter.includes(player.league);
+          if (!matches && player.league) {
+            console.log(`Player ${player.profile?.playerProfile?.playerName} has league ${player.league} but filter is ${leagueFilter}`);
+          }
+          return matches;
+        });
         console.log('After league filter:', filteredPlayers.length, 'players');
       }
       
