@@ -39,53 +39,44 @@ const translateNationality = (nationality) => {
   return translations[nationality] || nationality;
 };
 
-const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, translatePosition, formatMinutes, isValidPlayer, expandedStats, setExpandedStats, handleViewFootage, selectedLeague }) => {
+const expandYear = (year) => {
+  const yearTranslations = {
+    'Fr': 'Freshman',
+    'So': 'Sophomore',
+    'Jr': 'Junior',
+    'Sr': 'Senior',
+    'Freshman': 'Freshman',
+    'Sophomore': 'Sophomore',
+    'Junior': 'Junior',
+    'Senior': 'Senior',
+    'Graduate': 'Graduate Student',
+    'Transfer': 'Transfer Student'
+  };
+  return yearTranslations[year] || year;
+};
+
+const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, translatePosition, formatMinutes, isValidPlayer, handleViewFootage, selectedLeague }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (!isValidPlayer(player)) {
     return null;
   }
 
-  // Support both NJCAA data structure and legacy structure
-  const playerName = player.name || player.profile?.playerProfile?.playerName || 'Unknown Player';
-  const position = translatePosition(player.position || player.profile?.playerProfile?.position || player.profile?.playerProfile?.playerMainPosition || 'Unknown');
-  const teamName = player.team || player.profile?.playerProfile?.club || player.club?.name || 'Unknown Team';
-  const nationality = translateNationality(player.nationality || player.profile?.playerProfile?.birthplaceCountry || 'USA');
-  
-  // Clean up height and weight data - handle encoding issues
-  const cleanHeight = (player.height || player.profile?.playerProfile?.height || '')
-    .replace(/Ã.*/g, '') // Remove encoding artifacts
-    .trim();
-  const height = cleanHeight || 'N/A';
-  
-  const cleanWeight = (player.weight || player.profile?.playerProfile?.weight || '')
-    .replace(/Ã.*/g, '') // Remove encoding artifacts
-    .trim();
-  const weight = cleanWeight || 'N/A';
-  
-  // College-specific fields - remove tier from league name
-  const academicLevel = (player.league || player.profile?.playerProfile?.academicLevel || 'Unknown')
-    .replace(' (Tier 2 USA)', '')
-    .replace(' (Tier 1 USA)', '')
-    .replace(' (Tier 3 USA)', '');
-  
-  // Fix region mapping - use actual region data, not age
-  const region = player.region || player.profile?.playerProfile?.region || 'N/A';
-  const graduationYear = player.year || player.profile?.playerProfile?.graduationYear || 'N/A';
-  const gpa = player.gpa || player.profile?.playerProfile?.gpa || 'N/A';
-  const satScore = player.satScore || player.profile?.playerProfile?.satScore || 'N/A';
-  const actScore = player.actScore || player.profile?.playerProfile?.actScore || 'N/A';
+  // Extract data from NJCAA structure
+  const playerName = player.name || 'Unknown Player';
+  const teamName = player.team || 'Unknown Team';
+  const position = translatePosition(player.position || 'Unknown');
+  const year = expandYear(player.year || 'N/A');
+  const region = player.region || 'N/A';
+  const league = (player.league || 'NJCAA D1').replace(' (Tier 2 USA)', '').replace(' (Tier 1 USA)', '').replace(' (Tier 3 USA)', '');
 
-  const goals = player.goals || player.performance?.goals || 0;
-  const assists = player.assists || player.performance?.assists || 0;
-  const matches = player.games || player.performance?.matches || 0;
-  const minutesPlayed = player.minutesPlayed || player.performance?.minutesPlayed || 0;
-  const gamesStarted = player.games_started || player.performance?.starting || 0;
+  // Season stats
+  const goals = player.goals || 0;
+  const assists = player.assists || 0;
   const points = player.points || 0;
-  const shots = player.shots || 0;
-  const shotPct = player.shot_pct || 0;
-  const penaltyKicks = player.penalty_kicks || 0;
-  const gameWinningGoals = player.game_winning_goals || 0;
+  const matches = player.games || 0;
+  const gamesStarted = player.games_started || 0;
+  const minutesPlayed = player.minutesPlayed || 0;
 
   return (
     <div className="player-card">
@@ -117,58 +108,30 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
         
         <div className="club-name">{teamName}</div>
         
-        <div className="league-badge">{academicLevel}</div>
+        <div className="league-badge">{league}</div>
 
         <div className="player-info">
+          <div className="info-item">
+            <span className="info-label">Team:</span>
+            <span className="info-value">{teamName}</span>
+          </div>
           <div className="info-item">
             <span className="info-label">Position:</span>
             <span className="info-value">{position}</span>
           </div>
           <div className="info-item">
-            <span className="info-label">Age:</span>
-            <span className="info-value">{age}</span>
-          </div>
-          <div className="info-item">
-            <span className="info-label">Height:</span>
-            <span className="info-value">{height && height !== 'Unknown' ? height : 'N/A'}</span>
-          </div>
-          <div className="info-item">
-            <span className="info-label">Weight:</span>
-            <span className="info-value">{weight && weight !== 'Unknown' ? weight : 'N/A'}</span>
-          </div>
-          <div className="info-item">
             <span className="info-label">Year:</span>
-            <span className="info-value">{graduationYear}</span>
+            <span className="info-value">{year}</span>
           </div>
           <div className="info-item">
             <span className="info-label">Region:</span>
             <span className="info-value">{region}</span>
           </div>
-          <div className="info-item">
-            <span className="info-label">Nationality:</span>
-            <span className="info-value">{nationality}</span>
-          </div>
-          {gpa !== 'Unknown' && (
-            <div className="info-item">
-              <span className="info-label">GPA:</span>
-              <span className="info-value">{gpa}</span>
-            </div>
-          )}
-          {satScore !== 'Unknown' && (
-            <div className="info-item">
-              <span className="info-label">SAT Score:</span>
-              <span className="info-value">{satScore}</span>
-            </div>
-          )}
-          {actScore !== 'Unknown' && (
-            <div className="info-item">
-              <span className="info-label">ACT Score:</span>
-              <span className="info-value">{actScore}</span>
-            </div>
-          )}
+
         </div>
 
         <div className="performance-stats">
+          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 600, color: '#374151' }}>Season Stats</h3>
           <div className="stat-row">
             <div className="stat-item-card">
               <span className="stat-value">{goals}</span>
@@ -200,47 +163,7 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
           </div>
         </div>
 
-        <div className="more-stats-section">
-          <button 
-            className="more-stats-button"
-            onClick={() => setExpandedStats(prev => prev === player.id ? null : player.id)}
-          >
-            {expandedStats === player.id ? 'Hide Stats' : 'More Stats'}
-          </button>
-          
-          {expandedStats === player.id && (
-            <div className="detailed-stats">
-              <div className="stat-detail">
-                <span className="detail-label">Shots:</span>
-                <span className="detail-value">{shots}</span>
-              </div>
-              <div className="stat-detail">
-                <span className="detail-label">Shot Percentage:</span>
-                <span className="detail-value">{shotPct.toFixed(1)}%</span>
-              </div>
-              <div className="stat-detail">
-                <span className="detail-label">Penalty Kicks:</span>
-                <span className="detail-value">{penaltyKicks}</span>
-              </div>
-              <div className="stat-detail">
-                <span className="detail-label">Game Winning Goals:</span>
-                <span className="detail-value">{gameWinningGoals}</span>
-              </div>
-              <div className="stat-detail">
-                <span className="detail-label">Goals per Game:</span>
-                <span className="detail-value">
-                  {matches > 0 ? (goals / matches).toFixed(2) : '0.00'}
-                </span>
-              </div>
-              <div className="stat-detail">
-                <span className="detail-label">Assists per Game:</span>
-                <span className="detail-value">
-                  {matches > 0 ? (assists / matches).toFixed(2) : '0.00'}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
+
 
         <div className="footage-section">
           <button 
@@ -265,7 +188,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('goals');
   const [sortOrder, setSortOrder] = useState('desc');
-  const [expandedStats, setExpandedStats] = useState(null);
+
   const [youtubeVideos, setYoutubeVideos] = useState({});
   const [loadingVideos, setLoadingVideos] = useState({});
   const [showVideoModal, setShowVideoModal] = useState(false);
@@ -296,45 +219,33 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     try {
       setLoading(true);
       setError(null);
-      let query = [];
       
-      // Map league filter to backend league name
-      if (filters?.league && filters.league !== 'All') {
-        if (filters.league === 'NJCAA D1') {
-          query.push(`league=${encodeURIComponent('NJCAA D1 (Tier 2 USA)')}`);
-        }
-        // Add more league mappings as needed
-      } else {
-        // If no specific league is selected, only fetch college players
-        // This prevents pro players from showing up in the college section
-        query.push(`league=${encodeURIComponent('NJCAA D1 (Tier 2 USA)')}`);
+      // Always fetch NJCAA players regardless of filters for now
+      const url = `${apiBaseUrl}/api/players?league=${encodeURIComponent('NJCAA D1 (Tier 2 USA)')}`;
+      console.log('Fetching from URL:', url);
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      
+      if (!response.ok) {
+        console.error('Response not ok:', response.status, response.statusText);
+        throw new Error(`Failed to fetch players: ${response.status} ${response.statusText}`);
       }
       
-      if (filters?.position && filters.position !== 'All Positions') {
-        query.push(`position=${encodeURIComponent(filters.position)}`);
-      }
-      
-      // Fetch college players with the appropriate filters
-      const url = `${apiBaseUrl}/api/players${query.length ? '?' + query.join('&') : ''}`;
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch players');
       const data = await response.json();
       
-      // Apply client-side filters for fields not supported by backend yet
-      let filteredPlayers = data.players || [];
+      console.log('API Response:', data);
+      console.log('Total players from API:', data.players?.length || 0);
       
-      if (filters?.region && filters.region !== 'All Regions') {
-        filteredPlayers = filteredPlayers.filter(player => 
-          player.region && player.region.includes(filters.region)
-        );
-      }
-      
-      if (filters?.graduationYear && filters.graduationYear !== 'All Graduation Years') {
-        // This would need to be implemented based on your data structure
-        // For now, we'll skip this filter
-      }
-      
-      setPlayers(filteredPlayers);
+      // For now, just set all players and let the filtering happen in the UI
+      setPlayers(data.players || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching players:', error);
@@ -347,80 +258,129 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   const translatePosition = useCallback((position) => {
     const translations = {
       'Goalkeeper': 'Goalkeeper',
+      'GK': 'Goalkeeper',
       'Defender': 'Defender',
+      'Def': 'Defender',
+      'D': 'Defender',
       'Midfielder': 'Midfielder',
+      'Mid': 'Midfielder',
+      'M': 'Midfielder',
       'Forward': 'Forward',
+      'Fwd': 'Forward',
+      'F': 'Forward',
       'Center Back': 'Center Back',
+      'CB': 'Center Back',
+      'C': 'Center Back',
       'Left Back': 'Left Back',
+      'LB': 'Left Back',
       'Right Back': 'Right Back',
+      'RB': 'Right Back',
       'Defensive Midfielder': 'Defensive Midfielder',
+      'DM': 'Defensive Midfielder',
       'Central Midfielder': 'Central Midfielder',
+      'CM': 'Central Midfielder',
       'Attacking Midfielder': 'Attacking Midfielder',
+      'AM': 'Attacking Midfielder',
       'Left Winger': 'Left Winger',
+      'LW': 'Left Winger',
       'Right Winger': 'Right Winger',
-      'Center Forward': 'Center Forward'
+      'RW': 'Right Winger',
+      'Center Forward': 'Center Forward',
+      'CF': 'Center Forward',
+      'Striker': 'Striker',
+      'ST': 'Striker'
     };
     return translations[position] || position;
   }, []);
 
-  const filteredAndSortedPlayers = useMemo(() => {
+  const expandYear = useCallback((year) => {
+    const yearTranslations = {
+      'Fr': 'Freshman',
+      'So': 'Sophomore',
+      'Jr': 'Junior',
+      'Sr': 'Senior',
+      'Freshman': 'Freshman',
+      'Sophomore': 'Sophomore',
+      'Junior': 'Junior',
+      'Senior': 'Senior',
+      'Graduate': 'Graduate Student',
+      'Transfer': 'Transfer Student'
+    };
+    return yearTranslations[year] || year;
+  }, []);
+
+    const filteredAndSortedPlayers = useMemo(() => {
     console.log('Filtering college players. Total players:', players.length);
     console.log('Current filters:', currentFilters);
     console.log('Search term:', searchTerm);
+    console.log('Sample player data:', players[0]);
     
-    const filteredPlayers = players
-      .filter(player => {
-        // Filter out players with missing or invalid names
-        const playerName = player.name || player.profile?.playerProfile?.playerName;
-        if (!playerName || playerName === 'Unknown Player' || playerName.trim() === '') {
-          return false;
-        }
-        
-        // Filter by league
-        if (currentFilters.league && currentFilters.league !== 'All') {
-          const playerLeague = player.league || '';
-          if (currentFilters.league === 'NJCAA D1' && playerLeague !== 'NJCAA D1 (Tier 2 USA)') {
-            return false;
-          }
-        }
-        
-        // Filter by position
-        if (currentFilters.position && currentFilters.position !== 'All Positions') {
-          const playerPosition = player.position || player.profile?.playerProfile?.position || '';
-          if (playerPosition !== currentFilters.position) {
-            return false;
-          }
-        }
-        
-        // Filter by academic level (college year)
-        if (currentFilters.academicLevel && currentFilters.academicLevel !== 'All Academic Levels') {
-          const playerYear = player.year || player.profile?.playerProfile?.graduationYear || '';
-          if (playerYear !== currentFilters.academicLevel) {
-            return false;
-          }
-        }
-        
-        // Filter by region
-        if (currentFilters.region && currentFilters.region !== 'All Regions') {
-          const playerRegion = player.region || player.profile?.playerProfile?.region || '';
-          if (playerRegion && !playerRegion.includes(currentFilters.region)) {
-            return false;
-          }
-        }
-        
-        // Search term filtering
+    // Apply filters
+    const filteredPlayers = players.filter(player => {
+      // Only filter out players with completely missing names
+      const playerName = player.name;
+      if (!playerName || playerName.trim() === '') {
+        return false;
+      }
+      
+      // Search filter
+      if (searchTerm && searchTerm.trim() !== '') {
         const searchLower = searchTerm.toLowerCase();
-        const teamName = player.team || player.profile?.playerProfile?.club || player.club?.name || 'Unknown';
-        const matchesSearch = playerName.toLowerCase().includes(searchLower) || 
-                             teamName.toLowerCase().includes(searchLower);
-        
-        if (!matchesSearch && searchTerm) {
+        const nameMatch = playerName.toLowerCase().includes(searchLower);
+        const teamMatch = (player.team || '').toLowerCase().includes(searchLower);
+        if (!nameMatch && !teamMatch) {
           return false;
         }
+      }
+      
+      // Filter by position
+      if (currentFilters.position && currentFilters.position !== 'All Positions') {
+        const playerPosition = translatePosition(player.position || '');
+        const filterPosition = currentFilters.position;
         
-        return true;
-      })
-      .sort((a, b) => {
+        // Map positions to categories
+        const isGoalkeeper = playerPosition.toLowerCase().includes('goalkeeper');
+        const isDefender = playerPosition.toLowerCase().includes('defender') || playerPosition.toLowerCase().includes('back');
+        const isMidfielder = playerPosition.toLowerCase().includes('midfielder');
+        const isForward = playerPosition.toLowerCase().includes('forward') || playerPosition.toLowerCase().includes('winger') || 
+                         playerPosition.toLowerCase().includes('striker');
+        
+        if (filterPosition === 'Goalkeeper' && !isGoalkeeper) return false;
+        if (filterPosition === 'Defender' && !isDefender) return false;
+        if (filterPosition === 'Midfielder' && !isMidfielder) return false;
+        if (filterPosition === 'Forward' && !isForward) return false;
+      }
+      
+      // Filter by academic level (year)
+      if (currentFilters.academicLevel && currentFilters.academicLevel !== 'All Academic Levels') {
+        const playerYear = expandYear(player.year || '');
+        if (playerYear !== currentFilters.academicLevel) {
+          return false;
+        }
+      }
+      
+      // Filter by league
+      if (currentFilters.league && currentFilters.league !== 'All') {
+        const playerLeague = (player.league || 'NJCAA D1').replace(' (Tier 2 USA)', '').replace(' (Tier 1 USA)', '').replace(' (Tier 3 USA)', '');
+        if (playerLeague !== currentFilters.league) {
+          return false;
+        }
+      }
+      
+      // Filter by region
+      if (currentFilters.region && currentFilters.region !== 'All Regions') {
+        const playerRegion = player.region || '';
+        if (playerRegion !== currentFilters.region) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+    
+    console.log('After basic filtering:', filteredPlayers.length);
+    
+    return filteredPlayers.sort((a, b) => {
         let aValue, bValue;
         switch (sortBy) {
           case 'goals':
@@ -459,7 +419,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
       });
     
     return filteredPlayers;
-  }, [players, searchTerm, sortBy, sortOrder, currentFilters]);
+  }, [players, searchTerm, sortBy, sortOrder, currentFilters, translatePosition, expandYear]);
 
   const formatMinutes = useCallback((minutes) => {
     if (!minutes) return '0';
@@ -621,17 +581,9 @@ const CollegePlayerCards = ({ filters, onBack }) => {
           >
             <option value="All Positions">All Positions</option>
             <option value="Goalkeeper">Goalkeeper</option>
-            <option value="Center Back">Center Back</option>
-            <option value="Left Back">Left Back</option>
-            <option value="Right Back">Right Back</option>
-            <option value="Defensive Midfielder">Defensive Midfielder</option>
-            <option value="Central Midfielder">Central Midfielder</option>
-            <option value="Left Midfielder">Left Midfielder</option>
-            <option value="Right Midfielder">Right Midfielder</option>
-            <option value="Attacking Midfielder">Attacking Midfielder</option>
-            <option value="Left Winger">Left Winger</option>
-            <option value="Right Winger">Right Winger</option>
-            <option value="Center Forward">Center Forward</option>
+            <option value="Defender">Defender</option>
+            <option value="Midfielder">Midfielder</option>
+            <option value="Forward">Forward</option>
           </select>
         </div>
 
@@ -732,10 +684,8 @@ const CollegePlayerCards = ({ filters, onBack }) => {
             translatePosition={translatePosition}
             formatMinutes={formatMinutes}
             isValidPlayer={isValidPlayer}
-            expandedStats={expandedStats}
-            setExpandedStats={setExpandedStats}
             handleViewFootage={handleViewFootage}
-            selectedLeague={filters?.academicLevel || 'All Levels'}
+            selectedLeague={currentFilters.league || 'All'}
           />
         ))}
       </div>
