@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import './USLPlayerCards.css';
 import { apiBaseUrl } from './config';
 
 const translateNationality = (nationality) => {
@@ -66,20 +67,16 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
   const assists = player.assists || player.performance?.assists || 0;
   const matches = player.games || player.performance?.matches || 0;
   const minutesPlayed = player.minutesPlayed || player.performance?.minutesPlayed || 0;
-
-  const handleCardClick = () => {
-    setIsExpanded(!isExpanded);
-    setExpandedStats(isExpanded ? null : player.id);
-  };
-
-  const handleStatsClick = (e) => {
-    e.stopPropagation();
-    setExpandedStats(expandedStats === player.id ? null : player.id);
-  };
+  const gamesStarted = player.games_started || player.performance?.starting || 0;
+  const points = player.points || 0;
+  const shots = player.shots || 0;
+  const shotPct = player.shot_pct || 0;
+  const penaltyKicks = player.penalty_kicks || 0;
+  const gameWinningGoals = player.game_winning_goals || 0;
 
   return (
-    <div className="player-card" onClick={handleCardClick}>
-      <div className="player-card-header">
+    <div className="player-card">
+      <div className="card-header">
         <div className="player-image-container">
           <img 
             src={getPlayerImage(player)} 
@@ -90,13 +87,7 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
             }}
           />
         </div>
-        <div className="player-info">
-          <h3 className="player-name">{playerName}</h3>
-          <p className="player-position">{position}</p>
-          <p className="player-club">{teamName}</p>
-          <p className="player-nationality">{nationality}</p>
-        </div>
-        <div className="club-image-container">
+        <div className="club-badge">
           <img 
             src={getClubImage(player)} 
             alt={teamName}
@@ -108,76 +99,146 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
         </div>
       </div>
 
-      <div className="player-stats" onClick={handleStatsClick}>
-        <div className="stat-item">
-          <span className="stat-value">{goals}</span>
-          <span className="stat-label">Goals</span>
-        </div>
-        <div className="stat-item">
-          <span className="stat-value">{assists}</span>
-          <span className="stat-label">Assists</span>
-        </div>
-        <div className="stat-item">
-          <span className="stat-value">{matches}</span>
-          <span className="stat-label">Matches</span>
-        </div>
-        <div className="stat-item">
-          <span className="stat-value">{formatMinutes(minutesPlayed)}</span>
-          <span className="stat-label">Minutes</span>
-        </div>
-      </div>
+      <div className="card-body">
+        <h3 className="player-name">{playerName}</h3>
+        
+        <div className="club-name">{teamName}</div>
+        
+        <div className="league-badge">{academicLevel}</div>
 
-      {expandedStats === player.id && (
-        <div className="expanded-stats">
-          <div className="stats-grid">
-            <div className="stat-row">
-              <span className="stat-label">Age:</span>
-              <span className="stat-value">{age}</span>
+        <div className="player-info">
+          <div className="info-item">
+            <span className="info-label">Position:</span>
+            <span className="info-value">{position}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Age:</span>
+            <span className="info-value">{age}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Height:</span>
+            <span className="info-value">{height}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Weight:</span>
+            <span className="info-value">{weight}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Year:</span>
+            <span className="info-value">{graduationYear}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Region:</span>
+            <span className="info-value">{region}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Nationality:</span>
+            <span className="info-value">{nationality}</span>
+          </div>
+          {gpa !== 'Unknown' && (
+            <div className="info-item">
+              <span className="info-label">GPA:</span>
+              <span className="info-value">{gpa}</span>
             </div>
-            <div className="stat-row">
-              <span className="stat-label">Height:</span>
-              <span className="stat-value">{height}</span>
+          )}
+          {satScore !== 'Unknown' && (
+            <div className="info-item">
+              <span className="info-label">SAT Score:</span>
+              <span className="info-value">{satScore}</span>
             </div>
-            <div className="stat-row">
-              <span className="stat-label">Weight:</span>
-              <span className="stat-value">{weight}</span>
+          )}
+          {actScore !== 'Unknown' && (
+            <div className="info-item">
+              <span className="info-label">ACT Score:</span>
+              <span className="info-value">{actScore}</span>
             </div>
-            <div className="stat-row">
-              <span className="stat-label">Academic Level:</span>
-              <span className="stat-value">{academicLevel}</span>
+          )}
+        </div>
+
+        <div className="performance-stats">
+          <div className="stat-row">
+            <div className="stat-item-card">
+              <span className="stat-value">{goals}</span>
+              <span className="stat-label-card">Goals</span>
             </div>
-            <div className="stat-row">
-              <span className="stat-label">Region:</span>
-              <span className="stat-value">{region}</span>
+            <div className="stat-item-card">
+              <span className="stat-value">{assists}</span>
+              <span className="stat-label-card">Assists</span>
             </div>
-            <div className="stat-row">
-              <span className="stat-label">Graduation Year:</span>
-              <span className="stat-value">{graduationYear}</span>
-            </div>
-            <div className="stat-row">
-              <span className="stat-label">GPA:</span>
-              <span className="stat-value">{gpa}</span>
-            </div>
-            <div className="stat-row">
-              <span className="stat-label">SAT Score:</span>
-              <span className="stat-value">{satScore}</span>
-            </div>
-            <div className="stat-row">
-              <span className="stat-label">ACT Score:</span>
-              <span className="stat-value">{actScore}</span>
+            <div className="stat-item-card">
+              <span className="stat-value">{points}</span>
+              <span className="stat-label-card">Points</span>
             </div>
           </div>
-          <button 
-            className="view-footage-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleViewFootage(player);
-            }}
-          >
-            View Highlights
-          </button>
+
+          <div className="stat-row">
+            <div className="stat-item-card">
+              <span className="stat-value">{matches}</span>
+              <span className="stat-label-card">Games</span>
+            </div>
+            <div className="stat-item-card">
+              <span className="stat-value">{gamesStarted}</span>
+              <span className="stat-label-card">Games Started</span>
+            </div>
+            <div className="stat-item-card">
+              <span className="stat-value">{formatMinutes(minutesPlayed)}</span>
+              <span className="stat-label-card">Minutes</span>
+            </div>
+          </div>
         </div>
-      )}
+
+        <div className="more-stats-section">
+          <button 
+            className="more-stats-button"
+            onClick={() => setExpandedStats(prev => prev === player.id ? null : player.id)}
+          >
+            {expandedStats === player.id ? 'Hide Stats' : 'More Stats'}
+          </button>
+          
+          {expandedStats === player.id && (
+            <div className="detailed-stats">
+              <div className="stat-detail">
+                <span className="detail-label">Shots:</span>
+                <span className="detail-value">{shots}</span>
+              </div>
+              <div className="stat-detail">
+                <span className="detail-label">Shot Percentage:</span>
+                <span className="detail-value">{shotPct.toFixed(1)}%</span>
+              </div>
+              <div className="stat-detail">
+                <span className="detail-label">Penalty Kicks:</span>
+                <span className="detail-value">{penaltyKicks}</span>
+              </div>
+              <div className="stat-detail">
+                <span className="detail-label">Game Winning Goals:</span>
+                <span className="detail-value">{gameWinningGoals}</span>
+              </div>
+              <div className="stat-detail">
+                <span className="detail-label">Goals per Game:</span>
+                <span className="detail-value">
+                  {matches > 0 ? (goals / matches).toFixed(2) : '0.00'}
+                </span>
+              </div>
+              <div className="stat-detail">
+                <span className="detail-label">Assists per Game:</span>
+                <span className="detail-value">
+                  {matches > 0 ? (assists / matches).toFixed(2) : '0.00'}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <button 
+          className="view-footage-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleViewFootage(player);
+          }}
+        >
+          View Highlights
+        </button>
+      </div>
     </div>
   );
 });
