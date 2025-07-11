@@ -94,11 +94,11 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
       <div className="card-header">
         <div className="player-image-container">
           <img 
-            src={isRealPhoto ? photoUrl : getPlayerImage(player)} 
+            src={isRealPhoto ? photoUrl : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iNDgiIGZpbGw9IiNmMWY1ZjkiLz4KPHN2ZyB4PSIyNCIgeT0iMjQiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjOWNhM2FmIj4KPHBhdGggZD0iTTEyIDJDMzMuMSAyIDE0IDIuOSAxNCA0VjZDMjQgNy4xIDEzLjEgOCAxMiA4QzEwLjkgOCAxMCA3LjEgMTAgNlY0QzEwIDIuOSAxMC45IDIgMTIgMloiLz4KPHBhdGggZD0iTTE4IDhDMTkuMSA4IDIwIDguOSAyMCAxMFYxNEMyMCAxNS4xIDE5LjEgMTYgMTggMTZIMTZDMTQuOSAxNiAxNCAxNS4xIDE0IDE0VjEwQzE0IDguOSAxNC45IDggMTYgOEgxOFoiLz4KPHBhdGggZD0iTTggOEM5LjEgOCAxMCA4LjkgMTAgMTBWMTRDMjAgMTUuMSA5LjEgMTYgOCAxNkg2QzQuOSAxNiA0IDE1LjEgNCAxNFYxMEM0IDguOSA0LjkgOCA2IDhIOFoiLz4KPC9zdmc+Cjwvc3ZnPgo='} 
             alt={playerName}
             className="player-image"
             onError={(e) => {
-              e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iNDgiIGZpbGw9IiM0ZjhjZmYiLz4KPHN2ZyB4PSIyNCIgeT0iMjQiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xMiAyQzEzLjEgMiAxNCAyLjkgMTQgNFY2QzE0IDcuMSAxMy4xIDggMTIgOEMxMC45IDggMTAgNy4xIDEwIDZWNEMxMCAyLjkgMTAuOSAyIDEyIDJaIi8+CjxwYXRoIGQ9Ik0xOCA4QzE5LjEgOCAyMCA4LjkgMjAgMTBWMTRDMjAgMTUuMSAxOS4xIDE2IDE4IDE2SDE2QzE0LjkgMTYgMTQgMTUuMSAxNCAxNFYxMEMxNCA4LjkgMTQuOSA4IDE2IDhIMThaIi8+CjxwYXRoIGQ9Ik04IDhDOS4xIDggMTAgOC45IDEwIDEwVjE0QzEwIDE1LjEgOS4xIDE2IDggMTZINkM0LjkgMTYgNCAxNS4xIDQgMTRWMTBDNCA4LjkgNC45IDggNiA4SDhaIi8+Cjwvc3ZnPgo8L3N2Zz4K';
+              e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iNDgiIGZpbGw9IiNmMWY1ZjkiLz4KPHN2ZyB4PSIyNCIgeT0iMjQiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjOWNhM2FmIj4KPHBhdGggZD0iTTEyIDJDMzMuMSAyIDE0IDIuOSAxNCA0VjZDMjQgNy4xIDEzLjEgOCAxMiA4QzEwLjkgOCAxMCA3LjEgMTAgNlY0QzEwIDIuOSAxMC45IDIgMTIgMloiLz4KPHBhdGggZD0iTTE4IDhDMTkuMSA4IDIwIDguOSAyMCAxMFYxNEMyMCAxNS4xIDE5LjEgMTYgMTggMTZIMTZDMTQuOSAxNiAxNCAxNS4xIDE0IDE0VjEwQzE0IDguOSAxNC45IDggMTYgOEgxOFoiLz4KPHBhdGggZD0iTTggOEM5LjEgOCAxMCA4LjkgMTAgMTBWMTRDMjAgMTUuMSA5LjEgMTYgOCAxNkg2QzQuOSAxNiA0IDE1LjEgNCAxNFYxMEM0IDguOSA0LjkgOCA2IDhIOFoiLz4KPC9zdmc+Cjwvc3ZnPgo=';
             }}
           />
         </div>
@@ -108,7 +108,7 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
             alt={teamName}
             className="club-image"
             onError={(e) => {
-              e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjQiIGZpbGw9IiM2ZjZmZmYiLz4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjAiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNCA0QzI2LjIgNCAyOCA1LjggMjggOFYxNkMyOCAxOC4yIDI2LjIgMjAgMjQgMjBDMjEuOCAyMCAyMCAxOC4yIDIwIDE2VjhDMjAgNS44IDIxLjggNCAyNCA0WiIgZmlsbD0iIzZmNmZmZiIvPgo8L3N2Zz4K';
+              e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjQiIGZpbGw9IiNmMWY1ZjkiLz4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjAiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNCA0QzI2LjIgNCAyOCA1LjggMjggOFYxNkMyOCAxOC4yIDI2LjIgMjAgMjQgMjBDMjEuOCAyMCAyMCAxOC4yIDIwIDE2VjhDMjAgNS44IDIxLjggNCAyNCA0WiIgZmlsbD0iIzljYTNhZiIvPgo8L3N2Zz4K';
             }}
           />
         </div>
@@ -179,6 +179,21 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
               <span className="stat-label-card">Minutes</span>
             </div>
           </div>
+        </div>
+
+        {/* Highlights Button */}
+        <div className="card-actions">
+          <button 
+            className="highlights-button"
+            onClick={() => handleViewFootage(player)}
+            disabled={loadingVideos[`${playerName}-${teamName}`]}
+          >
+            {loadingVideos[`${playerName}-${teamName}`] ? (
+              <span>Loading...</span>
+            ) : (
+              <span>View Highlights</span>
+            )}
+          </button>
         </div>
       </div>
     </div>
@@ -381,6 +396,12 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     console.log('Current filters:', currentFilters);
     console.log('Search term:', searchTerm);
     console.log('Sample player data:', players[0]);
+    console.log('Active filters:', {
+      position: currentFilters.position,
+      academicLevel: currentFilters.academicLevel,
+      league: currentFilters.league,
+      searchTerm: searchTerm
+    });
     
     // Debug: Check if Juan Jose Montoya is in the players array
     const juanJose = players.find(p => p.name === 'Juan Jose Montoya');
@@ -392,25 +413,37 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     }
     
     // Apply filters
-    const filteredPlayers = players.filter(player => {
+    let filteredPlayers = players.filter(player => {
       // Only filter out players with completely missing names
       const playerName = player.name;
       if (!playerName || playerName.trim() === '') {
+        console.log('Filtering out player with missing name:', player);
         return false;
       }
-      
-      // Search filter
-      if (searchTerm && searchTerm.trim() !== '') {
-        const searchLower = searchTerm.toLowerCase();
+      return true;
+    });
+    console.log('After name filter:', filteredPlayers.length);
+    
+    // Search filter
+    if (searchTerm && searchTerm.trim() !== '') {
+      const searchLower = searchTerm.toLowerCase();
+      filteredPlayers = filteredPlayers.filter(player => {
+        const playerName = player.name;
         const nameMatch = playerName.toLowerCase().includes(searchLower);
         const teamMatch = (player.team || '').toLowerCase().includes(searchLower);
         if (!nameMatch && !teamMatch) {
+          console.log('Filtering out player due to search term:', playerName, 'search term:', searchTerm);
           return false;
         }
-      }
-      
-      // Filter by position
-      if (currentFilters.position && currentFilters.position !== 'All Positions') {
+        return true;
+      });
+      console.log('After search filter:', filteredPlayers.length);
+    }
+    
+    // Filter by position
+    if (currentFilters.position && currentFilters.position !== 'All Positions') {
+      filteredPlayers = filteredPlayers.filter(player => {
+        const playerName = player.name;
         const playerPosition = translatePosition(player.position || '');
         const filterPosition = currentFilters.position;
         
@@ -421,30 +454,54 @@ const CollegePlayerCards = ({ filters, onBack }) => {
         const isForward = playerPosition.toLowerCase().includes('forward') || playerPosition.toLowerCase().includes('winger') || 
                          playerPosition.toLowerCase().includes('striker');
         
-        if (filterPosition === 'Goalkeeper' && !isGoalkeeper) return false;
-        if (filterPosition === 'Defender' && !isDefender) return false;
-        if (filterPosition === 'Midfielder' && !isMidfielder) return false;
-        if (filterPosition === 'Forward' && !isForward) return false;
-      }
-      
-      // Filter by academic year
-      if (currentFilters.academicLevel && currentFilters.academicLevel !== 'All Academic Years') {
+        if (filterPosition === 'Goalkeeper' && !isGoalkeeper) {
+          console.log('Filtering out non-goalkeeper:', playerName, 'position:', playerPosition);
+          return false;
+        }
+        if (filterPosition === 'Defender' && !isDefender) {
+          console.log('Filtering out non-defender:', playerName, 'position:', playerPosition);
+          return false;
+        }
+        if (filterPosition === 'Midfielder' && !isMidfielder) {
+          console.log('Filtering out non-midfielder:', playerName, 'position:', playerPosition);
+          return false;
+        }
+        if (filterPosition === 'Forward' && !isForward) {
+          console.log('Filtering out non-forward:', playerName, 'position:', playerPosition);
+          return false;
+        }
+        return true;
+      });
+      console.log('After position filter:', filteredPlayers.length);
+    }
+    
+    // Filter by academic year
+    if (currentFilters.academicLevel && currentFilters.academicLevel !== 'All Academic Years') {
+      filteredPlayers = filteredPlayers.filter(player => {
+        const playerName = player.name;
         const playerYear = expandYear(player.year || '');
         if (playerYear !== currentFilters.academicLevel) {
+          console.log('Filtering out player due to academic year:', playerName, 'year:', playerYear, 'filter:', currentFilters.academicLevel);
           return false;
         }
-      }
-      
-      // Filter by league
-      if (currentFilters.league && currentFilters.league !== 'All') {
+        return true;
+      });
+      console.log('After academic year filter:', filteredPlayers.length);
+    }
+    
+    // Filter by league
+    if (currentFilters.league && currentFilters.league !== 'All') {
+      filteredPlayers = filteredPlayers.filter(player => {
+        const playerName = player.name;
         const playerLeague = player.league || 'NJCAA D1';
         if (playerLeague !== currentFilters.league) {
+          console.log('Filtering out player due to league:', playerName, 'league:', playerLeague, 'filter:', currentFilters.league);
           return false;
         }
-      }
-      
-      return true;
-    });
+        return true;
+      });
+      console.log('After league filter:', filteredPlayers.length);
+    }
     
     console.log('After basic filtering:', filteredPlayers.length);
     
@@ -492,12 +549,12 @@ const CollegePlayerCards = ({ filters, onBack }) => {
 
   const getPlayerImage = useCallback((player) => {
     // For college players, use a simple data URI
-    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iNDgiIGZpbGw9IiM0ZjhjZmYiLz4KPHN2ZyB4PSIyNCIgeT0iMjQiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xMiAyQzEzLjEgMiAxNCAyLjkgMTQgNFY2QzE0IDcuMSAxMy4xIDggMTIgOEMxMC45IDggMTAgNy4xIDEwIDZWNEMxMCAyLjkgMTAuOSAyIDEyIDJaIi8+CjxwYXRoIGQ9Ik0xOCA4QzE5LjEgOCAyMCA4LjkgMjAgMTBWMTRDMjAgMTUuMSAxOS4xIDE2IDE4IDE2SDE2QzE0LjkgMTYgMTQgMTUuMSAxNCAxNFYxMEMxNCA4LjkgMTQuOSA4IDE2IDhIMThaIi8+CjxwYXRoIGQ9Ik04IDhDOS4xIDggMTAgOC45IDEwIDEwVjE0QzEwIDE1LjEgOS4xIDE2IDggMTZINkM0LjkgMTYgNCAxNS4xIDQgMTRWMTBDNCA4LjkgNC45IDggNiA4SDhaIi8+Cjwvc3ZnPgo8L3N2Zz4K';
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iNDgiIGZpbGw9IiNmMWY1ZjkiLz4KPHN2ZyB4PSIyNCIgeT0iMjQiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjOWNhM2FmIj4KPHBhdGggZD0iTTEyIDJDMzMuMSAyIDE0IDIuOSAxNCA0VjZDMjQgNy4xIDEzLjEgOCAxMiA4QzEwLjkgOCAxMCA3LjEgMTAgNlY0QzEwIDIuOSAxMC45IDIgMTIgMloiLz4KPHBhdGggZD0iTTE4IDhDMTkuMSA4IDIwIDguOSAyMCAxMFYxNEMyMCAxNS4xIDE5LjEgMTYgMTggMTZIMTZDMTQuOSAxNiAxNCAxNS4xIDE0IDE0VjEwQzE0IDguOSAxNC45IDggMTYgOEgxOFoiLz4KPHBhdGggZD0iTTggOEM5LjEgOCAxMCA4LjkgMTAgMTBWMTRDMjAgMTUuMSA5LjEgMTYgOCAxNkg2QzQuOSAxNiA0IDE1LjEgNCAxNFYxMEM0IDguOSA0LjkgOCA2IDhIOFoiLz4KPC9zdmc+Cjwvc3ZnPgo=';
   }, []);
 
   const getClubImage = useCallback((player) => {
     // For college teams, use a simple data URI
-    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjQiIGZpbGw9IiM2ZjZmZmYiLz4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjAiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNCA0QzI2LjIgNCAyOCA1LjggMjggOFYxNkMyOCAxOC4yIDI2LjIgMjAgMjQgMjBDMjEuOCAyMCAyMCAxOC4yIDIwIDE2VjhDMjAgNS44IDIxLjggNCAyNCA0WiIgZmlsbD0iIzZmNmZmZiIvPgo8L3N2Zz4K';
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjQiIGZpbGw9IiNmMWY1ZjkiLz4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjAiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNCA0QzI2LjIgNCAyOCA1LjggMjggOFYxNkMyOCAxOC4yIDI2LjIgMjAgMjQgMjBDMjEuOCAyMCAyMCAxOC4yIDIwIDE2VjhDMjAgNS44IDIxLjggNCAyNCA0WiIgZmlsbD0iIzljYTNhZiIvPgo8L3N2Zz4K';
   }, []);
 
   const isValidPlayer = useCallback((player) => {
