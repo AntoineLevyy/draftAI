@@ -2,6 +2,43 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './USLPlayerCards.css';
 import { apiBaseUrl } from './config';
 
+// Add the highlights button styles to match the pro section
+const highlightsButtonStyles = `
+  .footage-section {
+    margin-top: 10px;
+  }
+
+  .view-footage-button {
+    width: 100%;
+    padding: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .view-footage-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  .view-footage-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
+// Inject the styles
+const styleSheet = document.createElement('style');
+styleSheet.textContent = highlightsButtonStyles;
+document.head.appendChild(styleSheet);
+
 const translateNationality = (nationality) => {
   const translations = {
     'Vereinigte Staaten': 'United States',
@@ -93,14 +130,25 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
     <div className="player-card">
       <div className="card-header">
         <div className="player-image-container">
-          <img 
-            src={isRealPhoto ? photoUrl : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iNDgiIGZpbGw9IiNmMWY1ZjkiLz4KPHN2ZyB4PSIyNCIgeT0iMjQiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjOWNhM2FmIj4KPHBhdGggZD0iTTEyIDJDMzMuMSAyIDE0IDIuOSAxNCA0VjZDMjQgNy4xIDEzLjEgOCAxMiA4QzEwLjkgOCAxMCA3LjEgMTAgNlY0QzEwIDIuOSAxMC45IDIgMTIgMloiLz4KPHBhdGggZD0iTTE4IDhDMTkuMSA4IDIwIDguOSAyMCAxMFYxNEMyMCAxNS4xIDE5LjEgMTYgMTggMTZIMTZDMTQuOSAxNiAxNCAxNS4xIDE0IDE0VjEwQzE0IDguOSAxNC45IDggMTYgOEgxOFoiLz4KPHBhdGggZD0iTTggOEM5LjEgOCAxMCA4LjkgMTAgMTBWMTRDMjAgMTUuMSA5LjEgMTYgOCAxNkg2QzQuOSAxNiA0IDE1LjEgNCAxNFYxMEM0IDguOSA0LjkgOCA2IDhIOFoiLz4KPC9zdmc+Cjwvc3ZnPgo='} 
-            alt={playerName}
-            className="player-image"
-            onError={(e) => {
-              e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iNDgiIGZpbGw9IiNmMWY1ZjkiLz4KPHN2ZyB4PSIyNCIgeT0iMjQiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjOWNhM2FmIj4KPHBhdGggZD0iTTEyIDJDMzMuMSAyIDE0IDIuOSAxNCA0VjZDMjQgNy4xIDEzLjEgOCAxMiA4QzEwLjkgOCAxMCA3LjEgMTAgNlY0QzEwIDIuOSAxMC45IDIgMTIgMloiLz4KPHBhdGggZD0iTTE4IDhDMTkuMSA4IDIwIDguOSAyMCAxMFYxNEMyMCAxNS4xIDE5LjEgMTYgMTggMTZIMTZDMTQuOSAxNiAxNCAxNS4xIDE0IDE0VjEwQzE0IDguOSAxNC45IDggMTYgOEgxOFoiLz4KPHBhdGggZD0iTTggOEM5LjEgOCAxMCA4LjkgMTAgMTBWMTRDMjAgMTUuMSA5LjEgMTYgOCAxNkg2QzQuOSAxNiA0IDE1LjEgNCAxNFYxMEM0IDguOSA0LjkgOCA2IDhIOFoiLz4KPC9zdmc+Cjwvc3ZnPgo=';
-            }}
-          />
+          {isRealPhoto ? (
+            <img 
+              src={photoUrl} 
+              alt={playerName}
+              className="player-image"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+          ) : (
+            <div 
+              className="player-image"
+              style={{
+                backgroundColor: 'transparent',
+                border: '3px solid white',
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
+              }}
+            />
+          )}
         </div>
         <div className="club-badge">
           <img 
@@ -108,7 +156,7 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
             alt={teamName}
             className="club-image"
             onError={(e) => {
-              e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjQiIGZpbGw9IiNmMWY1ZjkiLz4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjAiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNCA0QzI2LjIgNCAyOCA1LjggMjggOFYxNkMyOCAxOC4yIDI2LjIgMjAgMjQgMjBDMjEuOCAyMCAyMCAxOC4yIDIwIDE2VjhDMjAgNS44IDIxLjggNCAyNCA0WiIgZmlsbD0iIzljYTNhZiIvPgo8L3N2Zz4K';
+              e.target.style.display = 'none';
             }}
           />
         </div>
@@ -181,10 +229,10 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
           </div>
         </div>
 
-        {/* Highlights Button */}
-        <div className="card-actions">
+        {/* Highlights Button - Using pro section styling */}
+        <div className="footage-section">
           <button 
-            className="highlights-button"
+            className="view-footage-button"
             onClick={() => handleViewFootage(player)}
             disabled={loadingVideos[`${playerName}-${teamName}`]}
           >
@@ -231,26 +279,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
   }, []);
 
-  const handleRefresh = useCallback(() => {
-    console.log('Manual refresh triggered');
-    // Force a fresh fetch by clearing cache and refetching
-    setPlayers([]);
-    setLoading(true);
-    fetch(`${apiBaseUrl}/api/players`)
-      .then(response => response.text())
-      .then(text => {
-        console.log('Raw response text (first 1000 chars):', text.substring(0, 1000));
-        const data = JSON.parse(text);
-        console.log('API Response:', data);
-        setPlayers(data.players || []);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error in manual refresh:', error);
-        setError('Failed to refresh data');
-        setLoading(false);
-      });
-  }, []);
+
 
   useEffect(() => {
     console.log('useEffect triggered with filters:', localFilters);
@@ -658,19 +687,6 @@ const CollegePlayerCards = ({ filters, onBack }) => {
             onChange={handleSearchChange}
             className="search-input"
           />
-          <button 
-            onClick={handleRefresh}
-            style={{
-              padding: '8px 12px',
-              borderRadius: '6px',
-              border: '2px solid rgba(79,140,255,0.2)',
-              background: 'rgba(255,255,255,0.9)',
-              cursor: 'pointer',
-              fontSize: '0.9rem'
-            }}
-          >
-            🔄 Refresh
-          </button>
         </div>
         <div className="sort-controls">
           <label>Sort by:</label>
