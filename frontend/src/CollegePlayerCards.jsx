@@ -55,7 +55,7 @@ const expandYear = (year) => {
   return yearTranslations[year] || year;
 };
 
-const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, translatePosition, formatMinutes, isValidPlayer, handleViewFootage, selectedLeague }) => {
+const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, translatePosition, formatMinutes, isValidPlayer, handleViewFootage, selectedLeague, loadingVideos }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (!isValidPlayer(player)) {
@@ -295,6 +295,10 @@ const CollegePlayerCards = ({ filters, onBack }) => {
       }
       console.log('API Response:', data);
       console.log('Total players from API:', data.players?.length || 0);
+      console.log('=== RAW API DATA CHECK ===');
+      console.log('First 3 players from API:', data.players?.slice(0, 3).map(p => ({ name: p.name, league: p.league, photo_url: p.photo_url })));
+      console.log('NJCAA players count from API:', data.players?.filter(p => p.league?.startsWith('NJCAA')).length || 0);
+      console.log('=== END RAW API DATA CHECK ===');
       
       // Debug: Check if Juan Jose Montoya is in the API response
       const juanJoseInAPI = data.players?.find(p => p.name === 'Juan Jose Montoya');
@@ -315,6 +319,9 @@ const CollegePlayerCards = ({ filters, onBack }) => {
       );
       console.log('NJCAA players filtered:', njcaaPlayers.length);
       console.log('Sample NJCAA player leagues:', njcaaPlayers.slice(0, 5).map(p => p.league));
+      console.log('=== NJCAA FILTERING CHECK ===');
+      console.log('First 3 NJCAA players after filtering:', njcaaPlayers.slice(0, 3).map(p => ({ name: p.name, league: p.league, photo_url: p.photo_url })));
+      console.log('=== END NJCAA FILTERING CHECK ===');
       
       const playersToSet = njcaaPlayers;
       console.log('Setting players state with:', playersToSet.length, 'players');
@@ -791,6 +798,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
             isValidPlayer={isValidPlayer}
             handleViewFootage={handleViewFootage}
             selectedLeague={currentFilters.league || 'All'}
+            loadingVideos={loadingVideos}
           />
         ))}
       </div>
