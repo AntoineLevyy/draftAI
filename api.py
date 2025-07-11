@@ -136,20 +136,15 @@ def fetch_player_data():
             njcaa_players = njcaa_data if isinstance(njcaa_data, list) else []
             # Transform NJCAA data to match our format
             for player in njcaa_players:
-                # Extract stats from the stats object
                 stats = player.get('stats', {})
-                
-                # Clean up height and weight data - handle encoding issues
                 raw_height = player.get('dataMap', {}).get('height', '')
                 clean_height = raw_height.replace('Ã', '').strip() if raw_height else ''
-                
                 raw_weight = player.get('dataMap', {}).get('weight', '')
                 clean_weight = raw_weight.replace('Ã', '').strip() if raw_weight else ''
-                
-                # Extract hometown from dataMap
                 hometown = player.get('dataMap', {}).get('hometown', '')
-                
+                # Merge all original fields with transformed fields
                 transformed_player = {
+                    **player,
                     'name': player.get('fullName', f"{player.get('firstName', '')} {player.get('lastName', '')}"),
                     'position': player.get('position', ''),
                     'team': player.get('team', ''),
@@ -163,8 +158,8 @@ def fetch_player_data():
                     'shot_pct': float(stats.get('shpt', 0)),
                     'penalty_kicks': int(stats.get('pkm', 0)),
                     'game_winning_goals': int(stats.get('gw', 0)),
-                    'nationality': 'USA',  # Default for college players
-                    'age': 0,  # Not available in NJCAA data
+                    'nationality': 'USA',
+                    'age': 0,
                     'height': clean_height,
                     'weight': clean_weight,
                     'hometown': hometown,
@@ -190,20 +185,15 @@ def fetch_player_data():
             njcaa_players = njcaa_data if isinstance(njcaa_data, list) else []
             # Transform NJCAA data to match our format
             for player in njcaa_players:
-                # Extract stats from the stats object
                 stats = player.get('stats', {})
-                
-                # Clean up height and weight data - handle encoding issues
                 raw_height = player.get('dataMap', {}).get('height', '')
                 clean_height = raw_height.replace('Ã', '').strip() if raw_height else ''
-                
                 raw_weight = player.get('dataMap', {}).get('weight', '')
                 clean_weight = raw_weight.replace('Ã', '').strip() if raw_weight else ''
-                
-                # Extract hometown from dataMap
                 hometown = player.get('dataMap', {}).get('hometown', '')
-                
+                # Merge all original fields with transformed fields
                 transformed_player = {
+                    **player,
                     'name': player.get('fullName', f"{player.get('firstName', '')} {player.get('lastName', '')}"),
                     'position': player.get('position', ''),
                     'team': player.get('team', ''),
@@ -217,8 +207,8 @@ def fetch_player_data():
                     'shot_pct': float(stats.get('shpt', 0)),
                     'penalty_kicks': int(stats.get('pkm', 0)),
                     'game_winning_goals': int(stats.get('gw', 0)),
-                    'nationality': 'USA',  # Default for college players
-                    'age': 0,  # Not available in NJCAA data
+                    'nationality': 'USA',
+                    'age': 0,
                     'height': clean_height,
                     'weight': clean_weight,
                     'hometown': hometown,
@@ -244,20 +234,15 @@ def fetch_player_data():
             njcaa_players = njcaa_data if isinstance(njcaa_data, list) else []
             # Transform NJCAA data to match our format
             for player in njcaa_players:
-                # Extract stats from the stats object
                 stats = player.get('stats', {})
-                
-                # Clean up height and weight data - handle encoding issues
                 raw_height = player.get('dataMap', {}).get('height', '')
                 clean_height = raw_height.replace('Ã', '').strip() if raw_height else ''
-                
                 raw_weight = player.get('dataMap', {}).get('weight', '')
                 clean_weight = raw_weight.replace('Ã', '').strip() if raw_weight else ''
-                
-                # Extract hometown from dataMap
                 hometown = player.get('dataMap', {}).get('hometown', '')
-                
+                # Merge all original fields with transformed fields
                 transformed_player = {
+                    **player,
                     'name': player.get('fullName', f"{player.get('firstName', '')} {player.get('lastName', '')}"),
                     'position': player.get('position', ''),
                     'team': player.get('team', ''),
@@ -271,8 +256,8 @@ def fetch_player_data():
                     'shot_pct': float(stats.get('shpt', 0)),
                     'penalty_kicks': int(stats.get('pkm', 0)),
                     'game_winning_goals': int(stats.get('gw', 0)),
-                    'nationality': 'USA',  # Default for college players
-                    'age': 0,  # Not available in NJCAA data
+                    'nationality': 'USA',
+                    'age': 0,
                     'height': clean_height,
                     'weight': clean_weight,
                     'hometown': hometown,
@@ -289,6 +274,11 @@ def fetch_player_data():
         print(f"Error fetching NJCAA D3 data: {e}")
     
     _player_cache = players
+    print(f"Total players loaded: {len(players)}")
+    print(f"Sample players by league:")
+    for league in ['USL League One', 'MLS Next Pro', 'Canadian Premier League', 'Liga MX Apertura', 'NJCAA D1', 'NJCAA D2', 'NJCAA D3']:
+        league_players = [p for p in players if p.get('league') == league]
+        print(f"  {league}: {len(league_players)} players")
     return players
 
 @app.route('/api/players', methods=['GET'])
@@ -302,6 +292,18 @@ def get_players():
         
         # Fetch all players
         players = fetch_player_data()
+        
+        # Debug: Check what we're actually returning
+        print(f"API called - returning {len(players)} players")
+        print(f"First 3 players leagues: {[p.get('league', 'NO_LEAGUE') for p in players[:3]]}")
+        print(f"NJCAA players in response: {len([p for p in players if p.get('league', '').startswith('NJCAA')])}")
+        
+        # Check for Juan Jose Montoya specifically
+        juan_jose = [p for p in players if p.get('name') == 'Juan Jose Montoya']
+        if juan_jose:
+            print(f"Juan Jose Montoya found in API response: {juan_jose[0].get('photo_url', 'NO_PHOTO')}")
+        else:
+            print("Juan Jose Montoya NOT found in API response")
         
         # Apply filters
         filtered_players = players

@@ -62,40 +62,39 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
     return null;
   }
 
-  // Extract data from NJCAA structure
-  const playerName = player.fullName || player.name || 'Unknown Player';
+  // Read from the cleaned JSON structure - simple fields only
+  const playerName = player.name || 'Unknown Player';
   const teamName = player.team || 'Unknown Team';
   const position = translatePosition(player.position || 'Unknown');
   const year = expandYear(player.year || 'N/A');
-  const region = player.region || 'N/A';
-  const league = (player.league || 'NJCAA D1').replace(' (Tier 2 USA)', '').replace(' (Tier 1 USA)', '').replace(' (Tier 3 USA)', '');
+  const league = player.league || 'NJCAA D1';
 
-  // Detailed player information (new fields) - read from direct properties
+  // Basic player information from cleaned structure
   const height = player.height || 'N/A';
   const weight = player.weight || 'N/A';
   const hometown = player.hometown || 'N/A';
   const photoUrl = player.photo_url || null;
-  const shotPercentage = player.shot_percentage || 'N/A';
-  const shotsOnGoal = player.shots_on_goal || 'N/A';
-  const penaltyKicks = player.penalty_kicks || 'N/A';
 
+  // Season stats from cleaned structure
+  const goals = parseInt(player.goals || 0);
+  const assists = parseInt(player.assists || 0);
+  const points = parseInt(player.points || 0);
+  const matches = parseInt(player.games || 0);
+  const gamesStarted = parseInt(player.games_started || 0);
+  const minutesPlayed = parseInt(player.minutes || 0);
 
+  // Only use photoUrl if it is a real photo (not N/A or empty)
+  const isRealPhoto = photoUrl && photoUrl !== 'N/A' && photoUrl !== '';
 
-  // Season stats - extract from stats object
-  const stats = player.stats || {};
-  const goals = parseInt(stats.gol || stats.g || 0);
-  const assists = parseInt(stats.a || 0);
-  const points = parseInt(stats.p || 0);
-  const matches = parseInt(stats.gp || stats.g || 0);
-  const gamesStarted = parseInt(stats.gs || 0);
-  const minutesPlayed = parseInt(stats.mins || stats.gm || 0);
+  // Debug: log the player name and photoUrl
+  console.log('Player:', playerName, '| photo_url:', photoUrl, '| isRealPhoto:', isRealPhoto);
 
   return (
     <div className="player-card">
       <div className="card-header">
         <div className="player-image-container">
           <img 
-            src={photoUrl ? photoUrl : getPlayerImage(player)} 
+            src={isRealPhoto ? photoUrl : getPlayerImage(player)} 
             alt={playerName}
             className="player-image"
             onError={(e) => {
@@ -181,47 +180,6 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
             </div>
           </div>
         </div>
-
-        {/* Detailed Statistics Section - only show if we have detailed stats */}
-        {(shotPercentage !== 'N/A' || shotsOnGoal !== 'N/A' || penaltyKicks !== 'N/A') && (
-          <div className="performance-stats">
-            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 600, color: '#374151' }}>Detailed Stats</h3>
-            <div className="stat-row">
-              {shotPercentage !== 'N/A' && (
-                <div className="stat-item-card">
-                  <span className="stat-value">{shotPercentage}%</span>
-                  <span className="stat-label-card">Shot %</span>
-                </div>
-              )}
-              {shotsOnGoal !== 'N/A' && (
-                <div className="stat-item-card">
-                  <span className="stat-value">{shotsOnGoal}</span>
-                  <span className="stat-label-card">Shots on Goal</span>
-                </div>
-              )}
-              {penaltyKicks !== 'N/A' && (
-                <div className="stat-item-card">
-                  <span className="stat-value">{penaltyKicks}</span>
-                  <span className="stat-label-card">Penalty Kicks</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-
-
-        <div className="footage-section">
-          <button 
-            className="view-footage-button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleViewFootage(player);
-            }}
-          >
-            🎥 View Footage
-          </button>
-        </div>
       </div>
     </div>
   );
@@ -246,6 +204,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   const currentFilters = localFilters;
 
   const handleSearchChange = useCallback((e) => {
+    console.log('Search term changed to:', e.target.value);
     setSearchTerm(e.target.value);
   }, []);
 
@@ -257,16 +216,39 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
   }, []);
 
+  const handleRefresh = useCallback(() => {
+    console.log('Manual refresh triggered');
+    // Force a fresh fetch by clearing cache and refetching
+    setPlayers([]);
+    setLoading(true);
+    fetch(`${apiBaseUrl}/api/players`)
+      .then(response => response.text())
+      .then(text => {
+        console.log('Raw response text (first 1000 chars):', text.substring(0, 1000));
+        const data = JSON.parse(text);
+        console.log('API Response:', data);
+        setPlayers(data.players || []);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error in manual refresh:', error);
+        setError('Failed to refresh data');
+        setLoading(false);
+      });
+  }, []);
+
   useEffect(() => {
+    console.log('useEffect triggered with filters:', localFilters);
     fetchPlayers();
   }, [localFilters.league, localFilters.position, localFilters.region, localFilters.academicLevel]);
 
   const fetchPlayers = async () => {
+    console.log('=== FETCH PLAYERS STARTED ===');
     try {
       setLoading(true);
       setError(null);
       
-      // Fetch all college players (both D1 and D2) and let frontend filtering handle the rest
+      // Fetch all players and filter for NJCAA on frontend
       const url = `${apiBaseUrl}/api/players`;
       console.log('Fetching from URL:', url);
       
@@ -285,14 +267,53 @@ const CollegePlayerCards = ({ filters, onBack }) => {
         throw new Error(`Failed to fetch players: ${response.status} ${response.statusText}`);
       }
       
-      const data = await response.json();
+      const responseText = await response.text();
+      console.log('Raw response text (first 1000 chars):', responseText.substring(0, 1000));
       
+      let data;
+      try {
+        data = JSON.parse(responseText);
+        console.log('API Response parsed successfully');
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
+        throw new Error('Invalid JSON response from server');
+      }
       console.log('API Response:', data);
       console.log('Total players from API:', data.players?.length || 0);
       
-      // For now, just set all players and let the filtering happen in the UI
-      setPlayers(data.players || []);
+      // Debug: Check if Juan Jose Montoya is in the API response
+      const juanJoseInAPI = data.players?.find(p => p.name === 'Juan Jose Montoya');
+      if (juanJoseInAPI) {
+        console.log('Found Juan Jose Montoya in API response:', juanJoseInAPI);
+        console.log('His photo_url from API:', juanJoseInAPI.photo_url);
+      } else {
+        console.log('Juan Jose Montoya NOT found in API response');
+      }
+      
+      // Filter for NJCAA players only
+      const allPlayers = data.players || [];
+      console.log('Total players from API:', allPlayers.length);
+      console.log('Sample player leagues:', allPlayers.slice(0, 5).map(p => p.league));
+      
+      const njcaaPlayers = allPlayers.filter(player => 
+        player.league && player.league.startsWith('NJCAA')
+      );
+      console.log('NJCAA players filtered:', njcaaPlayers.length);
+      console.log('Sample NJCAA player leagues:', njcaaPlayers.slice(0, 5).map(p => p.league));
+      
+      const playersToSet = njcaaPlayers;
+      console.log('Setting players state with:', playersToSet.length, 'players');
+      
+      // Check Juan Jose Montoya in the data we're about to set
+      const juanJoseBeforeSet = playersToSet.find(p => p.name === 'Juan Jose Montoya');
+      if (juanJoseBeforeSet) {
+        console.log('Juan Jose Montoya before setState:', juanJoseBeforeSet);
+        console.log('His photo_url before setState:', juanJoseBeforeSet.photo_url);
+      }
+      
+      setPlayers(playersToSet);
       setLoading(false);
+      console.log('=== FETCH PLAYERS COMPLETED ===');
     } catch (error) {
       console.error('Error fetching players:', error);
       setError('Failed to load college player data');
@@ -361,6 +382,15 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     console.log('Search term:', searchTerm);
     console.log('Sample player data:', players[0]);
     
+    // Debug: Check if Juan Jose Montoya is in the players array
+    const juanJose = players.find(p => p.name === 'Juan Jose Montoya');
+    if (juanJose) {
+      console.log('Found Juan Jose Montoya in players array:', juanJose);
+      console.log('His photo_url:', juanJose.photo_url);
+    } else {
+      console.log('Juan Jose Montoya NOT found in players array');
+    }
+    
     // Apply filters
     const filteredPlayers = players.filter(player => {
       // Only filter out players with completely missing names
@@ -397,29 +427,21 @@ const CollegePlayerCards = ({ filters, onBack }) => {
         if (filterPosition === 'Forward' && !isForward) return false;
       }
       
-      // Filter by academic year - temporarily disabled for debugging
-      // if (currentFilters.academicLevel && currentFilters.academicLevel !== 'All Academic Years') {
-      //   const playerYear = expandYear(player.year || '');
-      //   console.log('Academic year filter:', {
-      //     filterValue: currentFilters.academicLevel,
-      //     playerYear: player.year,
-      //     expandedYear: playerYear,
-      //     match: playerYear === currentFilters.academicLevel
-      //   });
-      //   if (playerYear !== currentFilters.academicLevel) {
-      //     return false;
-      //   }
-      // }
-      
-      // Filter by league
-      if (currentFilters.league && currentFilters.league !== 'All') {
-        const playerLeague = (player.league || 'NJCAA D1').replace(' (Tier 2 USA)', '').replace(' (Tier 1 USA)', '').replace(' (Tier 3 USA)', '');
-        if (playerLeague !== currentFilters.league) {
+      // Filter by academic year
+      if (currentFilters.academicLevel && currentFilters.academicLevel !== 'All Academic Years') {
+        const playerYear = expandYear(player.year || '');
+        if (playerYear !== currentFilters.academicLevel) {
           return false;
         }
       }
       
-
+      // Filter by league
+      if (currentFilters.league && currentFilters.league !== 'All') {
+        const playerLeague = player.league || 'NJCAA D1';
+        if (playerLeague !== currentFilters.league) {
+          return false;
+        }
+      }
       
       return true;
     });
@@ -430,32 +452,28 @@ const CollegePlayerCards = ({ filters, onBack }) => {
         let aValue, bValue;
         switch (sortBy) {
           case 'goals':
-            aValue = a.goals || a.performance?.goals || 0;
-            bValue = b.goals || b.performance?.goals || 0;
+            aValue = parseInt(a.goals || 0);
+            bValue = parseInt(b.goals || 0);
             break;
           case 'assists':
-            aValue = a.assists || a.performance?.assists || 0;
-            bValue = b.assists || b.performance?.assists || 0;
+            aValue = parseInt(a.assists || 0);
+            bValue = parseInt(b.assists || 0);
             break;
           case 'matches':
-            aValue = a.games || a.performance?.matches || 0;
-            bValue = b.games || b.performance?.matches || 0;
+            aValue = parseInt(a.games || 0);
+            bValue = parseInt(b.games || 0);
             break;
           case 'minutes':
-            aValue = a.minutesPlayed || a.performance?.minutesPlayed || 0;
-            bValue = b.minutesPlayed || b.performance?.minutesPlayed || 0;
+            aValue = parseInt(a.minutes || 0);
+            bValue = parseInt(b.minutes || 0);
             break;
           case 'name':
-            aValue = a.name || a.profile?.playerProfile?.playerName || 'Unknown';
-            bValue = b.name || b.profile?.playerProfile?.playerName || 'Unknown';
-            break;
-          case 'gpa':
-            aValue = parseFloat(a.gpa || a.profile?.playerProfile?.gpa) || 0;
-            bValue = parseFloat(b.gpa || b.profile?.playerProfile?.gpa) || 0;
+            aValue = a.name || 'Unknown';
+            bValue = b.name || 'Unknown';
             break;
           default:
-            aValue = a.goals || a.performance?.goals || 0;
-            bValue = b.goals || b.performance?.goals || 0;
+            aValue = parseInt(a.goals || 0);
+            bValue = parseInt(b.goals || 0);
         }
         if (sortOrder === 'desc') {
           return bValue > aValue ? 1 : bValue < aValue ? -1 : 0;
@@ -483,12 +501,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   }, []);
 
   const isValidPlayer = useCallback((player) => {
-    return player && 
-           ((player.name && player.name.trim() !== '') ||
-            (player.profile && 
-             player.profile.playerProfile && 
-             player.profile.playerProfile.playerName &&
-             player.profile.playerProfile.playerName.trim() !== ''));
+    return player && player.name && player.name.trim() !== '';
   }, []);
 
   const fetchYoutubeVideos = useCallback(async (playerName, clubName) => {
@@ -534,9 +547,8 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   }, [youtubeVideos]);
 
   const handleViewFootage = useCallback(async (player) => {
-    // Support both NJCAA data structure and legacy structure
-    const playerName = player.name || player.profile?.playerProfile?.playerName;
-    const teamName = player.team || player.profile?.playerProfile?.club || player.club?.name;
+    const playerName = player.name;
+    const teamName = player.team;
     
     if (!playerName || !teamName || playerName === 'Unknown Player' || teamName === 'Unknown Team') {
       alert('Player name or team information is missing');
@@ -574,13 +586,28 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   return (
     <div className="usl-player-cards-container">
       <div className="search-sort-bar">
-        <input
-          type="text"
-          placeholder="Search by player or school..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-          className="search-input"
-        />
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <input
+            type="text"
+            placeholder="Search by player or school..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="search-input"
+          />
+          <button 
+            onClick={handleRefresh}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '6px',
+              border: '2px solid rgba(79,140,255,0.2)',
+              background: 'rgba(255,255,255,0.9)',
+              cursor: 'pointer',
+              fontSize: '0.9rem'
+            }}
+          >
+            🔄 Refresh
+          </button>
+        </div>
         <div className="sort-controls">
           <label>Sort by:</label>
           <select value={sortBy} onChange={handleSortChange}>
