@@ -91,7 +91,8 @@ class DetailedPlayerScraper:
         # Common patterns for PrestoSports roster pages
         player_selectors = [
             '.roster-player', '.player-card', '.roster-row', 
-            'tr[data-player]', '.player-info', '.athlete-card'
+            'tr[data-player]', '.player-info', '.athlete-card',
+            '.roster-table tbody tr', 'table tbody tr'
         ]
         
         player_elements = []
@@ -119,47 +120,83 @@ class DetailedPlayerScraper:
         try:
             player = {}
             
-            # Extract name
-            name_elem = element.find(['a', 'span', 'td'], class_=re.compile(r'name|player-name', re.I))
+            # Extract name - try multiple approaches
+            name_elem = None
+            
+            # Try to find name in various ways
+            name_selectors = [
+                'a[href*="player"]', '.player-name', '.name', 
+                'td:first-child', 'td:nth-child(1)', 'td:nth-child(2)'
+            ]
+            
+            for selector in name_selectors:
+                name_elem = element.select_one(selector)
+                if name_elem:
+                    break
+            
             if not name_elem:
+                # Try to find any link or text that might be a name
                 name_elem = element.find(['a', 'span', 'td'])
             
             if name_elem:
                 player['name'] = name_elem.get_text(strip=True)
             
-            # Extract photo
+            # Extract photo - try multiple approaches
             img_elem = element.find('img')
             if img_elem:
                 img_src = img_elem.get('src')
                 if img_src:
                     if img_src.startswith('/'):
                         img_src = urljoin(base_url, img_src)
+                    elif not img_src.startswith('http'):
+                        img_src = urljoin(base_url, img_src)
                     player['photo_url'] = img_src
             
             # Extract position
-            pos_elem = element.find(['td', 'span'], class_=re.compile(r'position|pos', re.I))
-            if pos_elem:
-                player['position'] = pos_elem.get_text(strip=True)
+            pos_selectors = ['td:nth-child(3)', 'td:nth-child(4)', '.position', '.pos']
+            for selector in pos_selectors:
+                pos_elem = element.select_one(selector)
+                if pos_elem:
+                    player['position'] = pos_elem.get_text(strip=True)
+                    break
             
             # Extract height
-            height_elem = element.find(['td', 'span'], class_=re.compile(r'height|ht', re.I))
-            if height_elem:
-                player['height'] = height_elem.get_text(strip=True)
+            height_selectors = ['td:nth-child(5)', 'td:nth-child(6)', '.height', '.ht']
+            for selector in height_selectors:
+                height_elem = element.select_one(selector)
+                if height_elem:
+                    height_text = height_elem.get_text(strip=True)
+                    if re.search(r'\d+\'?\d*"?', height_text):
+                        player['height'] = height_text
+                        break
             
             # Extract weight
-            weight_elem = element.find(['td', 'span'], class_=re.compile(r'weight|wt', re.I))
-            if weight_elem:
-                player['weight'] = weight_elem.get_text(strip=True)
+            weight_selectors = ['td:nth-child(6)', 'td:nth-child(7)', '.weight', '.wt']
+            for selector in weight_selectors:
+                weight_elem = element.select_one(selector)
+                if weight_elem:
+                    weight_text = weight_elem.get_text(strip=True)
+                    if re.search(r'\d+', weight_text):
+                        player['weight'] = weight_text
+                        break
             
             # Extract hometown
-            hometown_elem = element.find(['td', 'span'], class_=re.compile(r'hometown|home|city', re.I))
-            if hometown_elem:
-                player['hometown'] = hometown_elem.get_text(strip=True)
+            hometown_selectors = ['td:nth-child(7)', 'td:nth-child(8)', '.hometown', '.home', '.city']
+            for selector in hometown_selectors:
+                hometown_elem = element.select_one(selector)
+                if hometown_elem:
+                    hometown_text = hometown_elem.get_text(strip=True)
+                    if hometown_text and len(hometown_text) > 2:
+                        player['hometown'] = hometown_text
+                        break
             
             # Extract academic year
-            year_elem = element.find(['td', 'span'], class_=re.compile(r'year|academic|class', re.I))
-            if year_elem:
-                player['academic_year'] = year_elem.get_text(strip=True)
+            year_selectors = ['td:nth-child(8)', 'td:nth-child(9)', '.year', '.academic', '.class']
+            for selector in year_selectors:
+                year_elem = element.select_one(selector)
+                if year_elem:
+                    player['academic_year'] = year_elem.get_text(strip=True)
+                    break
             
             # Try to find individual player page link
             player_link = element.find('a', href=re.compile(r'player|roster'))
@@ -167,6 +204,8 @@ class DetailedPlayerScraper:
                 player_url = player_link.get('href')
                 if player_url:
                     if player_url.startswith('/'):
+                        player_url = urljoin(base_url, player_url)
+                    elif not player_url.startswith('http'):
                         player_url = urljoin(base_url, player_url)
                     player['player_page_url'] = player_url
                     
@@ -237,6 +276,14 @@ class DetailedPlayerScraper:
         for player in players:
             if player.get('team') == team_name:
                 player_name = player.get('name', '').strip()
+                if not player_name:
+                    # Try to construct name from firstName and lastName
+                    first_name = player.get('firstName', '')
+                    last_name = player.get('lastName', '')
+                    if first_name and last_name:
+                        player_name = f"{first_name} {last_name}"
+                    else:
+                        player_name = player.get('fullName', '')
                 
                 # Try to find matching player in roster data
                 roster_player = roster_players.get(player_name)
@@ -248,37 +295,53 @@ class DetailedPlayerScraper:
                             break
                 
                 if roster_player:
-                    # Update player with detailed information
-                    player['height'] = roster_player.get('height', 'N/A')
-                    player['weight'] = roster_player.get('weight', 'N/A')
-                    player['hometown'] = roster_player.get('hometown', 'N/A')
-                    player['photo_url'] = roster_player.get('photo_url', 'N/A')
-                    player['shot_percentage'] = roster_player.get('shot_percentage', 'N/A')
-                    player['shots_on_goal'] = roster_player.get('shots_on_goal', 'N/A')
-                    player['penalty_kicks'] = roster_player.get('penalty_kicks', 'N/A')
+                    # Initialize dataMap if it doesn't exist
+                    if 'dataMap' not in player:
+                        player['dataMap'] = {}
                     
-                    # Update statistics
-                    if roster_player.get('height') != 'N/A':
+                    # Update player with detailed information in dataMap
+                    if roster_player.get('height'):
+                        player['dataMap']['height'] = roster_player['height']
                         self.stats['players_with_height'] += 1
-                    if roster_player.get('weight') != 'N/A':
+                    
+                    if roster_player.get('weight'):
+                        player['dataMap']['weight'] = roster_player['weight']
                         self.stats['players_with_weight'] += 1
-                    if roster_player.get('hometown') != 'N/A':
+                    
+                    if roster_player.get('hometown'):
+                        player['dataMap']['hometown'] = roster_player['hometown']
                         self.stats['players_with_hometown'] += 1
-                    if roster_player.get('photo_url') != 'N/A':
+                    
+                    if roster_player.get('photo_url'):
+                        player['photo_url'] = roster_player['photo_url']
                         self.stats['players_with_photos'] += 1
-                    if any(roster_player.get(stat) != 'N/A' for stat in ['shot_percentage', 'shots_on_goal', 'penalty_kicks']):
+                    
+                    # Add detailed stats to dataMap
+                    if roster_player.get('shot_percentage'):
+                        player['dataMap']['shot_percentage'] = roster_player['shot_percentage']
+                    
+                    if roster_player.get('shots_on_goal'):
+                        player['dataMap']['shots_on_goal'] = roster_player['shots_on_goal']
+                    
+                    if roster_player.get('penalty_kicks'):
+                        player['dataMap']['penalty_kicks'] = roster_player['penalty_kicks']
+                    
+                    if any(roster_player.get(stat) for stat in ['shot_percentage', 'shots_on_goal', 'penalty_kicks']):
                         self.stats['players_with_stats'] += 1
                     
                     updated_count += 1
                 else:
                     # Set default values for players not found in roster
-                    player['height'] = 'N/A'
-                    player['weight'] = 'N/A'
-                    player['hometown'] = 'N/A'
+                    if 'dataMap' not in player:
+                        player['dataMap'] = {}
+                    
+                    player['dataMap']['height'] = 'N/A'
+                    player['dataMap']['weight'] = 'N/A'
+                    player['dataMap']['hometown'] = 'N/A'
                     player['photo_url'] = 'N/A'
-                    player['shot_percentage'] = 'N/A'
-                    player['shots_on_goal'] = 'N/A'
-                    player['penalty_kicks'] = 'N/A'
+                    player['dataMap']['shot_percentage'] = 'N/A'
+                    player['dataMap']['shots_on_goal'] = 'N/A'
+                    player['dataMap']['penalty_kicks'] = 'N/A'
         
         return updated_count
     
