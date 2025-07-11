@@ -194,14 +194,36 @@ function CollegePortal({ onBack }) {
     setError(null);
     setPlayers([]);
     try {
-      const res = await fetch('/api/search_players', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gender, state, position })
-      });
+      // Use the correct API endpoint and filter for college players
+      const res = await fetch('/api/players');
       if (!res.ok) throw new Error('Failed to fetch players');
       const data = await res.json();
-      setPlayers(data);
+      
+      // Filter for college players (NJCAA leagues)
+      let collegePlayers = data.players.filter(player => 
+        player.league && player.league.startsWith('NJCAA')
+      );
+      
+      // Apply additional filters
+      if (gender !== 'All') {
+        collegePlayers = collegePlayers.filter(player => 
+          player.gender === gender
+        );
+      }
+      
+      if (state !== 'All') {
+        collegePlayers = collegePlayers.filter(player => 
+          player.state === state
+        );
+      }
+      
+      if (position !== 'All') {
+        collegePlayers = collegePlayers.filter(player => 
+          player.position === position
+        );
+      }
+      
+      setPlayers(collegePlayers);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -212,15 +234,7 @@ function CollegePortal({ onBack }) {
   const handleHighlights = async (player) => {
     setHighlightsModal({ show: true, player, videos: [], loading: true, error: null });
     try {
-      const res = await fetch('/api/youtube_highlights', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          player_name: player.name, 
-          club_name: player.club,
-          max_results: 5
-        })
-      });
+      const res = await fetch(`/api/youtube-highlights?player_name=${encodeURIComponent(player.name)}&club_name=${encodeURIComponent(player.club || '')}`);
       const data = await res.json();
       
       if (res.status === 429 && data.quota_exceeded) {
@@ -248,21 +262,9 @@ function CollegePortal({ onBack }) {
   const handleContactDetails = async (player) => {
     setContactModal({ show: true, player, contactInfo: '', loading: true, error: null });
     try {
-      const res = await fetch('/api/coach_contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          team_name: player.club, 
-          graduation_year: player.graduation_year
-        })
-      });
-      const data = await res.json();
-      
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to fetch contact details');
-      } else {
-        setContactModal(prev => ({ ...prev, contactInfo: data.contact_info, loading: false, error: null }));
-      }
+      // For now, show a placeholder message since the coach contact API doesn't exist
+      const contactInfo = `Contact information for ${player.name} from ${player.club || 'Unknown Club'} is not available at this time. Please contact the college directly for more information.`;
+      setContactModal(prev => ({ ...prev, contactInfo, loading: false, error: null }));
     } catch (e) {
       setContactModal(prev => ({ 
         ...prev, 

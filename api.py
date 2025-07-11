@@ -45,6 +45,7 @@ LIGA_MX_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/
 NJCAA_D1_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/njcaa_d1_players.json'
 NJCAA_D2_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/njcaa_d2_players.json'
 NJCAA_D3_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/njcaa_d3_players.json'
+TEAM_LOGOS_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/team_logos.json'
 
 # Cache for loaded data
 _player_cache = {}
@@ -267,6 +268,23 @@ def get_youtube_highlights():
     except Exception as e:
         print(f"Error in get_youtube_highlights: {e}")
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/team-logos', methods=['GET'])
+def get_team_logos():
+    """Get team logos for college teams"""
+    try:
+        print("Fetching team logos from GitHub...")
+        response = requests.get(TEAM_LOGOS_URL, timeout=30)
+        if response.status_code == 200:
+            team_logos = response.json()
+            print(f"Loaded {len(team_logos)} team logos")
+            return jsonify(team_logos)
+        else:
+            print(f"Failed to fetch team logos: {response.status_code}")
+            return jsonify({}), 500
+    except Exception as e:
+        print(f"Error fetching team logos: {e}")
+        return jsonify({}), 500
 
 @app.route('/api/health', methods=['GET'])
 def health_check():

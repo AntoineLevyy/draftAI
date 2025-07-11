@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './USLPlayerCards.css';
 import { apiBaseUrl } from './config';
+import ReactSelect, { components } from 'react-select';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
+import Checkbox from '@mui/material/Checkbox';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
 // Add the highlights button styles to match the pro section
 const highlightsButtonStyles = `
@@ -120,8 +126,11 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
   const gamesStarted = parseInt(player.games_started || 0);
   const minutesPlayed = parseInt(player.minutes || 0);
 
-  // Only use photoUrl if it is a real photo (not N/A or empty)
-  const isRealPhoto = photoUrl && photoUrl !== 'N/A' && photoUrl !== '';
+  // Only use photoUrl if it is a real photo (not N/A or empty) and has a valid URL format
+  const isRealPhoto = photoUrl && 
+    photoUrl !== 'N/A' && 
+    photoUrl !== '' && 
+    (photoUrl.startsWith('http://') || photoUrl.startsWith('https://') || photoUrl.startsWith('data:'));
 
   // Debug: log the player name and photoUrl
   console.log('Player:', playerName, '| photo_url:', photoUrl, '| isRealPhoto:', isRealPhoto);
@@ -136,19 +145,22 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
               alt={playerName}
               className="player-image"
               onError={(e) => {
+                console.warn('Failed to load player image for:', playerName, 'URL:', photoUrl);
                 e.target.style.display = 'none';
+                // Show fallback placeholder
+                e.target.nextSibling.style.display = 'block';
               }}
             />
-          ) : (
-            <div 
-              className="player-image"
-              style={{
-                backgroundColor: 'transparent',
-                border: '3px solid white',
-                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
-              }}
-            />
-          )}
+          ) : null}
+          <div 
+            className="player-image"
+            style={{
+              backgroundColor: 'transparent',
+              border: '3px solid white',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
+              display: isRealPhoto ? 'none' : 'block'
+            }}
+          />
         </div>
         <div className="club-badge">
           <img 
@@ -156,7 +168,19 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
             alt={teamName}
             className="club-image"
             onError={(e) => {
+              console.warn('Failed to load team logo for:', teamName);
               e.target.style.display = 'none';
+              // Show fallback placeholder
+              e.target.nextSibling.style.display = 'block';
+            }}
+          />
+          <div 
+            className="club-image"
+            style={{
+              backgroundColor: 'rgba(79, 140, 255, 0.1)',
+              border: '2px solid rgba(79, 140, 255, 0.3)',
+              borderRadius: '50%',
+              display: 'none'
             }}
           />
         </div>
@@ -263,23 +287,51 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   const [videoLoading, setVideoLoading] = useState(false);
   
   // Use filters passed from landing page, with local state for adjustments
-  const [localFilters, setLocalFilters] = useState(filters || {});
+  const [localFilters, setLocalFilters] = useState({
+    position: [],
+    league: 'All',
+    academicLevel: 'All',
+    ...filters
+  });
   const currentFilters = localFilters;
 
   // Load team logos when component mounts
   useEffect(() => {
     const loadTeamLogos = async () => {
       try {
-        const response = await fetch('/team_logos.json');
-        if (response.ok) {
-          const teamLogos = await response.json();
+        // Try multiple possible paths for team logos
+        const possiblePaths = [
+          `${apiBaseUrl}/api/team-logos`,
+          '/team_logos.json',
+          '/backend/college/njcaa/team_logos.json',
+          'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/team_logos.json'
+        ];
+        
+        let teamLogos = null;
+        for (const path of possiblePaths) {
+          try {
+            console.log('Trying to load team logos from:', path);
+            const response = await fetch(path);
+            if (response.ok) {
+              teamLogos = await response.json();
+              console.log('Team logos loaded successfully from:', path);
+              break;
+            }
+          } catch (error) {
+            console.warn('Failed to load team logos from:', path, error);
+          }
+        }
+        
+        if (teamLogos) {
           window.teamLogos = teamLogos;
           console.log('Team logos loaded:', Object.keys(teamLogos).length, 'teams');
         } else {
-          console.warn('Could not load team logos, using fallback');
+          console.warn('Could not load team logos from any source, using fallback');
+          window.teamLogos = {};
         }
       } catch (error) {
         console.warn('Error loading team logos:', error);
+        window.teamLogos = {};
       }
     };
 
@@ -302,9 +354,9 @@ const CollegePlayerCards = ({ filters, onBack }) => {
 
 
   useEffect(() => {
-    console.log('useEffect triggered with filters:', localFilters);
+    console.log('useEffect triggered - fetching players');
     fetchPlayers();
-  }, [localFilters.league, localFilters.position, localFilters.region, localFilters.academicLevel]);
+  }, []); // Only fetch once when component mounts
 
   const fetchPlayers = async () => {
     console.log('=== FETCH PLAYERS STARTED ===');
@@ -497,39 +549,17 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     }
     
     // Filter by position
-    if (currentFilters.position && currentFilters.position !== 'All') {
-      filteredPlayers = filteredPlayers.filter(player => {
-        const playerName = player.name;
-        const playerPosition = translatePosition(player.position || '');
-        const filterPosition = currentFilters.position;
-        
-        // Map positions to categories
-        const isGoalkeeper = playerPosition.toLowerCase().includes('goalkeeper');
-        const isDefender = playerPosition.toLowerCase().includes('defender') || playerPosition.toLowerCase().includes('back');
-        const isMidfielder = playerPosition.toLowerCase().includes('midfielder');
-        const isForward = playerPosition.toLowerCase().includes('forward') || playerPosition.toLowerCase().includes('winger') || 
-                         playerPosition.toLowerCase().includes('striker');
-        
-        if (filterPosition === 'Goalkeeper' && !isGoalkeeper) {
-          console.log('Filtering out non-goalkeeper:', playerName, 'position:', playerPosition);
-          return false;
-        }
-        if (filterPosition === 'Defender' && !isDefender) {
-          console.log('Filtering out non-defender:', playerName, 'position:', playerPosition);
-          return false;
-        }
-        if (filterPosition === 'Midfielder' && !isMidfielder) {
-          console.log('Filtering out non-midfielder:', playerName, 'position:', playerPosition);
-          return false;
-        }
-        if (filterPosition === 'Forward' && !isForward) {
-          console.log('Filtering out non-forward:', playerName, 'position:', playerPosition);
-          return false;
-        }
-        return true;
-      });
-      console.log('After position filter:', filteredPlayers.length);
+    const positionOptions = ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
+    const selectedPositions = currentFilters.position || [];
+    const isAllSelected = selectedPositions.length === 0 || selectedPositions.length === positionOptions.length;
+    console.log('DEBUG: currentFilters.position:', selectedPositions);
+    console.log('DEBUG: First 5 player positions:', filteredPlayers.slice(0, 5).map(p => p.position));
+    if (!isAllSelected) {
+      filteredPlayers = filteredPlayers.filter(player =>
+        selectedPositions.includes((player.position || '').trim())
+      );
     }
+    console.log('DEBUG: Number of players after position filter:', filteredPlayers.length);
     
     // Filter by academic year
     if (currentFilters.academicLevel && currentFilters.academicLevel !== 'All') {
@@ -611,10 +641,12 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   const getClubImage = useCallback((player) => {
     // For college teams, try to use actual team logo from the team_logos.json file
     const teamName = player.team;
-    if (teamName && window.teamLogos && window.teamLogos[teamName]) {
+    if (teamName && window.teamLogos && window.teamLogos[teamName] && window.teamLogos[teamName] !== null) {
+      console.log('Using team logo for:', teamName, 'URL:', window.teamLogos[teamName]);
       return window.teamLogos[teamName];
     }
     
+    console.log('No team logo found for:', teamName, 'using fallback');
     // Fallback to a simple data URI if no logo found
     return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjQiIGZpbGw9IiNmMWY1ZjkiLz4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjAiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNCA0QzI2LjIgNCAyOCA1LjggMjggOFYxNkMyOCAxOC4yIDI2LjIgMjAgMjQgMjBDMjEuOCAyMCAyMCAxOC4yIDIwIDE2VjhDMjAgNS44IDIxLjggNCAyNCA0WiIgZmlsbD0iIzljYTNhZiIvPgo8L3N2Zz4K';
   }, []);
@@ -684,6 +716,28 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     }
   }, [youtubeVideos, fetchYoutubeVideos]);
 
+  // Position options for college
+  const positionOptions = ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
+  const allPositions = [...positionOptions];
+  const selectedPositions = currentFilters.position || [];
+  const isAllSelected = selectedPositions.length === 0 || selectedPositions.length === allPositions.length;
+
+  // Custom ValueContainer for truncation
+  const TruncatedValueContainer = (props) => {
+    const maxToShow = 2;
+    const { children, getValue } = props;
+    const selected = getValue();
+    if (selected.length > maxToShow) {
+      const display = selected.slice(0, maxToShow).map(opt => opt.label).join(', ');
+      return (
+        <components.ValueContainer {...props}>
+          {display + ', ...'}
+        </components.ValueContainer>
+      );
+    }
+    return <components.ValueContainer {...props}>{children}</components.ValueContainer>;
+  };
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -743,25 +797,65 @@ const CollegePlayerCards = ({ filters, onBack }) => {
           <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
             Position
           </label>
-          <select
-            value={currentFilters.position || 'All'}
-            onChange={(e) => setLocalFilters(prev => ({ ...prev, position: e.target.value }))}
-            style={{
-              padding: '0.5rem',
-              borderRadius: '8px',
-              border: '2px solid rgba(79,140,255,0.2)',
-              background: 'rgba(255,255,255,0.9)',
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              minWidth: 150
+          <Autocomplete
+            multiple
+            disableCloseOnSelect
+            options={['All', ...positionOptions]}
+            value={selectedPositions}
+            onChange={(event, newValue, reason) => {
+              if (newValue.includes('All')) {
+                if (selectedPositions.length === positionOptions.length) {
+                  // Deselect all
+                  setLocalFilters(prev => ({ ...prev, position: [] }));
+                } else {
+                  // Select all
+                  setLocalFilters(prev => ({ ...prev, position: [...positionOptions] }));
+                }
+              } else {
+                // Remove 'All' if present
+                const filtered = newValue.filter(v => v !== 'All');
+                setLocalFilters(prev => ({ ...prev, position: filtered }));
+              }
             }}
-          >
-            <option value="All">All</option>
-            <option value="Goalkeeper">Goalkeeper</option>
-            <option value="Defender">Defender</option>
-            <option value="Midfielder">Midfielder</option>
-            <option value="Forward">Forward</option>
-          </select>
+            getOptionLabel={option => option}
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox
+                  icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
+                  checkedIcon={<CheckBoxIcon fontSize="small" />}
+                  style={{ marginRight: 8 }}
+                  checked={
+                    option === 'All'
+                      ? selectedPositions.length === positionOptions.length
+                      : selectedPositions.includes(option)
+                  }
+                />
+                <span style={{ paddingLeft: 8 }}>{option}</span>
+              </li>
+            )}
+            renderInput={params => (
+              <TextField {...params} variant="outlined" placeholder="Select positions..." size="small" />
+            )}
+            renderTags={(selected, getTagProps) => {
+              const maxToShow = 2;
+              if (!Array.isArray(selected)) return [];
+              if (selected.length === positionOptions.length) {
+                return [<span key="all" style={{ fontWeight: 500, color: '#4f8cff' }}>All</span>];
+              }
+              if (selected.length > maxToShow) {
+                return [
+                  ...selected.slice(0, maxToShow).map((option, index) => (
+                    <span key={option} style={{ fontWeight: 500, color: '#4f8cff', marginRight: 4 }}>{option}</span>
+                  )),
+                  <span key="more" style={{ color: '#374151' }}>...</span>
+                ];
+              }
+              return selected.map((option, index) => (
+                <span key={option} style={{ fontWeight: 500, color: '#4f8cff', marginRight: 4 }}>{option}</span>
+              ));
+            }}
+            sx={{ minWidth: 150, background: 'rgba(255,255,255,0.9)', borderRadius: 1 }}
+          />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
           <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
