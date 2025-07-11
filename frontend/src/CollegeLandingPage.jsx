@@ -140,7 +140,7 @@ const backButtonStyle = {
 };
 
 const positions = [
-  'All Positions',
+  'All',
   'Goalkeeper',
   'Center Back',
   'Left Back',
@@ -156,7 +156,7 @@ const positions = [
 ];
 
 const academicLevels = [
-  'All Academic Years',
+  'All',
   'Freshman',
   'Sophomore',
   'Junior',
@@ -165,7 +165,7 @@ const academicLevels = [
 ];
 
 const regions = [
-  'All Regions',
+  'All',
   'Northeast',
   'Southeast',
   'Midwest',
@@ -175,7 +175,7 @@ const regions = [
 ];
 
 const graduationYears = [
-  'All Graduation Years',
+  'All',
   '2024',
   '2025',
   '2026',
@@ -193,9 +193,9 @@ const collegeLeagues = [
 ];
 
 function CollegeLandingPage({ onApplyFilters, onBack }) {
-  const [selectedPosition, setSelectedPosition] = useState('All Positions');
-  const [academicLevel, setAcademicLevel] = useState('All Academic Years');
-  const [graduationYear, setGraduationYear] = useState('All Graduation Years');
+  const [selectedPosition, setSelectedPosition] = useState('All');
+  const [academicLevel, setAcademicLevel] = useState('All');
+  const [graduationYear, setGraduationYear] = useState('All');
   const [selectedLeague, setSelectedLeague] = useState('All');
   const [activeSelect, setActiveSelect] = useState('');
   const [hoveredSelect, setHoveredSelect] = useState('');

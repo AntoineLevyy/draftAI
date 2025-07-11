@@ -497,7 +497,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     }
     
     // Filter by position
-    if (currentFilters.position && currentFilters.position !== 'All Positions') {
+    if (currentFilters.position && currentFilters.position !== 'All') {
       filteredPlayers = filteredPlayers.filter(player => {
         const playerName = player.name;
         const playerPosition = translatePosition(player.position || '');
@@ -532,7 +532,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     }
     
     // Filter by academic year
-    if (currentFilters.academicLevel && currentFilters.academicLevel !== 'All Academic Years') {
+    if (currentFilters.academicLevel && currentFilters.academicLevel !== 'All') {
       filteredPlayers = filteredPlayers.filter(player => {
         const playerName = player.name;
         const playerYear = expandYear(player.year || '');
@@ -705,15 +705,13 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   return (
     <div className="usl-player-cards-container">
       <div className="search-sort-bar">
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <input
-            type="text"
-            placeholder="Search by player or school..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="search-input"
-          />
-        </div>
+        <input
+          type="text"
+          placeholder="Search by player or club..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="search-input"
+        />
         <div className="sort-controls">
           <label>Sort by:</label>
           <select value={sortBy} onChange={handleSortChange}>
@@ -729,7 +727,6 @@ const CollegePlayerCards = ({ filters, onBack }) => {
           </button>
         </div>
       </div>
-      
       {/* Filter Controls */}
       <div style={{
         display: 'flex',
@@ -747,7 +744,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
             Position
           </label>
           <select
-            value={currentFilters.position || 'All Positions'}
+            value={currentFilters.position || 'All'}
             onChange={(e) => setLocalFilters(prev => ({ ...prev, position: e.target.value }))}
             style={{
               padding: '0.5rem',
@@ -755,17 +752,17 @@ const CollegePlayerCards = ({ filters, onBack }) => {
               border: '2px solid rgba(79,140,255,0.2)',
               background: 'rgba(255,255,255,0.9)',
               fontSize: '0.9rem',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              minWidth: 150
             }}
           >
-            <option value="All Positions">All Positions</option>
+            <option value="All">All</option>
             <option value="Goalkeeper">Goalkeeper</option>
             <option value="Defender">Defender</option>
             <option value="Midfielder">Midfielder</option>
             <option value="Forward">Forward</option>
           </select>
         </div>
-
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
           <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
             League
@@ -779,7 +776,8 @@ const CollegePlayerCards = ({ filters, onBack }) => {
               border: '2px solid rgba(79,140,255,0.2)',
               background: 'rgba(255,255,255,0.9)',
               fontSize: '0.9rem',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              minWidth: 150
             }}
           >
             <option value="All">All</option>
@@ -788,13 +786,12 @@ const CollegePlayerCards = ({ filters, onBack }) => {
             <option value="NJCAA D3">NJCAA D3</option>
           </select>
         </div>
-        
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
           <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
             Academic Year
           </label>
           <select
-            value={currentFilters.academicLevel || 'All Academic Years'}
+            value={currentFilters.academicLevel || 'All'}
             onChange={(e) => setLocalFilters(prev => ({ ...prev, academicLevel: e.target.value }))}
             style={{
               padding: '0.5rem',
@@ -802,10 +799,11 @@ const CollegePlayerCards = ({ filters, onBack }) => {
               border: '2px solid rgba(79,140,255,0.2)',
               background: 'rgba(255,255,255,0.9)',
               fontSize: '0.9rem',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              minWidth: 150
             }}
           >
-            <option value="All Academic Years">All Academic Years</option>
+            <option value="All">All</option>
             <option value="Freshman">Freshman</option>
             <option value="Sophomore">Sophomore</option>
             <option value="Junior">Junior</option>

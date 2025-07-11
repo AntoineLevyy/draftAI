@@ -453,7 +453,7 @@ const PlayerCards = ({ filters, onBack }) => {
     }
     return filters?.league?.[0] || 'All';
   });
-  const [currentPosition, setCurrentPosition] = useState(filters?.position || 'All Positions');
+  const [currentPosition, setCurrentPosition] = useState(filters?.position || 'All');
   const [currentNationality, setCurrentNationality] = useState(filters?.nationality || 'All');
 
   const handleSearchChange = useCallback((e) => {
@@ -692,7 +692,7 @@ const PlayerCards = ({ filters, onBack }) => {
         }
         
         // Filter by position (convert English position back to German for comparison)
-        if (currentPosition && currentPosition !== 'All Positions') {
+        if (currentPosition && currentPosition !== 'All') {
           const germanPosition = reverseTranslatePosition(currentPosition);
           const playerPosition = player.profile?.playerProfile?.position || player.profile?.playerProfile?.playerMainPosition || '';
           console.log(`Checking position for ${playerName}: player position "${playerPosition}" vs filter "${germanPosition}"`);
@@ -923,7 +923,7 @@ const PlayerCards = ({ filters, onBack }) => {
               cursor: 'pointer'
             }}
           >
-            <option value="All">All Leagues</option>
+            <option value="All">All</option>
             <option value="USL Championship">USL Championship (Tier 2 USA)</option>
             <option value="USL League One">USL League One (Tier 3 USA)</option>
             <option value="MLS Next Pro">MLS Next Pro (Tier 3 USA)</option>
@@ -948,7 +948,7 @@ const PlayerCards = ({ filters, onBack }) => {
               cursor: 'pointer'
             }}
           >
-            <option value="All Positions">All Positions</option>
+            <option value="All">All</option>
             <option value="Goalkeeper">Goalkeeper</option>
             <option value="Center Back">Center Back</option>
             <option value="Left Back">Left Back</option>

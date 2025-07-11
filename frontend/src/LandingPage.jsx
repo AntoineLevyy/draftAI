@@ -115,7 +115,7 @@ const buttonStyleHover = {
 };
 
 const positions = [
-  'All Positions',
+  'All',
   'Goalkeeper',
   'Center Back',
   'Left Back',
@@ -146,7 +146,7 @@ const leagues = [
 
 function LandingPage({ onApplyFilters, onBack }) {
   const [selectedLeague, setSelectedLeague] = useState('All');
-  const [position, setPosition] = useState('All Positions');
+  const [position, setPosition] = useState('All');
   const [nationality, setNationality] = useState('All');
   const [activeSelect, setActiveSelect] = useState('');
   const [hoveredSelect, setHoveredSelect] = useState('');
