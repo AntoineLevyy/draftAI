@@ -183,7 +183,7 @@ function MainLandingPage({ onSelectCoachType }) {
             }} />
             <h2 style={optionTitle}>For College Coaches</h2>
             <p style={optionDescription}>
-              Student-athletes for your college program
+                              Student-athletes for your program
             </p>
           </div>
         </div>
