@@ -1,12 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './USLPlayerCards.css';
 import { apiBaseUrl } from './config';
-import ReactSelect, { components } from 'react-select';
-import Autocomplete from '@mui/material/Autocomplete';
-import TextField from '@mui/material/TextField';
-import Checkbox from '@mui/material/Checkbox';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
 // Add the highlights button styles to match the pro section
 const highlightsButtonStyles = `
@@ -549,17 +543,18 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     }
     
     // Filter by position
-    const positionOptions = ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
-    const selectedPositions = currentFilters.position || [];
-    const isAllSelected = selectedPositions.length === 0 || selectedPositions.length === positionOptions.length;
-    console.log('DEBUG: currentFilters.position:', selectedPositions);
-    console.log('DEBUG: First 5 player positions:', filteredPlayers.slice(0, 5).map(p => p.position));
-    if (!isAllSelected) {
-      filteredPlayers = filteredPlayers.filter(player =>
-        selectedPositions.includes((player.position || '').trim())
-      );
+    if (currentFilters.position && currentFilters.position !== 'All') {
+      filteredPlayers = filteredPlayers.filter(player => {
+        const playerName = player.name;
+        const playerPosition = translatePosition(player.position || '');
+        if (playerPosition !== currentFilters.position) {
+          console.log('Filtering out player due to position:', playerName, 'position:', playerPosition, 'filter:', currentFilters.position);
+          return false;
+        }
+        return true;
+      });
+      console.log('After position filter:', filteredPlayers.length);
     }
-    console.log('DEBUG: Number of players after position filter:', filteredPlayers.length);
     
     // Filter by academic year
     if (currentFilters.academicLevel && currentFilters.academicLevel !== 'All') {
@@ -716,27 +711,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     }
   }, [youtubeVideos, fetchYoutubeVideos]);
 
-  // Position options for college
-  const positionOptions = ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
-  const allPositions = [...positionOptions];
-  const selectedPositions = currentFilters.position || [];
-  const isAllSelected = selectedPositions.length === 0 || selectedPositions.length === allPositions.length;
 
-  // Custom ValueContainer for truncation
-  const TruncatedValueContainer = (props) => {
-    const maxToShow = 2;
-    const { children, getValue } = props;
-    const selected = getValue();
-    if (selected.length > maxToShow) {
-      const display = selected.slice(0, maxToShow).map(opt => opt.label).join(', ');
-      return (
-        <components.ValueContainer {...props}>
-          {display + ', ...'}
-        </components.ValueContainer>
-      );
-    }
-    return <components.ValueContainer {...props}>{children}</components.ValueContainer>;
-  };
 
   if (loading) {
     return (
@@ -797,65 +772,25 @@ const CollegePlayerCards = ({ filters, onBack }) => {
           <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
             Position
           </label>
-          <Autocomplete
-            multiple
-            disableCloseOnSelect
-            options={['All', ...positionOptions]}
-            value={selectedPositions}
-            onChange={(event, newValue, reason) => {
-              if (newValue.includes('All')) {
-                if (selectedPositions.length === positionOptions.length) {
-                  // Deselect all
-                  setLocalFilters(prev => ({ ...prev, position: [] }));
-                } else {
-                  // Select all
-                  setLocalFilters(prev => ({ ...prev, position: [...positionOptions] }));
-                }
-              } else {
-                // Remove 'All' if present
-                const filtered = newValue.filter(v => v !== 'All');
-                setLocalFilters(prev => ({ ...prev, position: filtered }));
-              }
+          <select
+            value={currentFilters.position || 'All'}
+            onChange={(e) => setLocalFilters(prev => ({ ...prev, position: e.target.value }))}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '8px',
+              border: '2px solid rgba(79,140,255,0.2)',
+              background: 'rgba(255,255,255,0.9)',
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              minWidth: 150
             }}
-            getOptionLabel={option => option}
-            renderOption={(props, option, { selected }) => (
-              <li {...props}>
-                <Checkbox
-                  icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
-                  checkedIcon={<CheckBoxIcon fontSize="small" />}
-                  style={{ marginRight: 8 }}
-                  checked={
-                    option === 'All'
-                      ? selectedPositions.length === positionOptions.length
-                      : selectedPositions.includes(option)
-                  }
-                />
-                <span style={{ paddingLeft: 8 }}>{option}</span>
-              </li>
-            )}
-            renderInput={params => (
-              <TextField {...params} variant="outlined" placeholder="Select positions..." size="small" />
-            )}
-            renderTags={(selected, getTagProps) => {
-              const maxToShow = 2;
-              if (!Array.isArray(selected)) return [];
-              if (selected.length === positionOptions.length) {
-                return [<span key="all" style={{ fontWeight: 500, color: '#4f8cff' }}>All</span>];
-              }
-              if (selected.length > maxToShow) {
-                return [
-                  ...selected.slice(0, maxToShow).map((option, index) => (
-                    <span key={option} style={{ fontWeight: 500, color: '#4f8cff', marginRight: 4 }}>{option}</span>
-                  )),
-                  <span key="more" style={{ color: '#374151' }}>...</span>
-                ];
-              }
-              return selected.map((option, index) => (
-                <span key={option} style={{ fontWeight: 500, color: '#4f8cff', marginRight: 4 }}>{option}</span>
-              ));
-            }}
-            sx={{ minWidth: 150, background: 'rgba(255,255,255,0.9)', borderRadius: 1 }}
-          />
+          >
+            <option value="All">All</option>
+            <option value="Goalkeeper">Goalkeeper</option>
+            <option value="Defender">Defender</option>
+            <option value="Midfielder">Midfielder</option>
+            <option value="Forward">Forward</option>
+          </select>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
           <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
