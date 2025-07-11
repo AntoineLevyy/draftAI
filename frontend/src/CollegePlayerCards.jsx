@@ -70,27 +70,16 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
   const region = player.region || 'N/A';
   const league = (player.league || 'NJCAA D1').replace(' (Tier 2 USA)', '').replace(' (Tier 1 USA)', '').replace(' (Tier 3 USA)', '');
 
-  // Detailed player information (new fields) - read from dataMap or direct properties
-  const dataMap = player.dataMap || {};
-  const height = dataMap.height || player.height || 'N/A';
-  const weight = dataMap.weight || player.weight || 'N/A';
-  const hometown = dataMap.hometown || player.hometown || 'N/A';
-  const photoUrl = player.photo_url || 'N/A';
-  const shotPercentage = dataMap.shot_percentage || player.shot_percentage || 'N/A';
-  const shotsOnGoal = dataMap.shots_on_goal || player.shots_on_goal || 'N/A';
-  const penaltyKicks = dataMap.penalty_kicks || player.penalty_kicks || 'N/A';
+  // Detailed player information (new fields) - read from direct properties
+  const height = player.height || 'N/A';
+  const weight = player.weight || 'N/A';
+  const hometown = player.hometown || 'N/A';
+  const photoUrl = player.photo_url || null;
+  const shotPercentage = player.shot_percentage || 'N/A';
+  const shotsOnGoal = player.shots_on_goal || 'N/A';
+  const penaltyKicks = player.penalty_kicks || 'N/A';
 
-  // Debug logging for first few players
-  if (playerName === 'Christopher Abad') {
-    console.log('Player data:', {
-      name: playerName,
-      dataMap,
-      height,
-      weight,
-      hometown,
-      photoUrl
-    });
-  }
+
 
   // Season stats - extract from stats object
   const stats = player.stats || {};
@@ -106,7 +95,7 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
       <div className="card-header">
         <div className="player-image-container">
           <img 
-            src={photoUrl !== 'N/A' ? photoUrl : getPlayerImage(player)} 
+            src={photoUrl ? photoUrl : getPlayerImage(player)} 
             alt={playerName}
             className="player-image"
             onError={(e) => {

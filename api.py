@@ -42,9 +42,9 @@ USL_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/back
 MLS_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/mls_next_pro_players_api.json'
 CPL_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/cpl_players_api.json'
 LIGA_MX_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/liga_mx_players_api.json'
-NJCAA_D1_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/chunks/njcaa_d1_players.json'
-NJCAA_D2_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/chunks/njcaa_d2_players.json'
-NJCAA_D3_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/chunks/njcaa_d3_players.json'
+NJCAA_D1_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/njcaa_d1_players.json'
+NJCAA_D2_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/njcaa_d2_players.json'
+NJCAA_D3_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/njcaa_d3_players.json'
 
 # Cache for loaded data
 _player_cache = {}
@@ -146,6 +146,9 @@ def fetch_player_data():
                 raw_weight = player.get('dataMap', {}).get('weight', '')
                 clean_weight = raw_weight.replace('Ã', '').strip() if raw_weight else ''
                 
+                # Extract hometown from dataMap
+                hometown = player.get('dataMap', {}).get('hometown', '')
+                
                 transformed_player = {
                     'name': player.get('fullName', f"{player.get('firstName', '')} {player.get('lastName', '')}"),
                     'position': player.get('position', ''),
@@ -164,6 +167,7 @@ def fetch_player_data():
                     'age': 0,  # Not available in NJCAA data
                     'height': clean_height,
                     'weight': clean_weight,
+                    'hometown': hometown,
                     'year': player.get('year', ''),
                     'region': player.get('region', ''),
                     'uniform': player.get('uniform', ''),
@@ -196,6 +200,9 @@ def fetch_player_data():
                 raw_weight = player.get('dataMap', {}).get('weight', '')
                 clean_weight = raw_weight.replace('Ã', '').strip() if raw_weight else ''
                 
+                # Extract hometown from dataMap
+                hometown = player.get('dataMap', {}).get('hometown', '')
+                
                 transformed_player = {
                     'name': player.get('fullName', f"{player.get('firstName', '')} {player.get('lastName', '')}"),
                     'position': player.get('position', ''),
@@ -214,6 +221,7 @@ def fetch_player_data():
                     'age': 0,  # Not available in NJCAA data
                     'height': clean_height,
                     'weight': clean_weight,
+                    'hometown': hometown,
                     'year': player.get('year', ''),
                     'region': player.get('region', ''),
                     'uniform': player.get('uniform', ''),
@@ -246,6 +254,9 @@ def fetch_player_data():
                 raw_weight = player.get('dataMap', {}).get('weight', '')
                 clean_weight = raw_weight.replace('Ã', '').strip() if raw_weight else ''
                 
+                # Extract hometown from dataMap
+                hometown = player.get('dataMap', {}).get('hometown', '')
+                
                 transformed_player = {
                     'name': player.get('fullName', f"{player.get('firstName', '')} {player.get('lastName', '')}"),
                     'position': player.get('position', ''),
@@ -264,6 +275,7 @@ def fetch_player_data():
                     'age': 0,  # Not available in NJCAA data
                     'height': clean_height,
                     'weight': clean_weight,
+                    'hometown': hometown,
                     'year': player.get('year', ''),
                     'region': player.get('region', ''),
                     'uniform': player.get('uniform', ''),
