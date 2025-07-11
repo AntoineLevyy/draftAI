@@ -246,11 +246,64 @@ def get_youtube_highlights():
         player_name = request.args.get('player_name')
         club_name = request.args.get('club_name')
         
+        print(f"YouTube highlights request for: {player_name} from {club_name}")
+        print(f"YouTube module available: {YOUTUBE_AVAILABLE}")
+        
         if not player_name:
             return jsonify({'error': 'Player name is required'}), 400
         
+        # Check if YouTube API key is available
+        youtube_api_key = os.getenv('YOUTUBE_API_KEY')
+        if not youtube_api_key:
+            print("WARNING: No YouTube API key found in environment variables")
+            # Return a helpful response with search link
+            search_url = f"https://www.youtube.com/results?search_query={player_name}+{club_name}+soccer+highlights"
+            return jsonify({
+                'videos': [{
+                    'title': f'{player_name} Highlights - Search Results',
+                    'video_url': search_url,
+                    'channel': 'YouTube Search',
+                    'published_at': 'N/A',
+                    'description': f'Click to search YouTube for {player_name} highlights from {club_name}',
+                    'thumbnail': None
+                }],
+                'player_name': player_name,
+                'club_name': club_name,
+                'note': 'No YouTube API key configured. This is a search link.'
+            })
+        
         # Search for YouTube videos
-        videos = search_youtube_videos(player_name, club_name)
+        print(f"Calling search_youtube_videos with API key: {youtube_api_key[:10]}...")
+        try:
+            videos = search_youtube_videos(player_name, club_name)
+            print(f"Found {len(videos)} videos for {player_name}")
+        except Exception as e:
+            print(f"YouTube API error: {e}")
+            # Check if it's a quota exceeded error
+            if "quota" in str(e).lower() or "403" in str(e):
+                print("YouTube API quota exceeded, providing search links instead")
+                # Create search links for different queries
+                search_queries = [
+                    f"{player_name} {club_name} soccer highlights",
+                    f"{player_name} {club_name} goals",
+                    f"{player_name} soccer highlights",
+                    f"{player_name} {club_name} youth soccer"
+                ]
+                
+                videos = []
+                for i, query in enumerate(search_queries):
+                    search_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}"
+                    videos.append({
+                        'title': f'{player_name} Highlights - Search {i+1}',
+                        'video_url': search_url,
+                        'channel': 'YouTube Search',
+                        'published_at': 'N/A',
+                        'description': f'Search: {query}',
+                        'thumbnail': None
+                    })
+            else:
+                # Other error, re-raise
+                raise e
         
         response = jsonify({
             'videos': videos,
@@ -267,7 +320,17 @@ def get_youtube_highlights():
         
     except Exception as e:
         print(f"Error in get_youtube_highlights: {e}")
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        
+        # Return a helpful error response
+        return jsonify({
+            'error': str(e),
+            'videos': [],
+            'player_name': player_name if 'player_name' in locals() else 'Unknown',
+            'club_name': club_name if 'club_name' in locals() else 'Unknown',
+            'note': 'YouTube search failed. Please check API key and try again.'
+        }), 500
 
 @app.route('/api/team-logos', methods=['GET'])
 def get_team_logos():

@@ -885,7 +885,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
         <div className="video-modal-overlay" onClick={() => setShowVideoModal(false)}>
           <div className="video-modal" onClick={(e) => e.stopPropagation()}>
             <div className="video-modal-header">
-              <h2>{selectedPlayer.profile?.playerProfile?.playerName} - Highlights</h2>
+              <h2>{selectedPlayer.name} - Highlights</h2>
               <button 
                 className="close-modal-button"
                 onClick={() => setShowVideoModal(false)}
@@ -894,11 +894,12 @@ const CollegePlayerCards = ({ filters, onBack }) => {
               </button>
             </div>
             <div className="video-modal-content">
-              {loadingVideos[`${selectedPlayer.profile?.playerProfile?.playerName}-${selectedPlayer.profile?.playerProfile?.club}`] ? (
+              {loadingVideos[`${selectedPlayer.name}-${selectedPlayer.team}`] ? (
                 <div className="loading-videos">Loading videos...</div>
-              ) : youtubeVideos[`${selectedPlayer.profile?.playerProfile?.playerName}-${selectedPlayer.profile?.playerProfile?.club}`]?.length > 0 ? (
+              ) : youtubeVideos[`${selectedPlayer.name}-${selectedPlayer.team}`]?.length > 0 ? (
                 <div className="videos-grid">
-                  {youtubeVideos[`${selectedPlayer.profile?.playerProfile?.playerName}-${selectedPlayer.profile?.playerProfile?.club}`].map((video, index) => {
+                  {youtubeVideos[`${selectedPlayer.name}-${selectedPlayer.team}`].map((video, index) => {
+                    const isSearchLink = video.channel === 'YouTube Search';
                     return (
                       <a 
                         key={index} 
@@ -916,20 +917,38 @@ const CollegePlayerCards = ({ filters, onBack }) => {
                         }}
                       >
                         <div className="video-thumbnail">
-                          <img 
-                            src={video.thumbnail || `https://img.youtube.com/vi/${(video.video_url || video.url)?.split('v=')[1]}/mqdefault.jpg`} 
-                            alt={video.title} 
-                            onError={(e) => {
-                              e.target.src = 'https://via.placeholder.com/320x180?text=Video+Thumbnail';
-                            }}
-                          />
+                          {isSearchLink ? (
+                            <div style={{
+                              width: '100%',
+                              height: '180px',
+                              backgroundColor: '#f0f0f0',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              borderRadius: '8px',
+                              border: '2px dashed #ccc'
+                            }}>
+                              <div style={{ textAlign: 'center', color: '#666' }}>
+                                <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🔍</div>
+                                <div>Search Link</div>
+                              </div>
+                            </div>
+                          ) : (
+                            <img 
+                              src={video.thumbnail || `https://img.youtube.com/vi/${(video.video_url || video.url)?.split('v=')[1]}/mqdefault.jpg`} 
+                              alt={video.title} 
+                              onError={(e) => {
+                                e.target.src = 'https://via.placeholder.com/320x180?text=Video+Thumbnail';
+                              }}
+                            />
+                          )}
                         </div>
                         <div className="video-info">
                           <div className="video-title">{video.title}</div>
                           <div className="video-channel">{video.channel}</div>
                           <div className="video-date">{video.published_at || video.publishedAt}</div>
                           <div className="watch-video-button">
-                            Watch Video
+                            {isSearchLink ? 'Search YouTube' : 'Watch Video'}
                           </div>
                         </div>
                       </a>
