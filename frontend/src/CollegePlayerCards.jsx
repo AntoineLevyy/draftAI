@@ -70,6 +70,15 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
   const region = player.region || 'N/A';
   const league = (player.league || 'NJCAA D1').replace(' (Tier 2 USA)', '').replace(' (Tier 1 USA)', '').replace(' (Tier 3 USA)', '');
 
+  // Detailed player information (new fields)
+  const height = player.height || 'N/A';
+  const weight = player.weight || 'N/A';
+  const hometown = player.hometown || 'N/A';
+  const photoUrl = player.photo_url || 'N/A';
+  const shotPercentage = player.shot_percentage || 'N/A';
+  const shotsOnGoal = player.shots_on_goal || 'N/A';
+  const penaltyKicks = player.penalty_kicks || 'N/A';
+
   // Season stats
   const goals = player.goals || 0;
   const assists = player.assists || 0;
@@ -83,7 +92,7 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
       <div className="card-header">
         <div className="player-image-container">
           <img 
-            src={getPlayerImage(player)} 
+            src={photoUrl !== 'N/A' ? photoUrl : getPlayerImage(player)} 
             alt={playerName}
             className="player-image"
             onError={(e) => {
@@ -124,10 +133,17 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
             <span className="info-value">{year}</span>
           </div>
           <div className="info-item">
-            <span className="info-label">Region:</span>
-            <span className="info-value">{region}</span>
+            <span className="info-label">Height:</span>
+            <span className="info-value">{height}</span>
           </div>
-
+          <div className="info-item">
+            <span className="info-label">Weight:</span>
+            <span className="info-value">{weight}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Hometown:</span>
+            <span className="info-value">{hometown}</span>
+          </div>
         </div>
 
         <div className="performance-stats">
@@ -162,6 +178,33 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
             </div>
           </div>
         </div>
+
+        {/* Detailed Statistics Section - only show if we have detailed stats */}
+        {(shotPercentage !== 'N/A' || shotsOnGoal !== 'N/A' || penaltyKicks !== 'N/A') && (
+          <div className="performance-stats">
+            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: 600, color: '#374151' }}>Detailed Stats</h3>
+            <div className="stat-row">
+              {shotPercentage !== 'N/A' && (
+                <div className="stat-item-card">
+                  <span className="stat-value">{shotPercentage}%</span>
+                  <span className="stat-label-card">Shot %</span>
+                </div>
+              )}
+              {shotsOnGoal !== 'N/A' && (
+                <div className="stat-item-card">
+                  <span className="stat-value">{shotsOnGoal}</span>
+                  <span className="stat-label-card">Shots on Goal</span>
+                </div>
+              )}
+              {penaltyKicks !== 'N/A' && (
+                <div className="stat-item-card">
+                  <span className="stat-value">{penaltyKicks}</span>
+                  <span className="stat-label-card">Penalty Kicks</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
 
 
