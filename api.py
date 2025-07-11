@@ -131,44 +131,10 @@ def fetch_player_data():
         print("Fetching NJCAA D1 data from GitHub...")
         response = requests.get(NJCAA_D1_DATA_URL, timeout=30)
         if response.status_code == 200:
-            njcaa_data = response.json()
-            # NJCAA data is already an array, not wrapped in 'players' key
-            njcaa_players = njcaa_data if isinstance(njcaa_data, list) else []
-            # Transform NJCAA data to match our format
-            for player in njcaa_players:
-                stats = player.get('stats', {})
-                raw_height = player.get('dataMap', {}).get('height', '')
-                clean_height = raw_height.replace('Ã', '').strip() if raw_height else ''
-                raw_weight = player.get('dataMap', {}).get('weight', '')
-                clean_weight = raw_weight.replace('Ã', '').strip() if raw_weight else ''
-                hometown = player.get('dataMap', {}).get('hometown', '')
-                # Merge all original fields with transformed fields
-                transformed_player = {
-                    **player,
-                    'name': player.get('fullName', f"{player.get('firstName', '')} {player.get('lastName', '')}"),
-                    'position': player.get('position', ''),
-                    'team': player.get('team', ''),
-                    'league': 'NJCAA D1',
-                    'games': int(stats.get('gp', 0)),
-                    'games_started': int(stats.get('gs', 0)),
-                    'goals': int(stats.get('g', 0)),
-                    'assists': int(stats.get('a', 0)),
-                    'points': int(stats.get('p', 0)),
-                    'shots': int(stats.get('sh', 0)),
-                    'shot_pct': float(stats.get('shpt', 0)),
-                    'penalty_kicks': int(stats.get('pkm', 0)),
-                    'game_winning_goals': int(stats.get('gw', 0)),
-                    'nationality': 'USA',
-                    'age': 0,
-                    'height': clean_height,
-                    'weight': clean_weight,
-                    'hometown': hometown,
-                    'year': player.get('year', ''),
-                    'region': player.get('region', ''),
-                    'uniform': player.get('uniform', ''),
-                    'url': f"https://njcaastats.prestosports.com/sports/msoc/2024-25/div1/players/{player.get('pageName', '')}"
-                }
-                players.append(transformed_player)
+            njcaa_players = response.json()
+            # The cleaned JSON files are already in the correct format
+            # Just add them directly without transformation
+            players.extend(njcaa_players)
             print(f"Loaded {len(njcaa_players)} NJCAA D1 players")
         else:
             print(f"Failed to fetch NJCAA D1 data: {response.status_code}")
@@ -180,44 +146,10 @@ def fetch_player_data():
         print("Fetching NJCAA D2 data from GitHub...")
         response = requests.get(NJCAA_D2_DATA_URL, timeout=30)
         if response.status_code == 200:
-            njcaa_data = response.json()
-            # NJCAA data is already an array, not wrapped in 'players' key
-            njcaa_players = njcaa_data if isinstance(njcaa_data, list) else []
-            # Transform NJCAA data to match our format
-            for player in njcaa_players:
-                stats = player.get('stats', {})
-                raw_height = player.get('dataMap', {}).get('height', '')
-                clean_height = raw_height.replace('Ã', '').strip() if raw_height else ''
-                raw_weight = player.get('dataMap', {}).get('weight', '')
-                clean_weight = raw_weight.replace('Ã', '').strip() if raw_weight else ''
-                hometown = player.get('dataMap', {}).get('hometown', '')
-                # Merge all original fields with transformed fields
-                transformed_player = {
-                    **player,
-                    'name': player.get('fullName', f"{player.get('firstName', '')} {player.get('lastName', '')}"),
-                    'position': player.get('position', ''),
-                    'team': player.get('team', ''),
-                    'league': 'NJCAA D2',
-                    'games': int(stats.get('gp', 0)),
-                    'games_started': int(stats.get('gs', 0)),
-                    'goals': int(stats.get('g', 0)),
-                    'assists': int(stats.get('a', 0)),
-                    'points': int(stats.get('p', 0)),
-                    'shots': int(stats.get('sh', 0)),
-                    'shot_pct': float(stats.get('shpt', 0)),
-                    'penalty_kicks': int(stats.get('pkm', 0)),
-                    'game_winning_goals': int(stats.get('gw', 0)),
-                    'nationality': 'USA',
-                    'age': 0,
-                    'height': clean_height,
-                    'weight': clean_weight,
-                    'hometown': hometown,
-                    'year': player.get('year', ''),
-                    'region': player.get('region', ''),
-                    'uniform': player.get('uniform', ''),
-                    'url': f"https://njcaastats.prestosports.com/sports/msoc/2024-25/div2/players/{player.get('pageName', '')}"
-                }
-                players.append(transformed_player)
+            njcaa_players = response.json()
+            # The cleaned JSON files are already in the correct format
+            # Just add them directly without transformation
+            players.extend(njcaa_players)
             print(f"Loaded {len(njcaa_players)} NJCAA D2 players")
         else:
             print(f"Failed to fetch NJCAA D2 data: {response.status_code}")
@@ -229,44 +161,10 @@ def fetch_player_data():
         print("Fetching NJCAA D3 data from GitHub...")
         response = requests.get(NJCAA_D3_DATA_URL, timeout=30)
         if response.status_code == 200:
-            njcaa_data = response.json()
-            # NJCAA data is already an array, not wrapped in 'players' key
-            njcaa_players = njcaa_data if isinstance(njcaa_data, list) else []
-            # Transform NJCAA data to match our format
-            for player in njcaa_players:
-                stats = player.get('stats', {})
-                raw_height = player.get('dataMap', {}).get('height', '')
-                clean_height = raw_height.replace('Ã', '').strip() if raw_height else ''
-                raw_weight = player.get('dataMap', {}).get('weight', '')
-                clean_weight = raw_weight.replace('Ã', '').strip() if raw_weight else ''
-                hometown = player.get('dataMap', {}).get('hometown', '')
-                # Merge all original fields with transformed fields
-                transformed_player = {
-                    **player,
-                    'name': player.get('fullName', f"{player.get('firstName', '')} {player.get('lastName', '')}"),
-                    'position': player.get('position', ''),
-                    'team': player.get('team', ''),
-                    'league': 'NJCAA D3',
-                    'games': int(stats.get('gp', 0)),
-                    'games_started': int(stats.get('gs', 0)),
-                    'goals': int(stats.get('g', 0)),
-                    'assists': int(stats.get('a', 0)),
-                    'points': int(stats.get('p', 0)),
-                    'shots': int(stats.get('sh', 0)),
-                    'shot_pct': float(stats.get('shpt', 0)),
-                    'penalty_kicks': int(stats.get('pkm', 0)),
-                    'game_winning_goals': int(stats.get('gw', 0)),
-                    'nationality': 'USA',
-                    'age': 0,
-                    'height': clean_height,
-                    'weight': clean_weight,
-                    'hometown': hometown,
-                    'year': player.get('year', ''),
-                    'region': player.get('region', ''),
-                    'uniform': player.get('uniform', ''),
-                    'url': f"https://njcaastats.prestosports.com/sports/msoc/2024-25/div3/players/{player.get('pageName', '')}"
-                }
-                players.append(transformed_player)
+            njcaa_players = response.json()
+            # The cleaned JSON files are already in the correct format
+            # Just add them directly without transformation
+            players.extend(njcaa_players)
             print(f"Loaded {len(njcaa_players)} NJCAA D3 players")
         else:
             print(f"Failed to fetch NJCAA D3 data: {response.status_code}")
