@@ -70,15 +70,15 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
   const region = player.region || 'N/A';
   const league = (player.league || 'NJCAA D1').replace(' (Tier 2 USA)', '').replace(' (Tier 1 USA)', '').replace(' (Tier 3 USA)', '');
 
-  // Detailed player information (new fields) - read from dataMap
+  // Detailed player information (new fields) - read from dataMap or direct properties
   const dataMap = player.dataMap || {};
-  const height = dataMap.height || 'N/A';
-  const weight = dataMap.weight || 'N/A';
-  const hometown = dataMap.hometown || 'N/A';
+  const height = dataMap.height || player.height || 'N/A';
+  const weight = dataMap.weight || player.weight || 'N/A';
+  const hometown = dataMap.hometown || player.hometown || 'N/A';
   const photoUrl = player.photo_url || 'N/A';
-  const shotPercentage = dataMap.shot_percentage || 'N/A';
-  const shotsOnGoal = dataMap.shots_on_goal || 'N/A';
-  const penaltyKicks = dataMap.penalty_kicks || 'N/A';
+  const shotPercentage = dataMap.shot_percentage || player.shot_percentage || 'N/A';
+  const shotsOnGoal = dataMap.shots_on_goal || player.shots_on_goal || 'N/A';
+  const penaltyKicks = dataMap.penalty_kicks || player.penalty_kicks || 'N/A';
 
   // Season stats
   const goals = player.goals || 0;
