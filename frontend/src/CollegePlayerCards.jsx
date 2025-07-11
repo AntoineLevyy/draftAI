@@ -63,7 +63,7 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
   }
 
   // Extract data from NJCAA structure
-  const playerName = player.name || 'Unknown Player';
+  const playerName = player.fullName || player.name || 'Unknown Player';
   const teamName = player.team || 'Unknown Team';
   const position = translatePosition(player.position || 'Unknown');
   const year = expandYear(player.year || 'N/A');
@@ -80,13 +80,26 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
   const shotsOnGoal = dataMap.shots_on_goal || player.shots_on_goal || 'N/A';
   const penaltyKicks = dataMap.penalty_kicks || player.penalty_kicks || 'N/A';
 
-  // Season stats
-  const goals = player.goals || 0;
-  const assists = player.assists || 0;
-  const points = player.points || 0;
-  const matches = player.games || 0;
-  const gamesStarted = player.games_started || 0;
-  const minutesPlayed = player.minutesPlayed || 0;
+  // Debug logging for first few players
+  if (playerName === 'Christopher Abad') {
+    console.log('Player data:', {
+      name: playerName,
+      dataMap,
+      height,
+      weight,
+      hometown,
+      photoUrl
+    });
+  }
+
+  // Season stats - extract from stats object
+  const stats = player.stats || {};
+  const goals = parseInt(stats.gol || stats.g || 0);
+  const assists = parseInt(stats.a || 0);
+  const points = parseInt(stats.p || 0);
+  const matches = parseInt(stats.gp || stats.g || 0);
+  const gamesStarted = parseInt(stats.gs || 0);
+  const minutesPlayed = parseInt(stats.mins || stats.gm || 0);
 
   return (
     <div className="player-card">
