@@ -27,9 +27,9 @@ class DetailedPlayerScraper:
         })
         
         # Load existing player data
-        self.d1_players = self.load_player_data("../../pro/chunks/njcaa_d1_players.json")
-        self.d2_players = self.load_player_data("../../pro/chunks/njcaa_d2_players.json")
-        self.d3_players = self.load_player_data("../../pro/chunks/njcaa_d3_players.json")
+        self.d1_players = self.load_player_data("njcaa_d1_players.json")
+        self.d2_players = self.load_player_data("njcaa_d2_players.json")
+        self.d3_players = self.load_player_data("njcaa_d3_players.json")
         
         # Load club mappings
         self.club_mappings = self.load_club_mappings("njcaa_club_mappings.json")
@@ -76,8 +76,53 @@ class DetailedPlayerScraper:
             logger.error(f"Error fetching {url}: {e}")
             return None
     
-    def extract_player_details_from_roster(self, roster_url: str, team_name: str) -> Dict[str, Dict]:
-        """Extract detailed player information from a roster page."""
+    def extract_team_logo_from_roster(self, roster_url: str) -> Optional[str]:
+        """Extract team logo from a roster page."""
+        logger.info(f"Extracting team logo from: {roster_url}")
+        
+        content = self.get_page_content(roster_url)
+        if not content:
+            return None
+        
+        soup = BeautifulSoup(content, 'html.parser')
+        
+        # Common logo selectors for PrestoSports sites
+        logo_selectors = [
+            '.site-logo img',
+            '.site-logo img[src*="logo"]',
+            '.site-logo img[src*="Logo"]',
+            '.site-logo img[src*="Primary_Logo"]',
+            '.site-logo img[src*="Secondary_Logo"]',
+            'header img[src*="logo"]',
+            'header img[src*="Logo"]',
+            '.navbar-brand img',
+            '.logo img',
+            'img[alt*="logo"]',
+            'img[alt*="Logo"]',
+            'img[src*="/images/setup/"]',
+            'img[src*="Primary_Logo"]',
+            'img[src*="Secondary_Logo"]'
+        ]
+        
+        for selector in logo_selectors:
+            logo_elem = soup.select_one(selector)
+            if logo_elem:
+                logo_src = logo_elem.get('src')
+                if logo_src:
+                    # Convert relative URLs to absolute
+                    if logo_src.startswith('/'):
+                        logo_src = urljoin(roster_url, logo_src)
+                    elif not logo_src.startswith('http'):
+                        logo_src = urljoin(roster_url, logo_src)
+                    
+                    logger.info(f"Found team logo: {logo_src}")
+                    return logo_src
+        
+        logger.warning(f"No team logo found on {roster_url}")
+        return None
+
+    def extract_player_details_from_roster(self, roster_url: str, team_name: str) -> Dict[str, Any]:
+        """Extract detailed player information and team logo from a roster page."""
         logger.info(f"Scraping roster page: {roster_url}")
         
         content = self.get_page_content(roster_url)
@@ -86,6 +131,9 @@ class DetailedPlayerScraper:
         
         soup = BeautifulSoup(content, 'html.parser')
         players = {}
+        
+        # Extract team logo first
+        team_logo = self.extract_team_logo_from_roster(roster_url)
         
         # Look for player cards/rows in the roster
         # Common patterns for PrestoSports roster pages
@@ -113,7 +161,12 @@ class DetailedPlayerScraper:
                 players[player_info['name']] = player_info
         
         logger.info(f"Found {len(players)} players on roster page")
-        return players
+        
+        # Return both players and team logo
+        return {
+            'players': players,
+            'team_logo': team_logo
+        }
     
     def extract_player_from_element(self, element, base_url: str) -> Optional[Dict]:
         """Extract player information from a roster element."""
@@ -269,8 +322,8 @@ class DetailedPlayerScraper:
             logger.error(f"Error getting detailed stats from {player_url}: {e}")
             return {}
     
-    def update_player_data(self, players: List[Dict], team_name: str, roster_players: Dict[str, Dict]) -> int:
-        """Update existing player data with detailed information."""
+    def update_player_data(self, players: List[Dict], team_name: str, roster_players: Dict[str, Dict], team_logo: Optional[str] = None) -> int:
+        """Update existing player data with detailed information and team logo."""
         updated_count = 0
         
         for player in players:
@@ -342,6 +395,12 @@ class DetailedPlayerScraper:
                     player['dataMap']['shot_percentage'] = 'N/A'
                     player['dataMap']['shots_on_goal'] = 'N/A'
                     player['dataMap']['penalty_kicks'] = 'N/A'
+                
+                # Add team logo to all players of this team
+                if team_logo:
+                    player['team_logo'] = team_logo
+                else:
+                    player['team_logo'] = None
         
         return updated_count
     
@@ -385,9 +444,9 @@ class DetailedPlayerScraper:
         
         # Process each division
         divisions = [
-            (self.d1_players, "NJCAA D1", "../../pro/chunks/njcaa_d1_players.json"),
-            (self.d2_players, "NJCAA D2", "../../pro/chunks/njcaa_d2_players.json"),
-            (self.d3_players, "NJCAA D3", "../../pro/chunks/njcaa_d3_players.json")
+            (self.d1_players, "NJCAA D1", "njcaa_d1_players.json"),
+            (self.d2_players, "NJCAA D2", "njcaa_d2_players.json"),
+            (self.d3_players, "NJCAA D3", "njcaa_d3_players.json")
         ]
         
         for players, division_name, output_file in divisions:
@@ -409,10 +468,12 @@ class DetailedPlayerScraper:
                     logger.info(f"Processing team: {team}")
                     
                     # Get detailed player data from roster page
-                    roster_players = self.extract_player_details_from_roster(roster_url, team)
-                    
+                    roster_data = self.extract_player_details_from_roster(roster_url, team)
+                    if not roster_data or 'players' not in roster_data or 'team_logo' not in roster_data:
+                        logger.warning(f"Skipping team {team} due to missing player or logo data.")
+                        continue
                     # Update existing player data
-                    updated_count = self.update_player_data(players, team, roster_players)
+                    updated_count = self.update_player_data(players, team, roster_data['players'], roster_data['team_logo'])
                     self.stats['players_updated'] += updated_count
                     
                     logger.info(f"Updated {updated_count} players for {team}")

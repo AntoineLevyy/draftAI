@@ -266,6 +266,26 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   const [localFilters, setLocalFilters] = useState(filters || {});
   const currentFilters = localFilters;
 
+  // Load team logos when component mounts
+  useEffect(() => {
+    const loadTeamLogos = async () => {
+      try {
+        const response = await fetch('/team_logos.json');
+        if (response.ok) {
+          const teamLogos = await response.json();
+          window.teamLogos = teamLogos;
+          console.log('Team logos loaded:', Object.keys(teamLogos).length, 'teams');
+        } else {
+          console.warn('Could not load team logos, using fallback');
+        }
+      } catch (error) {
+        console.warn('Error loading team logos:', error);
+      }
+    };
+
+    loadTeamLogos();
+  }, []);
+
   const handleSearchChange = useCallback((e) => {
     console.log('Search term changed to:', e.target.value);
     setSearchTerm(e.target.value);
@@ -589,7 +609,13 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   }, []);
 
   const getClubImage = useCallback((player) => {
-    // For college teams, use a simple data URI
+    // For college teams, try to use actual team logo from the team_logos.json file
+    const teamName = player.team;
+    if (teamName && window.teamLogos && window.teamLogos[teamName]) {
+      return window.teamLogos[teamName];
+    }
+    
+    // Fallback to a simple data URI if no logo found
     return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjQiIGZpbGw9IiNmMWY1ZjkiLz4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjAiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNCA0QzI2LjIgNCAyOCA1LjggMjggOFYxNkMyOCAxOC4yIDI2LjIgMjAgMjQgMjBDMjEuOCAyMCAyMCAxOC4yIDIwIDE2VjhDMjAgNS44IDIxLjggNCAyNCA0WiIgZmlsbD0iIzljYTNhZiIvPgo8L3N2Zz4K';
   }, []);
 
