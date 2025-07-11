@@ -84,4 +84,7 @@ jspm_packages/
 backend/pro/*.json
 !backend/pro/cpl_players_api.json
 !backend/pro/liga_mx_players_api.json
+!backend/pro/chunks/njcaa_d1_players.json
+!backend/pro/chunks/njcaa_d2_players.json
+!backend/pro/chunks/njcaa_d3_players.json
 frontend/public/*.json
