@@ -11,7 +11,7 @@ CORS(app, origins=['https://aiscoutingassistant.vercel.app', 'http://localhost:5
 def root():
     """Root endpoint for testing"""
     return jsonify({
-        'message': 'Draft AI API is running',
+        'message': 'draftme API is running',
         'status': 'healthy',
         'endpoints': [
             '/api/health',

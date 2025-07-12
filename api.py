@@ -28,7 +28,7 @@ CORS(app, origins=['*'])
 def root():
     """Root endpoint for testing"""
     return jsonify({
-        'message': 'Draft AI API is running',
+        'message': 'draftme API is running',
         'youtube_available': YOUTUBE_AVAILABLE,
         'endpoints': [
             '/api/health',

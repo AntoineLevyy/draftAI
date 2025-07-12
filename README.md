@@ -1,4 +1,4 @@
-# Draft AI - Soccer Player Scouting App
+# draftme - Soccer Player Scouting App
 
 A web application for scouting USL League One and MLS Next Pro soccer players.
 

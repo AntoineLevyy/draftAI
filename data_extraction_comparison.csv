@@ -1,0 +1,15 @@
+Team,Roster URL,Status,Expected Team Photo,Actual Team Photo,Team Photo Match,Expected Players,Actual Players Found,Player Count Match,Expected Height,Actual Height,Height Match,Expected Weight,Actual Weight,Weight Match,Expected Hometown,Actual Hometown,Hometown Match,Expected Picture,Actual Picture,Picture Match
+Alexandria Technical & Community College,https://legends.alextech.edu/sports/msoc/2024-25/roster,success,No,Yes,✗,16,16,✓,0,16,✗,0,16,✗,Should Have,16,✓,Should Have,0,✗
+Allegany College of Maryland,https://acmtrojans.com/sports/mens-soccer/roster,success,No,Yes,✗,16,15,✗,0,15,✗,0,15,✗,0,15,✗,0,0,✓
+Allen County Community College,https://allencounty.com/sports/msoc/roster,success,No,No,✓,27,0,✗,Should have,0,✗,Should have,0,✗,Should have,0,✗,Should Have,0,✗
+Andrew College,https://andrew.prestosports.com/sports/msoc/2024-25/roster,success,Yes,Yes,✓,16,16,✓,0,16,✗,0,16,✗,0,0,✓,Should Have,0,✗
+Angelina College,https://angelina.prestosports.com/sports/msoc/2024-25/roster,success,Yes,Yes,✓,29,24,✗,0,24,✗,0,24,✗,Should Have,24,✓,0,0,✓
+Anne Arundel Community College,https://aaccathletics.com/sports/msoc/2024-25/roster,success,No,No,✓,28,28,✓,0,28,✗,0,28,✗,Should have,0,✗,Should have,28,✗
+Anoka-Ramsey Community College,https://arccgoldenrams.com/sports/msoc/2024-25/roster,success,No,Yes,✗,22,22,✓,Should Have,22,✓,0,22,✗,Should Have,22,✓,Should Have,22,✓
+Arizona Western College,https://arizonawestern.prestosports.com/sports/msoc/2024-25/roster,success,Yes,Yes,✓,29,29,✓,Should Have,29,✓,0,29,✗,Should Have,29,✓,Should Have,0,✗
+Atlantic Cape Community College,,no_url,No,No,✓,18,0,✗,0,0,✓,0,0,✓,0,0,✓,0,0,✓
+Barton Community College,https://www.bartonsports.com/sports/msoc/2024-25/roster,success,No,Yes,✗,38,38,✓,Should Have,38,✓,Should Have,38,✓,Should Have,38,✓,Should Have,0,✗
+Bergen Community College,https://www.bergenccbulldogs.com/sports/msoc/2024-25/roster,success,No,Yes,✗,27,25,✗,0,25,✗,0,25,✗,0,25,✗,Should Have,0,✗
+Black Hawk College,https://www.bhc.edu/athletics/mens-soccer/mens-soccer-roster/,success,No,No,✓,23,0,✗,0,0,✓,0,0,✓,0,0,✓,0,0,✓
+Blinn College,https://buccaneersports.com/sports/mens-soccer/roster,success,No,Yes,✗,34,34,✓,0,34,✗,0,34,✗,Should Have,34,✓,Should Have,0,✗
+Borough of Manhattan Community College,https://bmccathletics.com/sports/mens-soccer/roster,success,No,Yes,✗,27,27,✓,0,27,✗,0,0,✓,Should Have,0,✗,Should Have,0,✗

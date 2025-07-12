@@ -4,7 +4,7 @@ const config = {
     apiBaseUrl: 'http://127.0.0.1:5001' // Use local API in development
   },
   production: {
-    apiBaseUrl: 'https://draftai.onrender.com' // Your actual deployed API URL
+    apiBaseUrl: 'https://draftme.onrender.com' // Your actual deployed API URL
   }
 };
 

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 
 const bgStyle = {
-  minHeight: '100vh',
+  flex: 1,
   width: '100%',
   background: 'linear-gradient(120deg, #f8fafc 0%, #e0e7ff 40%, #c7d2fe 100%)',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  justifyContent: 'center',
+  justifyContent: 'flex-start',
   padding: '0',
   overflow: 'hidden',
 };
@@ -20,8 +20,7 @@ const mainContainer = {
   alignItems: 'center',
   padding: '1rem',
   justifyContent: 'center',
-  flex: 1,
-  marginTop: '-6rem',
+  paddingTop: '8rem',
 };
 
 const headlineStyle = {

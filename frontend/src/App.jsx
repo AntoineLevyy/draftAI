@@ -49,7 +49,7 @@ const footerStyle = {
   background: 'rgba(255, 255, 255, 0.1)',
   backdropFilter: 'blur(10px)',
   borderTop: '1px solid rgba(255, 255, 255, 0.2)',
-  padding: '2rem 0',
+  padding: '1rem 0',
   position: 'relative',
   zIndex: 10,
 };
@@ -63,9 +63,9 @@ const footerContent = {
 
 const footerText = {
   color: '#64748b',
-  fontSize: '0.95rem',
-  lineHeight: '1.6',
-  marginBottom: '0.5rem',
+  fontSize: '0.85rem',
+  lineHeight: '1.4',
+  marginBottom: '0.25rem',
 };
 
 const footerLink = {
@@ -75,10 +75,21 @@ const footerLink = {
 };
 
 const mainContentStyle = {
-  minHeight: '100vh',
+  flex: 1,
   width: '100%',
   boxSizing: 'border-box',
   paddingTop: '80px',
+  overflow: 'hidden',
+  display: 'flex',
+  flexDirection: 'column',
+};
+
+const appContainerStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  minHeight: '100vh',
+  width: '100%',
+  overflow: 'hidden',
 };
 
 function App() {
@@ -111,8 +122,21 @@ function App() {
     }
   }
 
+  // Determine if we're on a landing page (no scroll needed) or player cards page (scroll needed)
+  const isLandingPage = !filters && (currentView === 'main' || currentView === 'club' || currentView === 'college');
+  
+  const dynamicMainContentStyle = {
+    ...mainContentStyle,
+    overflow: isLandingPage ? 'hidden' : 'visible',
+  };
+
+  const dynamicAppContainerStyle = {
+    ...appContainerStyle,
+    overflow: isLandingPage ? 'hidden' : 'visible',
+  };
+
   return (
-    <div>
+    <div style={dynamicAppContainerStyle}>
       <header style={headerStyle}>
         <div style={headerInner}>
           <a 
@@ -129,13 +153,13 @@ function App() {
               e.target.style.opacity = '1';
             }}
           >
-            Draft AI
+            draftme
           </a>
 
           <div></div>
         </div>
       </header>
-      <main style={mainContentStyle}>
+      <main style={dynamicMainContentStyle}>
         {currentView === 'main' && (
           <MainLandingPage onSelectCoachType={handleSelectCoachType} />
         )}
@@ -150,14 +174,15 @@ function App() {
       <footer style={footerStyle}>
         <div style={footerContent}>
           <p style={footerText}>
-            © 2024 Draft AI. All rights reserved. | 
+            © 2025 draftme. All rights reserved.
+            <br />
             <a 
-              href="mailto:antoine.levy27@gmail.com" 
+              href="mailto:antoine@draftme.app" 
               style={footerLink}
               onMouseEnter={(e) => e.target.style.opacity = '0.8'}
               onMouseLeave={(e) => e.target.style.opacity = '1'}
             >
-              Contact: antoine.levy27@gmail.com
+              Contact: antoine@draftme.app
             </a>
           </p>
         </div>

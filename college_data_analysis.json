@@ -1,0 +1,2542 @@
+{
+  "summary": {
+    "Total Teams": 252,
+    "Teams with Roster URLs": 66,
+    "Teams with Team Photos": 52,
+    "Total Players": 6640,
+    "Players with Height": 321,
+    "Players with Weight": 194,
+    "Players with Hometown": 324,
+    "Players with Pictures": 480,
+    "Success Rates": {
+      "Teams with Roster URLs (%)": 26.2,
+      "Teams with Team Photos (%)": 20.6,
+      "Players with Height (%)": 4.8,
+      "Players with Weight (%)": 2.9,
+      "Players with Hometown (%)": 4.9,
+      "Players with Pictures (%)": 7.2
+    }
+  },
+  "team_analysis": [
+    {
+      "Team": "Alexandria Technical & Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 16
+    },
+    {
+      "Team": "Allegany College of Maryland",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 16
+    },
+    {
+      "Team": "Allen County Community College",
+      "Roster URL": "https://allencounty.com/sports/msoc/roster",
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Andrew College",
+      "Roster URL": "https://andrew.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://andrew.prestosports.com/images/setup/Primary_Logo-0-5x.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 16
+    },
+    {
+      "Team": "Angelina College",
+      "Roster URL": "https://angelina.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://angelina.prestosports.com/images/setup/Primary_Logo_-_.3x.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "Anne Arundel Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 28
+    },
+    {
+      "Team": "Anoka-Ramsey Community College",
+      "Roster URL": "https://anokaramsey.com/sports/msoc/roster",
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 22
+    },
+    {
+      "Team": "Arizona Western College",
+      "Roster URL": "https://arizonawestern.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://arizonawestern.prestosports.com/images/setup/sitelogo-0.5x.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "Atlantic Cape Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 18
+    },
+    {
+      "Team": "Barton Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 38
+    },
+    {
+      "Team": "Bergen Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Black Hawk College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Blinn College",
+      "Roster URL": "https://blinn.prestosports.com/sports/msoc/2023-24/roster",
+      "Team Photo URL": "https://cdn.prestosports.com/action/cdn/pb67z3zjnx5pm9rz/images/setup/2015/footer_logo_1.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 34
+    },
+    {
+      "Team": "Borough of Manhattan Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Bristol Community College",
+      "Roster URL": "https://bristol.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://bristol.prestosports.com/images/setup/footer_logo_1.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 17,
+      "Number of players for which we found a picture on that team": 17,
+      "Total Players": 17
+    },
+    {
+      "Team": "Bronx Community College",
+      "Roster URL": "https://bronx.com/sports/msoc/roster",
+      "Team Photo URL": "https://bronx.com/wp-content/uploads/upfw/the_bronx_daily_logo.png ",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 14
+    },
+    {
+      "Team": "Brookdale Community College",
+      "Roster URL": "https://brookdale.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://brookdale.prestosports.com/assets/Primary_Logo_-_.5x.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 24
+    },
+    {
+      "Team": "Bryant & Stratton College (WI)",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 19
+    },
+    {
+      "Team": "Bunker Hill Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 26
+    },
+    {
+      "Team": "CCBC Catonsville",
+      "Roster URL": "https://ccbccatonsville.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://ccbccatonsville.prestosports.com/assets/CAT_Cardinals_Full_whitetext_trans_v3.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 20
+    },
+    {
+      "Team": "CCBC Essex",
+      "Roster URL": "https://ccbcessex.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://ccbcessex.prestosports.com/assets/ESSEX_Knights_transparent.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Camden County College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 31
+    },
+    {
+      "Team": "Cape Fear Community College",
+      "Roster URL": "https://capefear.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://capefear.prestosports.com/images/setup/page_bg.jpg",
+      "Number of players for which we found height in that team": 26,
+      "Number of players for which we found weight in that team": 26,
+      "Number of players for which we found hometown on that team": 26,
+      "Number of players for which we found a picture on that team": 26,
+      "Total Players": 28
+    },
+    {
+      "Team": "Carl Sandburg College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Carroll Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 19
+    },
+    {
+      "Team": "Casper College",
+      "Roster URL": "https://casper.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://casper.prestosports.com/assets/CC_Bird_Head_300x300-01.png",
+      "Number of players for which we found height in that team": 26,
+      "Number of players for which we found weight in that team": 26,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 26
+    },
+    {
+      "Team": "Cayuga Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 33
+    },
+    {
+      "Team": "Cecil College",
+      "Roster URL": "https://cecil.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://cecil.prestosports.com/images/setup/site-logo.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 16
+    },
+    {
+      "Team": "Central Community College-Columbus",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 30
+    },
+    {
+      "Team": "Central Georgia Technical College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 20
+    },
+    {
+      "Team": "Central Wyoming College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 38
+    },
+    {
+      "Team": "Chandler-Gilbert Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Clinton Community College",
+      "Roster URL": "https://clinton.com/sports/msoc/roster",
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 19
+    },
+    {
+      "Team": "Coastal Bend College",
+      "Roster URL": "https://coastalbend.edu/sports/msoc/roster",
+      "Team Photo URL": "https://coastalbend.edu/sports/msoc/_files/images/logos/logo-horizontal-color.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 33
+    },
+    {
+      "Team": "Coffeyville Community College",
+      "Roster URL": "https://coffeyville.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 28,
+      "Number of players for which we found weight in that team": 28,
+      "Number of players for which we found hometown on that team": 28,
+      "Number of players for which we found a picture on that team": 28,
+      "Total Players": 28
+    },
+    {
+      "Team": "College of DuPage",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "College of Lake County",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 26
+    },
+    {
+      "Team": "College of Southern Idaho",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 26
+    },
+    {
+      "Team": "College of Southern Maryland",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 22
+    },
+    {
+      "Team": "College of Southern Nevada",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 33
+    },
+    {
+      "Team": "Colorado Northwestern Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 19
+    },
+    {
+      "Team": "Community Christian College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 14
+    },
+    {
+      "Team": "Community College of Rhode Island",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 18
+    },
+    {
+      "Team": "Connors State College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 30
+    },
+    {
+      "Team": "Copiah-Lincoln Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 25
+    },
+    {
+      "Team": "County College of Morris",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 20
+    },
+    {
+      "Team": "Cowley County Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "Crowder College",
+      "Roster URL": "https://crowder.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://crowder.prestosports.com/images/setup-redesign/Roughrider.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "Cuyahoga Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 17
+    },
+    {
+      "Team": "Dakota County Technical College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 25
+    },
+    {
+      "Team": "Dallas College Cedar Valley",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 28
+    },
+    {
+      "Team": "Dallas College Mountain View",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 28
+    },
+    {
+      "Team": "Dallas College Richland",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 32
+    },
+    {
+      "Team": "Daytona State College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 28
+    },
+    {
+      "Team": "Delaware County Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 20
+    },
+    {
+      "Team": "Denmark Technical College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 19
+    },
+    {
+      "Team": "Dodge City Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 32
+    },
+    {
+      "Team": "Dutchess Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 20
+    },
+    {
+      "Team": "East Central College",
+      "Roster URL": "https://eastcentral.edu/sports/msoc/roster",
+      "Team Photo URL": "https://www.eastcentral.edu/images/logos/ECC_logo_FA20_fullcolor.svg",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 26
+    },
+    {
+      "Team": "East Central Community College",
+      "Roster URL": "https://eastcentral.edu/sports/msoc/roster",
+      "Team Photo URL": "https://www.eastcentral.edu/images/logos/ECC_logo_FA20_fullcolor.svg",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "East Mississippi Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 22
+    },
+    {
+      "Team": "Eastern Arizona College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "Eastern Florida State College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 31
+    },
+    {
+      "Team": "Eastern Oklahoma State College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 28
+    },
+    {
+      "Team": "Elgin Community College",
+      "Roster URL": "https://elgin.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://elgin.prestosports.com/images/setup/main_logo.png",
+      "Number of players for which we found height in that team": 26,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 26,
+      "Total Players": 26
+    },
+    {
+      "Team": "Enterprise State Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Erie Community College",
+      "Roster URL": "https://erie.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://erie.prestosports.com/images/Primary_Logo_-_.3x.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 25
+    },
+    {
+      "Team": "Essex County College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Finger Lakes Community College",
+      "Roster URL": "https://fingerlakes.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://fingerlakes.prestosports.com/images/setup/PRIMARY_LOGO.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Frederick Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 24
+    },
+    {
+      "Team": "Fulton-Montgomery Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Garden City Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 32
+    },
+    {
+      "Team": "GateWay Community College - AZ",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 21
+    },
+    {
+      "Team": "Genesee Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "Georgia Military College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 44
+    },
+    {
+      "Team": "Gillette College",
+      "Roster URL": "https://gillette.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://gillette.prestosports.com/images/setup/Primary_Logo_-_1x.png",
+      "Number of players for which we found height in that team": 1,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 1,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Glendale Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 32
+    },
+    {
+      "Team": "Grand Rapids Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 26
+    },
+    {
+      "Team": "Hagerstown Community College",
+      "Roster URL": "https://hagerstown.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 22,
+      "Number of players for which we found weight in that team": 22,
+      "Number of players for which we found hometown on that team": 22,
+      "Number of players for which we found a picture on that team": 22,
+      "Total Players": 23
+    },
+    {
+      "Team": "Harcum College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 34
+    },
+    {
+      "Team": "Harford Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 30
+    },
+    {
+      "Team": "Harper College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 32
+    },
+    {
+      "Team": "Harrisburg Area Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 12
+    },
+    {
+      "Team": "Harry S. Truman College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Hawkeye Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 36
+    },
+    {
+      "Team": "Heartland Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "Herkimer College",
+      "Roster URL": "https://herkimer.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://herkimer.prestosports.com/assets/LOGO_-6-.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 32
+    },
+    {
+      "Team": "Hesston College",
+      "Roster URL": "https://hesston.edu/sports/msoc/roster",
+      "Team Photo URL": "https://hesston.edu/images/logos/site/site.png?height=72&mode=crop&anchor=middlecenter",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 41
+    },
+    {
+      "Team": "Hill College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Hinds Community College",
+      "Roster URL": "https://hinds.org/sports/msoc/roster",
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Holmes Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 24
+    },
+    {
+      "Team": "Holyoke Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 18
+    },
+    {
+      "Team": "Howard Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 22
+    },
+    {
+      "Team": "Hudson Valley Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Illinois Central College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Illinois Valley Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 24
+    },
+    {
+      "Team": "Indian Hills Community College",
+      "Roster URL": "https://indianhills.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://indianhills.prestosports.com/images/setup/Updated_Images/logo.png",
+      "Number of players for which we found height in that team": 40,
+      "Number of players for which we found weight in that team": 1,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 40,
+      "Total Players": 40
+    },
+    {
+      "Team": "Iowa Central Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 24
+    },
+    {
+      "Team": "Iowa Lakes Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 45
+    },
+    {
+      "Team": "Iowa Western Community College",
+      "Roster URL": "https://iowawestern.com/sports/msoc/roster",
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 39
+    },
+    {
+      "Team": "Itawamba Community College",
+      "Roster URL": "https://itawamba.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://itawamba.prestosports.com/images/logos/new-logo-1.png",
+      "Number of players for which we found height in that team": 24,
+      "Number of players for which we found weight in that team": 24,
+      "Number of players for which we found hometown on that team": 24,
+      "Number of players for which we found a picture on that team": 24,
+      "Total Players": 24
+    },
+    {
+      "Team": "Jackson College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 17
+    },
+    {
+      "Team": "Jacksonville College",
+      "Roster URL": "https://jacksonville.com/sports/msoc/roster",
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 35
+    },
+    {
+      "Team": "Jamestown Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 28
+    },
+    {
+      "Team": "Jefferson College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 24
+    },
+    {
+      "Team": "Jefferson Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 26
+    },
+    {
+      "Team": "John Wood Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 22
+    },
+    {
+      "Team": "Johnson County Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "Joliet Junior College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 21
+    },
+    {
+      "Team": "Jones College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 21
+    },
+    {
+      "Team": "Kankakee Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 18
+    },
+    {
+      "Team": "Kansas City Kansas Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Kennedy-King College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 20
+    },
+    {
+      "Team": "Kingsborough Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Kishwaukee College",
+      "Roster URL": "https://kishwaukee.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 22,
+      "Number of players for which we found a picture on that team": 22,
+      "Total Players": 22
+    },
+    {
+      "Team": "LaGuardia Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 30
+    },
+    {
+      "Team": "Lackawanna College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 13
+    },
+    {
+      "Team": "Lake Michigan College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 22
+    },
+    {
+      "Team": "Lake Superior College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 20
+    },
+    {
+      "Team": "Lakeland Community College",
+      "Roster URL": "https://lakeland.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://lakeland.prestosports.com/images/setup/Primary_Logo_-_1x.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 15
+    },
+    {
+      "Team": "Lamar Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Laramie County Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 31
+    },
+    {
+      "Team": "Lehigh Carbon Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 21
+    },
+    {
+      "Team": "Lewis & Clark Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 30
+    },
+    {
+      "Team": "Lincoln Trail College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 24
+    },
+    {
+      "Team": "Louisburg College",
+      "Roster URL": "https://louisburg.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://louisburg.prestosports.com/assets/images/Louisburg logo.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 24
+    },
+    {
+      "Team": "Louisiana State University-Eunice",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Madison College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 26
+    },
+    {
+      "Team": "Malcolm X College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 21
+    },
+    {
+      "Team": "Marian University Ancilla",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Marshalltown CC",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "MassBay Community College",
+      "Roster URL": "https://massbay.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://massbay.prestosports.com/assets/Primary_Logo_-_.5x.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 20
+    },
+    {
+      "Team": "Massasoit Community College",
+      "Roster URL": "https://massasoit.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://massasoit.prestosports.com/images/setup_redesign/massasoit-logo.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 23,
+      "Number of players for which we found a picture on that team": 23,
+      "Total Players": 25
+    },
+    {
+      "Team": "McHenry County College",
+      "Roster URL": "https://mchenrycounty.com/sports/msoc/roster",
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Mercer County Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 31
+    },
+    {
+      "Team": "Meridian Community College",
+      "Roster URL": "https://meridian.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://meridian.prestosports.com/images/setup2021/logo.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 25,
+      "Total Players": 25
+    },
+    {
+      "Team": "Mesa Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 35
+    },
+    {
+      "Team": "Metropolitan Community College",
+      "Roster URL": "https://metropolitan.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://metropolitan.prestosports.com/images/setup/Primary_Logo.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 28
+    },
+    {
+      "Team": "Miami Dade College",
+      "Roster URL": "https://miamidade.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://miamidade.prestosports.com/assets/Primary_Logo_-_.5x.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 1,
+      "Total Players": 28
+    },
+    {
+      "Team": "Middlesex College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 30
+    },
+    {
+      "Team": "Milwaukee Area Technical College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 19
+    },
+    {
+      "Team": "Mineral Area College",
+      "Roster URL": "https://mineralarea.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://mineralarea.prestosports.com/images/setup/logo.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 33
+    },
+    {
+      "Team": "Minnesota West Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 26
+    },
+    {
+      "Team": "Mississippi Gulf Coast Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 25
+    },
+    {
+      "Team": "Mohave Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 22
+    },
+    {
+      "Team": "Mohawk Valley Community College",
+      "Roster URL": "https://mohawkvalley.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 43,
+      "Number of players for which we found a picture on that team": 43,
+      "Total Players": 43
+    },
+    {
+      "Team": "Monroe Community College",
+      "Roster URL": "https://monroe.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://monroe.prestosports.com/assets/Primary_Logo_-_.5x.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 28
+    },
+    {
+      "Team": "Monroe University",
+      "Roster URL": "https://monroe.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://monroe.prestosports.com/assets/Primary_Logo_-_.5x.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 44
+    },
+    {
+      "Team": "Monroe University - Bronx",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 33
+    },
+    {
+      "Team": "Montgomery College (MD)",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 26
+    },
+    {
+      "Team": "Montgomery County Community College (PA)",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 24
+    },
+    {
+      "Team": "Moraine Valley Community College",
+      "Roster URL": "https://morainevalley.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://morainevalley.prestosports.com/images/setup/footer_logo_edu.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 25,
+      "Number of players for which we found a picture on that team": 25,
+      "Total Players": 26
+    },
+    {
+      "Team": "Morton College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "Murray State College",
+      "Roster URL": "https://murraystate.edu/sports/msoc/roster",
+      "Team Photo URL": "https://www.murraystate.edu/_resources/images/logo-white.svg",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "Muskegon Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 21
+    },
+    {
+      "Team": "Nassau Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 22
+    },
+    {
+      "Team": "National Park College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "Neosho County Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 31
+    },
+    {
+      "Team": "North Country Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 16
+    },
+    {
+      "Team": "North Idaho College",
+      "Roster URL": "https://northidaho.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://northidaho.prestosports.com/assets/Logo_NIU.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "North Iowa Area Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 39
+    },
+    {
+      "Team": "Northampton Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Northeast Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 28
+    },
+    {
+      "Team": "Northeast Texas Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 26
+    },
+    {
+      "Team": "Northeastern Junior College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Northeastern Oklahoma A&M College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Northern Essex Community College",
+      "Roster URL": "https://northernessex.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 27,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 28,
+      "Total Players": 28
+    },
+    {
+      "Team": "Northern Oklahoma College-Enid",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Northwest College",
+      "Roster URL": "https://northwest.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://northwest.prestosports.com/images/setup/sitelogo.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 31
+    },
+    {
+      "Team": "Northwest Iowa Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 30
+    },
+    {
+      "Team": "Northwest Mississippi Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 25
+    },
+    {
+      "Team": "Oakton Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 22
+    },
+    {
+      "Team": "Ocean County College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 25
+    },
+    {
+      "Team": "Onondaga Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 25
+    },
+    {
+      "Team": "Orange County Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 20
+    },
+    {
+      "Team": "Otero College",
+      "Roster URL": "https://otero.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://otero.prestosports.com/images/setup/logo.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 36,
+      "Total Players": 36
+    },
+    {
+      "Team": "Owens Community College",
+      "Roster URL": "https://owens.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://cdn.prestosports.com/action/cdn/vdnzo06ydjx2ys31/images/setup/2015/footer_logo_1.png?max_width=-1",
+      "Number of players for which we found height in that team": 18,
+      "Number of players for which we found weight in that team": 18,
+      "Number of players for which we found hometown on that team": 18,
+      "Number of players for which we found a picture on that team": 18,
+      "Total Players": 18
+    },
+    {
+      "Team": "Oxford College of Emory University",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Pacific Northwest Christian College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 18
+    },
+    {
+      "Team": "Paradise Valley Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "Paris Junior College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 28
+    },
+    {
+      "Team": "Parkland College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 22
+    },
+    {
+      "Team": "Patrick & Henry Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 33
+    },
+    {
+      "Team": "Pearl River Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 25
+    },
+    {
+      "Team": "Pellissippi State",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 33
+    },
+    {
+      "Team": "Phoenix College",
+      "Roster URL": "https://phoenix.com/sports/msoc/roster",
+      "Team Photo URL": "https://www.phoenix.com/wp-content/uploads/Phoenix-White-and-Red-RGB.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Pima Community College",
+      "Roster URL": "https://pima.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://pima.prestosports.com/images/setup/PRIMARY_LOGO-0.5x.png",
+      "Number of players for which we found height in that team": 1,
+      "Number of players for which we found weight in that team": 1,
+      "Number of players for which we found hometown on that team": 1,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "Prairie State College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 22
+    },
+    {
+      "Team": "Pratt Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 30
+    },
+    {
+      "Team": "Prince George's Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 25
+    },
+    {
+      "Team": "Queensborough Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Quinsigamond Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 17
+    },
+    {
+      "Team": "Ranger College",
+      "Roster URL": "https://ranger.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://ranger.prestosports.com/assets/Ranger_Vector_-_Secluded_Cove.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 35
+    },
+    {
+      "Team": "Raritan Valley Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 26
+    },
+    {
+      "Team": "Rich Mountain",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 31
+    },
+    {
+      "Team": "Richard Bland College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Richard J. Daley College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 26
+    },
+    {
+      "Team": "Riverland Community College",
+      "Roster URL": "https://riverland.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://riverland.prestosports.com/images/setup/site-logo.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 25,
+      "Number of players for which we found a picture on that team": 25,
+      "Total Players": 26
+    },
+    {
+      "Team": "Rock Valley College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 28
+    },
+    {
+      "Team": "Rockland Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 19
+    },
+    {
+      "Team": "Rose State College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 22
+    },
+    {
+      "Team": "Rowan College South Jersey - Gloucester",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Rowan College of South Jersey-Cumberland",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Roxbury Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 21
+    },
+    {
+      "Team": "SUNY Adirondack",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 24
+    },
+    {
+      "Team": "SUNY Broome Community College",
+      "Roster URL": "https://sunybroome.com/sports/msoc/roster",
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 18
+    },
+    {
+      "Team": "SUNY Niagara",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 17
+    },
+    {
+      "Team": "Salt Lake Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 35
+    },
+    {
+      "Team": "Schoolcraft College",
+      "Roster URL": "https://schoolcraft.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://schoolcraft.prestosports.com/assets/schoolcraftnewlogo.png",
+      "Number of players for which we found height in that team": 33,
+      "Number of players for which we found weight in that team": 33,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 33
+    },
+    {
+      "Team": "Scottsdale Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 25
+    },
+    {
+      "Team": "Seward County",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 36
+    },
+    {
+      "Team": "Snow College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "South Mountain Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 24
+    },
+    {
+      "Team": "South Suburban College",
+      "Roster URL": "https://southsuburban.com/sports/msoc/roster",
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 28
+    },
+    {
+      "Team": "Southeast Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 32
+    },
+    {
+      "Team": "Southeastern Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 58
+    },
+    {
+      "Team": "Southern Union State Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 41
+    },
+    {
+      "Team": "Southwest Mississippi Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 25
+    },
+    {
+      "Team": "Southwest Virginia",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Southwestern Illinois College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "Springfield Technical Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 18
+    },
+    {
+      "Team": "St. Charles Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 23
+    },
+    {
+      "Team": "St. Clair Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 25
+    },
+    {
+      "Team": "St. Louis Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 28
+    },
+    {
+      "Team": "State Fair Community College",
+      "Roster URL": "https://statefair.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://statefair.prestosports.com/images/setup/logo-primary-reverse.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 25
+    },
+    {
+      "Team": "Suffolk CC",
+      "Roster URL": "https://suffolkcc.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://suffolkcc.prestosports.com/images/setup-redesign/setup/PRIMARY_LOGO.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 29
+    },
+    {
+      "Team": "Sussex County Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 32
+    },
+    {
+      "Team": "Terra State",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 16
+    },
+    {
+      "Team": "Texas Southmost College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 36
+    },
+    {
+      "Team": "Tompkins Cortland Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 28
+    },
+    {
+      "Team": "Trinidad State College",
+      "Roster URL": "https://trinidadstate.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://cdn.prestosports.com/action/cdn/ck1hay9lvfbusjfk/images/setup/footer_logo_1.png",
+      "Number of players for which we found height in that team": 25,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 25,
+      "Number of players for which we found a picture on that team": 25,
+      "Total Players": 25
+    },
+    {
+      "Team": "Triton College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 34
+    },
+    {
+      "Team": "Truckee Meadows",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 26
+    },
+    {
+      "Team": "Tyler Junior College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 32
+    },
+    {
+      "Team": "UCNJ",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "USC Lancaster",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 33
+    },
+    {
+      "Team": "USC Salkehatchie",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 25
+    },
+    {
+      "Team": "USC Sumter",
+      "Roster URL": "https://uscsumter.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://uscsumter.prestosports.com/images/setup/Primary_Logo_-_.3x.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 32
+    },
+    {
+      "Team": "USC Union",
+      "Roster URL": "https://uscunion.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://uscunion.prestosports.com/assets/USCU-Bantams_Mascot-FullColor.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 22
+    },
+    {
+      "Team": "UW-Whitewater at Rock County",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 15
+    },
+    {
+      "Team": "Ulster County Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 35
+    },
+    {
+      "Team": "University of Arkansas Cossatot",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 13
+    },
+    {
+      "Team": "Utah State Eastern",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 38
+    },
+    {
+      "Team": "WVU Potomac State College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 21
+    },
+    {
+      "Team": "Wake Technical Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 31
+    },
+    {
+      "Team": "Waubonsee Community College",
+      "Roster URL": "https://waubonsee.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://waubonsee.prestosports.com/images/setup/footer_logo_presto.png",
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 26,
+      "Total Players": 26
+    },
+    {
+      "Team": "Westchester Community College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Western Iowa Tech",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 46
+    },
+    {
+      "Team": "Western Nebraska Community College",
+      "Roster URL": "https://westernnebraska.prestosports.com/sports/msoc/2024-25/roster",
+      "Team Photo URL": "https://cdn.prestosports.com/action/cdn/5ygtj8tnkl6cy9yo/images/logos/bellevue_logo_--_new_--_bigger.jpg?max_width=-1",
+      "Number of players for which we found height in that team": 24,
+      "Number of players for which we found weight in that team": 15,
+      "Number of players for which we found hometown on that team": 24,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 24
+    },
+    {
+      "Team": "Western Texas College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 27
+    },
+    {
+      "Team": "Wilbur Wright College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 30
+    },
+    {
+      "Team": "Yavapai College",
+      "Roster URL": null,
+      "Team Photo URL": null,
+      "Number of players for which we found height in that team": 0,
+      "Number of players for which we found weight in that team": 0,
+      "Number of players for which we found hometown on that team": 0,
+      "Number of players for which we found a picture on that team": 0,
+      "Total Players": 26
+    }
+  ]
+}

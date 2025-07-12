@@ -267,6 +267,8 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
 });
 
 const CollegePlayerCards = ({ filters, onBack }) => {
+  console.log('CollegePlayerCards received filters:', filters);
+  
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -282,12 +284,14 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   
   // Use filters passed from landing page, with local state for adjustments
   const [localFilters, setLocalFilters] = useState({
-    position: [],
+    position: 'All',
     league: 'All',
     academicLevel: 'All',
     ...filters
   });
   const currentFilters = localFilters;
+  
+  console.log('Current filters after initialization:', currentFilters);
 
   // Load team logos when component mounts
   useEffect(() => {
@@ -298,7 +302,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
           `${apiBaseUrl}/api/team-logos`,
           '/team_logos.json',
           '/backend/college/njcaa/team_logos.json',
-          'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/team_logos.json'
+          'https://raw.githubusercontent.com/AntoineLevyy/draftme/main/backend/college/njcaa/team_logos.json'
         ];
         
         let teamLogos = null;
@@ -404,8 +408,13 @@ const CollegePlayerCards = ({ filters, onBack }) => {
         console.log('Juan Jose Montoya NOT found in API response');
       }
       
-      // Filter for NJCAA players only
+      // Debug: Check what positions are in the data
       const allPlayers = data.players || [];
+      const uniquePositions = [...new Set(allPlayers.map(p => p.position).filter(Boolean))];
+      console.log('Unique positions in data:', uniquePositions);
+      console.log('Sample players with positions:', allPlayers.slice(0, 10).map(p => ({ name: p.name, position: p.position })));
+      
+      // Filter for NJCAA players only
       console.log('Total players from API:', allPlayers.length);
       console.log('Sample player leagues:', allPlayers.slice(0, 5).map(p => p.league));
       
@@ -477,6 +486,37 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     return translations[position] || position;
   }, []);
 
+  const getMainPositionCategory = useCallback((position) => {
+    const translatedPosition = translatePosition(position);
+    
+    // Map specific positions to main categories
+    if (translatedPosition === 'Goalkeeper' || translatedPosition === 'GK') {
+      return 'Goalkeeper';
+    }
+    
+    if (translatedPosition.includes('Back') || translatedPosition.includes('Defender') || 
+        translatedPosition === 'Def' || translatedPosition === 'D' || 
+        translatedPosition === 'CB' || translatedPosition === 'C') {
+      return 'Defender';
+    }
+    
+    if (translatedPosition.includes('Midfielder') || translatedPosition === 'Mid' || 
+        translatedPosition === 'M' || translatedPosition === 'DM' || 
+        translatedPosition === 'CM' || translatedPosition === 'AM') {
+      return 'Midfielder';
+    }
+    
+    if (translatedPosition.includes('Forward') || translatedPosition.includes('Winger') || 
+        translatedPosition === 'Fwd' || translatedPosition === 'F' || 
+        translatedPosition === 'CF' || translatedPosition === 'ST' || 
+        translatedPosition === 'Striker' || translatedPosition === 'LW' || 
+        translatedPosition === 'RW') {
+      return 'Forward';
+    }
+    
+    return translatedPosition; // Return original if no match
+  }, [translatePosition]);
+
   const expandYear = useCallback((year) => {
     const yearTranslations = {
       'Fr': 'Freshman',
@@ -544,9 +584,12 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     
     // Filter by position
     if (currentFilters.position && currentFilters.position !== 'All') {
+      console.log('Position filter active:', currentFilters.position);
       filteredPlayers = filteredPlayers.filter(player => {
         const playerName = player.name;
-        const playerPosition = translatePosition(player.position || '');
+        const originalPosition = player.position || '';
+        const playerPosition = getMainPositionCategory(player.position || '');
+        console.log(`Player: ${playerName}, Original position: "${originalPosition}", Mapped to: "${playerPosition}", Filter: "${currentFilters.position}"`);
         if (playerPosition !== currentFilters.position) {
           console.log('Filtering out player due to position:', playerName, 'position:', playerPosition, 'filter:', currentFilters.position);
           return false;
@@ -621,7 +664,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
       });
     
     return filteredPlayers;
-  }, [players, searchTerm, sortBy, sortOrder, currentFilters, translatePosition, expandYear]);
+  }, [players, searchTerm, sortBy, sortOrder, currentFilters, translatePosition, expandYear, getMainPositionCategory]);
 
   const formatMinutes = useCallback((minutes) => {
     if (!minutes) return '0';
