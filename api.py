@@ -42,6 +42,7 @@ def root():
     })
 
 # GitHub raw URLs for the player data
+USL_CHAMPIONSHIP_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/usl_championship_players_api.json'
 USL_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/usl_league_one_players_api.json'
 MLS_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/mls_next_pro_players_api.json'
 CPL_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/cpl_players_api.json'
@@ -64,9 +65,26 @@ def fetch_player_data():
     
     players = []
     
+    # Fetch USL Championship players
+    try:
+        print("Fetching USL Championship data from GitHub...")
+        response = requests.get(USL_CHAMPIONSHIP_DATA_URL, timeout=30)
+        if response.status_code == 200:
+            usl_championship_data = response.json()
+            usl_championship_players = usl_championship_data.get('players', [])
+            # Add league info to each player
+            for player in usl_championship_players:
+                player['league'] = 'USL Championship'
+            players.extend(usl_championship_players)
+            print(f"Loaded {len(usl_championship_players)} USL Championship players")
+        else:
+            print(f"Failed to fetch USL Championship data: {response.status_code}")
+    except Exception as e:
+        print(f"Error fetching USL Championship data: {e}")
+    
     # Fetch USL League One players
     try:
-        print("Fetching USL data from GitHub...")
+        print("Fetching USL League One data from GitHub...")
         response = requests.get(USL_DATA_URL, timeout=30)
         if response.status_code == 200:
             usl_data = response.json()
@@ -75,11 +93,11 @@ def fetch_player_data():
             for player in usl_players:
                 player['league'] = 'USL League One'
             players.extend(usl_players)
-            print(f"Loaded {len(usl_players)} USL players")
+            print(f"Loaded {len(usl_players)} USL League One players")
         else:
-            print(f"Failed to fetch USL data: {response.status_code}")
+            print(f"Failed to fetch USL League One data: {response.status_code}")
     except Exception as e:
-        print(f"Error fetching USL data: {e}")
+        print(f"Error fetching USL League One data: {e}")
     
     # Fetch MLS Next Pro players
     try:
@@ -197,7 +215,7 @@ def fetch_player_data():
     _player_cache = players
     print(f"Total players loaded: {len(players)}")
     print(f"Sample players by league:")
-    for league in ['USL League One', 'MLS Next Pro', 'Canadian Premier League', 'Liga MX Apertura', 'Primera Divisió', 'NJCAA D1', 'NJCAA D2', 'NJCAA D3']:
+    for league in ['USL Championship', 'USL League One', 'MLS Next Pro', 'Canadian Premier League', 'Liga MX Apertura', 'Primera Divisió', 'NJCAA D1', 'NJCAA D2', 'NJCAA D3']:
         league_players = [p for p in players if p.get('league') == league]
         print(f"  {league}: {len(league_players)} players")
     return players
