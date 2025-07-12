@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { apiBaseUrl } from './config';
 
 const bgStyle = {
@@ -135,7 +135,7 @@ const nationalities = [
   'Argentina', 'Australia', 'Barbados', 'Benin', 'Brazil', 'Bulgaria', 'Chile', 'Germany', 'England', 'France', 'Gambia', 'Ghana', 'Greece', 'Guatemala', 'Haiti', 'Honduras', 'Ireland', 'Israel', 'Italy', 'Jamaica', 'Japan', 'Cameroon', 'Canada', 'Cape Verde', 'Kenya', 'Colombia', 'Liberia', 'Mexico', 'Moldova', 'Netherlands', 'Nigeria', 'Norway', 'Panama', 'Poland', 'Puerto Rico', 'Scotland', 'Switzerland', 'Senegal', 'Sierra Leone', 'Spain', 'South Africa', 'Tanzania', 'Trinidad and Tobago', 'Venezuela', 'United States', 'Zaire', 'Central African Republic', 'Austria',
 ];
 
-const staticLeagues = [
+const proLeagues = [
   'All',
   'USL Championship (Tier 2 USA)',
   'USL League One (Tier 3 USA)',
@@ -151,33 +151,7 @@ function LandingPage({ onApplyFilters, onBack }) {
   const [nationality, setNationality] = useState('All');
   const [activeSelect, setActiveSelect] = useState('');
   const [hoveredSelect, setHoveredSelect] = useState('');
-  const [leagues, setLeagues] = useState(staticLeagues);
-
-  useEffect(() => {
-    // Fetch available leagues from the API
-    fetch(`${apiBaseUrl}/api/players`)
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.players) {
-          const leagueSet = new Set();
-          data.players.forEach(p => {
-            if (p.league) leagueSet.add(p.league);
-          });
-          // Map to display names with tier info if possible
-          const leagueDisplay = Array.from(leagueSet).map(lg => {
-            if (lg === 'USL Championship') return 'USL Championship (Tier 2 USA)';
-            if (lg === 'USL League One') return 'USL League One (Tier 3 USA)';
-            if (lg === 'MLS Next Pro') return 'MLS Next Pro (Tier 3 USA)';
-            if (lg === 'Canadian Premier League') return 'Canadian Premier League (Tier 1 Canada)';
-            if (lg === 'Liga MX Apertura') return 'Liga MX Apertura (Tier 1 Mexico)';
-            if (lg === 'Primera Divisió') return 'Primera Divisió (Tier 1 Andorra)';
-            return lg;
-          });
-          setLeagues(['All', ...leagueDisplay.sort()]);
-        }
-      })
-      .catch(() => setLeagues(staticLeagues));
-  }, []);
+  const [leagues] = useState(proLeagues);
 
   const handleLeagueChange = (e) => {
     setSelectedLeague(e.target.value);
@@ -237,6 +211,7 @@ function LandingPage({ onApplyFilters, onBack }) {
       
       <div style={mainContainer}>
         <h1 style={headlineStyle}>Find your next player</h1>
+        
         <form onSubmit={handleSubmit} style={{width: '100%'}}>
           <div style={filtersRow}>
             <div style={filterGroup}>

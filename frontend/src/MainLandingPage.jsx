@@ -132,7 +132,6 @@ function MainLandingPage({ onSelectCoachType }) {
     <div style={bgStyle}>
       <div style={mainContainer}>
         <h1 style={headlineStyle}>Find your next player</h1>
-        
         <div style={optionsContainer}>
           {/* Club Coaches Option */}
           <div 
