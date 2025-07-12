@@ -5,6 +5,8 @@ import CollegeLandingPage from './CollegeLandingPage';
 import PlayerCards from './USLPlayerCards';
 import CollegePlayerCards from './CollegePlayerCards';
 import draftmeLogo from '../assets/images/draftme_logo.png';
+import { AuthProvider, useAuth } from './AuthContext';
+import LoginModal from './LoginModal';
 
 const headerStyle = {
   width: '100%',
@@ -29,6 +31,42 @@ const headerInner = {
   alignItems: 'center',
   justifyContent: 'space-between',
   padding: '0 2rem',
+};
+
+const headerButtonsStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '1rem',
+};
+
+const signInButtonStyle = {
+  padding: '0.5rem 1.25rem',
+  borderRadius: '1.5rem',
+  border: '2px solid rgba(79,140,255,0.3)',
+  background: 'rgba(255,255,255,0.1)',
+  color: '#4f8cff',
+  fontWeight: 600,
+  fontSize: '0.875rem',
+  cursor: 'pointer',
+  transition: 'all 0.2s ease',
+  outline: 'none',
+  backdropFilter: 'blur(10px)',
+  letterSpacing: '0.01em',
+};
+
+const getStartedButtonStyle = {
+  padding: '0.5rem 1.5rem',
+  borderRadius: '1.5rem',
+  border: 'none',
+  background: 'linear-gradient(90deg, #10b981 0%, #fbbf24 100%)',
+  color: 'white',
+  fontWeight: 600,
+  fontSize: '0.875rem',
+  cursor: 'pointer',
+  boxShadow: '0 4px 16px rgba(16,185,129,0.3)',
+  transition: 'all 0.2s ease',
+  outline: 'none',
+  letterSpacing: '0.01em',
 };
 
 
@@ -104,9 +142,12 @@ const appContainerStyle = {
   overflow: 'hidden',
 };
 
-function App() {
+function AppContent() {
   const [currentView, setCurrentView] = useState('main'); // 'main', 'club', 'college'
   const [filters, setFilters] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginMode, setLoginMode] = useState('signin');
+  const { user, signOut } = useAuth();
 
   const handleSelectCoachType = (coachType) => {
     setCurrentView(coachType);
@@ -122,6 +163,20 @@ function App() {
     } else {
       setCurrentView('main');
     }
+  };
+
+  const handleSignInClick = () => {
+    setLoginMode('signin');
+    setShowLoginModal(true);
+  };
+
+  const handleGetStartedClick = () => {
+    setLoginMode('signup');
+    setShowLoginModal(true);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
   };
 
   // Determine which player view to show based on currentView
@@ -169,7 +224,55 @@ function App() {
             <span style={logoTextStyle}>draftme</span>
           </a>
 
-          <div></div>
+          <div style={headerButtonsStyle}>
+            {user ? (
+              <button 
+                style={signInButtonStyle}
+                onClick={handleSignOut}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-1px)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(79,140,255,0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 2px 8px rgba(79,140,255,0.1)';
+                }}
+              >
+                Sign Out
+              </button>
+            ) : (
+              <>
+                <button 
+                  style={signInButtonStyle}
+                  onClick={handleSignInClick}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-1px)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(79,140,255,0.2)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 2px 8px rgba(79,140,255,0.1)';
+                  }}
+                >
+                  Sign In
+                </button>
+                <button 
+                  style={getStartedButtonStyle}
+                  onClick={handleGetStartedClick}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = '0 6px 20px rgba(16,185,129,0.5)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 4px 16px rgba(16,185,129,0.3)';
+                  }}
+                >
+                  Get Started
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </header>
       <main style={dynamicMainContentStyle}>
@@ -200,7 +303,21 @@ function App() {
           </p>
         </div>
       </footer>
+
+      <LoginModal 
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        mode={loginMode}
+      />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
