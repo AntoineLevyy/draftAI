@@ -475,134 +475,32 @@ const PlayerCards = ({ filters, onBack }) => {
     try {
       console.log('Fetching players with filters:', filters);
       
-      // Fetch data from GitHub raw URLs
-      let allPlayers = [];
+      // Fetch all players from the API
+      const response = await fetch(`${apiBaseUrl}/api/players`);
+      console.log('API fetch status:', response.status);
       
-      // Fetch USL Championship players
-      try {
-        const uslChampionshipResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/usl_championship_players_api.json');
-        console.log('USL Championship fetch status:', uslChampionshipResponse.status);
-        if (uslChampionshipResponse.ok) {
-          const uslChampionshipData = await uslChampionshipResponse.json();
-          console.log('USL Championship data:', uslChampionshipData);
-          const uslChampionshipPlayers = uslChampionshipData.players || [];
-          console.log('USL Championship players array length:', uslChampionshipPlayers.length);
-          console.log('First USL Championship player:', uslChampionshipPlayers[0]);
-          // Add league info to each player
-          uslChampionshipPlayers.forEach(player => {
-            player.league = 'USL Championship';
-          });
-          allPlayers = allPlayers.concat(uslChampionshipPlayers);
-          console.log(`Loaded ${uslChampionshipPlayers.length} USL Championship players`);
-          console.log('Total players after USL Championship:', allPlayers.length);
-        } else {
-          console.error('USL Championship response not ok:', uslChampionshipResponse.status, uslChampionshipResponse.statusText);
-        }
-      } catch (error) {
-        console.error('Error fetching USL Championship data:', error);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('API data received:', data);
+        const allPlayers = data.players || [];
+        console.log('Total players loaded from API:', allPlayers.length);
+        console.log('First player structure:', allPlayers[0]);
+        
+        // Log league distribution
+        const leagueCounts = {};
+        allPlayers.forEach(player => {
+          const league = player.league || 'Unknown';
+          leagueCounts[league] = (leagueCounts[league] || 0) + 1;
+        });
+        console.log('League distribution:', leagueCounts);
+        
+        setPlayers(allPlayers);
+        setLoading(false);
+      } else {
+        console.error('API response not ok:', response.status, response.statusText);
+        setError('Failed to load player data from API');
+        setLoading(false);
       }
-      
-      // Fetch USL League One players
-      try {
-        const uslResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/usl_league_one_players_api.json');
-        console.log('USL League One fetch status:', uslResponse.status);
-        if (uslResponse.ok) {
-          const uslData = await uslResponse.json();
-          console.log('USL League One data:', uslData);
-          const uslPlayers = uslData.players || [];
-          // Add league info to each player
-          uslPlayers.forEach(player => {
-            player.league = 'USL League One';
-          });
-          allPlayers = allPlayers.concat(uslPlayers);
-          console.log(`Loaded ${uslPlayers.length} USL League One players`);
-        }
-      } catch (error) {
-        console.error('Error fetching USL League One data:', error);
-      }
-      
-      // Fetch MLS Next Pro players
-      try {
-        const mlsResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/mls_next_pro_players_api.json');
-        console.log('MLS fetch status:', mlsResponse.status);
-        if (mlsResponse.ok) {
-          const mlsData = await mlsResponse.json();
-          console.log('MLS data:', mlsData);
-          const mlsPlayers = mlsData.players || [];
-          // Add league info to each player
-          mlsPlayers.forEach(player => {
-            player.league = 'MLS Next Pro';
-          });
-          allPlayers = allPlayers.concat(mlsPlayers);
-          console.log(`Loaded ${mlsPlayers.length} MLS players`);
-        }
-      } catch (error) {
-        console.error('Error fetching MLS data:', error);
-      }
-      
-      // Fetch Canadian Premier League players
-      try {
-        const cplResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/cpl_players_api.json');
-        console.log('CPL fetch status:', cplResponse.status);
-        if (cplResponse.ok) {
-          const cplData = await cplResponse.json();
-          console.log('CPL data:', cplData);
-          const cplPlayers = cplData.players || [];
-          // Add league info to each player
-          cplPlayers.forEach(player => {
-            player.league = 'Canadian Premier League';
-          });
-          allPlayers = allPlayers.concat(cplPlayers);
-          console.log(`Loaded ${cplPlayers.length} CPL players`);
-        }
-      } catch (error) {
-        console.error('Error fetching CPL data:', error);
-      }
-      
-      // Fetch Liga MX Apertura players
-      try {
-        const ligaMxResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/liga_mx_players_api.json');
-        console.log('Liga MX fetch status:', ligaMxResponse.status);
-        if (ligaMxResponse.ok) {
-          const ligaMxData = await ligaMxResponse.json();
-          console.log('Liga MX data:', ligaMxData);
-          const ligaMxPlayers = ligaMxData.players || [];
-          // Add league info to each player
-          ligaMxPlayers.forEach(player => {
-            player.league = 'Liga MX Apertura';
-          });
-          allPlayers = allPlayers.concat(ligaMxPlayers);
-          console.log(`Loaded ${ligaMxPlayers.length} Liga MX players`);
-        }
-      } catch (error) {
-        console.error('Error fetching Liga MX data:', error);
-      }
-      
-      // Fetch Primera Divisió (Andorra) players
-      try {
-        const andorraResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/andorra_players_api.json');
-        console.log('Andorra fetch status:', andorraResponse.status);
-        if (andorraResponse.ok) {
-          const andorraData = await andorraResponse.json();
-          console.log('Andorra data:', andorraData);
-          const andorraPlayers = andorraData.players || [];
-          // Add league info to each player
-          andorraPlayers.forEach(player => {
-            player.league = 'Primera Divisió';
-          });
-          allPlayers = allPlayers.concat(andorraPlayers);
-          console.log(`Loaded ${andorraPlayers.length} Andorra players`);
-        }
-      } catch (error) {
-        console.error('Error fetching Andorra data:', error);
-      }
-      
-      console.log('Total players loaded:', allPlayers.length);
-      console.log('First player structure:', allPlayers[0]);
-      
-      // Simple league filtering - just pass all players and let the UI filters handle it
-      setPlayers(allPlayers);
-      setLoading(false);
       
     } catch (error) {
       console.error('Error fetching players:', error);
