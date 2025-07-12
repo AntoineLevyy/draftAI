@@ -481,7 +481,7 @@ const PlayerCards = ({ filters, onBack }) => {
       
       // Fetch USL Championship players
       try {
-        const uslChampionshipResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftme/main/backend/pro/usl_championship_players_api.json');
+        const uslChampionshipResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/usl_championship_players_api.json');
         console.log('USL Championship fetch status:', uslChampionshipResponse.status);
         if (uslChampionshipResponse.ok) {
           const uslChampionshipData = await uslChampionshipResponse.json();
@@ -505,7 +505,7 @@ const PlayerCards = ({ filters, onBack }) => {
       
       // Fetch USL League One players
       try {
-        const uslResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftme/main/backend/pro/usl_league_one_players_api.json');
+        const uslResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/usl_league_one_players_api.json');
         console.log('USL League One fetch status:', uslResponse.status);
         if (uslResponse.ok) {
           const uslData = await uslResponse.json();
@@ -524,7 +524,7 @@ const PlayerCards = ({ filters, onBack }) => {
       
       // Fetch MLS Next Pro players
       try {
-        const mlsResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftme/main/backend/pro/mls_next_pro_players_api.json');
+        const mlsResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/mls_next_pro_players_api.json');
         console.log('MLS fetch status:', mlsResponse.status);
         if (mlsResponse.ok) {
           const mlsData = await mlsResponse.json();
@@ -543,7 +543,7 @@ const PlayerCards = ({ filters, onBack }) => {
       
       // Fetch Canadian Premier League players
       try {
-        const cplResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftme/main/backend/pro/cpl_players_api.json');
+        const cplResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/cpl_players_api.json');
         console.log('CPL fetch status:', cplResponse.status);
         if (cplResponse.ok) {
           const cplData = await cplResponse.json();
@@ -562,7 +562,7 @@ const PlayerCards = ({ filters, onBack }) => {
       
       // Fetch Liga MX Apertura players
       try {
-        const ligaMxResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftme/main/backend/pro/liga_mx_players_api.json');
+        const ligaMxResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/liga_mx_players_api.json');
         console.log('Liga MX fetch status:', ligaMxResponse.status);
         if (ligaMxResponse.ok) {
           const ligaMxData = await ligaMxResponse.json();
@@ -577,6 +577,25 @@ const PlayerCards = ({ filters, onBack }) => {
         }
       } catch (error) {
         console.error('Error fetching Liga MX data:', error);
+      }
+      
+      // Fetch Primera Divisió (Andorra) players
+      try {
+        const andorraResponse = await fetch('https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/andorra_players_api.json');
+        console.log('Andorra fetch status:', andorraResponse.status);
+        if (andorraResponse.ok) {
+          const andorraData = await andorraResponse.json();
+          console.log('Andorra data:', andorraData);
+          const andorraPlayers = andorraData.players || [];
+          // Add league info to each player
+          andorraPlayers.forEach(player => {
+            player.league = 'Primera Divisió';
+          });
+          allPlayers = allPlayers.concat(andorraPlayers);
+          console.log(`Loaded ${andorraPlayers.length} Andorra players`);
+        }
+      } catch (error) {
+        console.error('Error fetching Andorra data:', error);
       }
       
       console.log('Total players loaded:', allPlayers.length);
