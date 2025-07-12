@@ -22,7 +22,15 @@ except ImportError as e:
         }]
 
 app = Flask(__name__)
-CORS(app, origins=['*'])
+CORS(app, origins=['*'], methods=['GET', 'POST', 'OPTIONS'], allow_headers=['Content-Type', 'Authorization'])
+
+# Add CORS headers to all responses
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 @app.route('/', methods=['GET'])
 def root():
@@ -42,6 +50,7 @@ USL_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/back
 MLS_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/mls_next_pro_players_api.json'
 CPL_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/cpl_players_api.json'
 LIGA_MX_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/liga_mx_players_api.json'
+ANDORRA_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/andorra_players_api.json'
 NJCAA_D1_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/njcaa_d1_players.json'
 NJCAA_D2_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/njcaa_d2_players.json'
 NJCAA_D3_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/njcaa_d3_players.json'
@@ -127,6 +136,23 @@ def fetch_player_data():
     except Exception as e:
         print(f"Error fetching Liga MX data: {e}")
     
+    # Fetch Primera Divisió (Andorra) players
+    try:
+        print("Fetching Andorra data from GitHub...")
+        response = requests.get(ANDORRA_DATA_URL, timeout=30)
+        if response.status_code == 200:
+            andorra_data = response.json()
+            andorra_players = andorra_data.get('players', [])
+            # Add league info to each player
+            for player in andorra_players:
+                player['league'] = 'Primera Divisió'
+            players.extend(andorra_players)
+            print(f"Loaded {len(andorra_players)} Andorra players")
+        else:
+            print(f"Failed to fetch Andorra data: {response.status_code}")
+    except Exception as e:
+        print(f"Error fetching Andorra data: {e}")
+    
     # Fetch NJCAA D1 players
     try:
         print("Fetching NJCAA D1 data from GitHub...")
@@ -175,7 +201,7 @@ def fetch_player_data():
     _player_cache = players
     print(f"Total players loaded: {len(players)}")
     print(f"Sample players by league:")
-    for league in ['USL League One', 'MLS Next Pro', 'Canadian Premier League', 'Liga MX Apertura', 'NJCAA D1', 'NJCAA D2', 'NJCAA D3']:
+    for league in ['USL League One', 'MLS Next Pro', 'Canadian Premier League', 'Liga MX Apertura', 'Primera Divisió', 'NJCAA D1', 'NJCAA D2', 'NJCAA D3']:
         league_players = [p for p in players if p.get('league') == league]
         print(f"  {league}: {len(league_players)} players")
     return players
