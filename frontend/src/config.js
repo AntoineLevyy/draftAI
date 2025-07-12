@@ -1,7 +1,7 @@
 // Configuration for different environments
 const config = {
   development: {
-    apiBaseUrl: 'https://draftme.onrender.com' // Use production API for college data
+    apiBaseUrl: 'http://localhost:5001' // Use local API for development
   },
   production: {
     apiBaseUrl: 'https://draftme.onrender.com' // Your actual deployed API URL
