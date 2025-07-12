@@ -948,6 +948,7 @@ const PlayerCards = ({ filters, onBack }) => {
             <option value="MLS Next Pro">MLS Next Pro (Tier 3 USA)</option>
             <option value="Canadian Premier League">Canadian Premier League (Tier 1 Canada)</option>
             <option value="Liga MX Apertura">Liga MX Apertura (Tier 1 Mexico)</option>
+            <option value="Primera Divisió">Primera Divisió (Tier 1 Andorra)</option>
           </select>
         </div>
         
