@@ -4,6 +4,7 @@ import LandingPage from './LandingPage';
 import CollegeLandingPage from './CollegeLandingPage';
 import PlayerCards from './USLPlayerCards';
 import CollegePlayerCards from './CollegePlayerCards';
+import draftmeLogo from '../assets/images/draftme_logo.png';
 
 const headerStyle = {
   width: '100%',
@@ -32,16 +33,27 @@ const headerInner = {
 
 
 
-const logoStyle = {
+const logoContainerStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  textDecoration: 'none',
+  cursor: 'pointer',
+  transition: 'opacity 0.2s',
+};
+
+const logoImageStyle = {
+  height: '2rem',
+  width: 'auto',
+};
+
+const logoTextStyle = {
   fontWeight: 900,
   fontSize: '1.5rem',
   letterSpacing: '-1px',
   background: 'linear-gradient(90deg, #4f8cff, #6f6fff 60%, #38bdf8 100%)',
   WebkitBackgroundClip: 'text',
   color: 'transparent',
-  textDecoration: 'none',
-  cursor: 'pointer',
-  transition: 'opacity 0.2s',
 };
 
 const footerStyle = {
@@ -141,7 +153,7 @@ function App() {
         <div style={headerInner}>
           <a 
             href="#" 
-            style={logoStyle}
+            style={logoContainerStyle}
             onClick={(e) => {
               e.preventDefault();
               handleBack();
@@ -153,7 +165,8 @@ function App() {
               e.target.style.opacity = '1';
             }}
           >
-            draftme
+            <img src={draftmeLogo} alt="draftme logo" style={logoImageStyle} />
+            <span style={logoTextStyle}>draftme</span>
           </a>
 
           <div></div>

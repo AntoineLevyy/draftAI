@@ -46,6 +46,12 @@ class MultiLeagueAPIScraper:
                 "id": "MEXA",
                 "name": "Liga MX Apertura",
                 "short_name": "Liga MX"
+            },
+            
+            "Primera Divisió": {
+                "id": "AND1",
+                "name": "Primera Divisió",
+                "short_name": "Primera Divisió"
             }
         }
         
