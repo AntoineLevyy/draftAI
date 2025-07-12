@@ -247,8 +247,11 @@ def get_players():
         # Apply filters
         filtered_players = players
         
+        # Robust league filter: handle unicode/encoding issues
         if league_filter and league_filter != 'All':
-            filtered_players = [p for p in filtered_players if p.get('league') == league_filter]
+            print(f"Filtering by league: '{league_filter}'")
+            filtered_players = [p for p in filtered_players if p.get('league', '').strip().lower() == league_filter.strip().lower()]
+            print(f"Players after league filter: {len(filtered_players)}")
         
         if position_filter and position_filter != 'All Positions':
             filtered_players = [p for p in filtered_players if p.get('position') == position_filter]
