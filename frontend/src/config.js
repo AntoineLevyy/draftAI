@@ -1,15 +1,23 @@
-// Configuration for different environments
-const config = {
-  development: {
-    apiBaseUrl: 'http://localhost:5001' // Use local API for development
-  },
-  production: {
-    apiBaseUrl: 'http://localhost:5001' // Temporarily use local API until production is fixed
+// Smart API URL detection
+const getApiBaseUrl = () => {
+  // Check if we're running locally (localhost or 127.0.0.1)
+  const isLocalhost = window.location.hostname === 'localhost' || 
+                     window.location.hostname === '127.0.0.1' ||
+                     window.location.hostname.includes('localhost');
+  
+  // Check if we're in development mode
+  const isDevelopment = import.meta.env.MODE === 'development';
+  
+  // If we're on localhost OR in development mode, use local API
+  if (isLocalhost || isDevelopment) {
+    console.log('Using local API (localhost:5001)');
+    return 'http://localhost:5001';
   }
+  
+  // Otherwise, use production API
+  console.log('Using production API (draftme.onrender.com)');
+  return 'https://draftme.onrender.com';
 };
 
-// Get the current environment
-const environment = import.meta.env.MODE || 'development';
-
-// Export the appropriate config
-export const apiBaseUrl = config[environment].apiBaseUrl; 
+// Export the dynamically determined API URL
+export const apiBaseUrl = getApiBaseUrl(); 
