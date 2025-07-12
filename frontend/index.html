@@ -5,6 +5,27 @@
     <link rel="icon" type="image/png" href="/assets/images/draftme_logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>draftme</title>
+    <script>
+      // Only load Amplitude in production
+      if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        // Load Amplitude scripts
+        const amplitudeScript = document.createElement('script');
+        amplitudeScript.src = 'https://cdn.amplitude.com/libs/analytics-browser-2.11.1-min.js.gz';
+        document.head.appendChild(amplitudeScript);
+        
+        const sessionReplayScript = document.createElement('script');
+        sessionReplayScript.src = 'https://cdn.amplitude.com/libs/plugin-session-replay-browser-1.8.0-min.js.gz';
+        document.head.appendChild(sessionReplayScript);
+        
+        // Initialize Amplitude after scripts load
+        amplitudeScript.onload = function() {
+          sessionReplayScript.onload = function() {
+            window.amplitude.add(window.sessionReplay.plugin({sampleRate: 1}));
+            window.amplitude.init('57b859a7b85c106dfacfa8c3cbd9a1b', {"autocapture":{"elementInteractions":true}});
+          };
+        };
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
