@@ -4,7 +4,7 @@ const config = {
     apiBaseUrl: 'http://localhost:5001' // Use local API for development
   },
   production: {
-    apiBaseUrl: 'https://draftme.onrender.com' // Your actual deployed API URL
+    apiBaseUrl: 'http://localhost:5001' // Temporarily use local API until production is fixed
   }
 };
 
