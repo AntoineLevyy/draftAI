@@ -302,7 +302,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
           `${apiBaseUrl}/api/team-logos`,
           '/team_logos.json',
           '/backend/college/njcaa/team_logos.json',
-          'https://raw.githubusercontent.com/AntoineLevyy/draftme/main/backend/college/njcaa/team_logos.json'
+          'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/team_logos.json'
         ];
         
         let teamLogos = null;
