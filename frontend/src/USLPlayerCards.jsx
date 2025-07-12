@@ -447,11 +447,10 @@ const PlayerCards = ({ filters, onBack }) => {
   
   // Filter state
   const [currentLeague, setCurrentLeague] = useState(() => {
-    // If filters.league is an array with multiple leagues, it means "All" was selected
-    if (Array.isArray(filters?.league) && filters.league.length > 1) {
-      return 'All';
+    if (Array.isArray(filters?.league)) {
+      return filters.league[0] || 'All';
     }
-    return filters?.league?.[0] || 'All';
+    return filters?.league || 'All';
   });
   const [currentPosition, setCurrentPosition] = useState(filters?.position || 'All');
   const [currentNationality, setCurrentNationality] = useState(filters?.nationality || 'All');
@@ -601,28 +600,8 @@ const PlayerCards = ({ filters, onBack }) => {
       console.log('Total players loaded:', allPlayers.length);
       console.log('First player structure:', allPlayers[0]);
       
-      // Apply league filter if specified
-      let filteredPlayers = allPlayers;
-      
-      if (filters?.league && filters.league !== 'All') {
-        console.log('Filtering by league:', filters.league);
-        console.log('League filter type:', typeof filters.league);
-        console.log('League filter value:', filters.league);
-        // Handle both single league and array of leagues
-        const leagueFilter = Array.isArray(filters.league) ? filters.league : [filters.league];
-        console.log('League filter array:', leagueFilter);
-        console.log('Sample player leagues:', allPlayers.slice(0, 5).map(p => p.league));
-        filteredPlayers = allPlayers.filter(player => {
-          const matches = leagueFilter.includes(player.league);
-          if (!matches && player.league) {
-            console.log(`Player ${player.profile?.playerProfile?.playerName} has league ${player.league} but filter is ${leagueFilter}`);
-          }
-          return matches;
-        });
-        console.log('After league filter:', filteredPlayers.length, 'players');
-      }
-      
-      setPlayers(filteredPlayers);
+      // Simple league filtering - just pass all players and let the UI filters handle it
+      setPlayers(allPlayers);
       setLoading(false);
       
     } catch (error) {
@@ -677,73 +656,50 @@ const PlayerCards = ({ filters, onBack }) => {
     console.log('Current filters - League:', currentLeague, 'Position:', currentPosition, 'Nationality:', currentNationality);
     console.log('Search term:', searchTerm);
     
-    // Debug: Log first few players to see their structure
-    if (players.length > 0) {
-      console.log('First player structure:', players[0]);
-      console.log('First player position field:', players[0].profile?.playerProfile?.position);
-      console.log('First player playerMainPosition field:', players[0].profile?.playerProfile?.playerMainPosition);
-      console.log('First player name:', players[0].profile?.playerProfile?.playerName);
-    }
-    
-    let filteredCount = 0;
-    
-    const filteredPlayers = players
-      .filter(player => {
-        // Filter out players with missing or invalid names
-        const playerName = player.profile?.playerProfile?.playerName;
-        if (!playerName || playerName === 'Unknown Player' || playerName.trim() === '') {
-          console.log('Filtering out player with invalid name:', playerName);
+    const filteredPlayers = players.filter(player => {
+      // Filter out players with missing or invalid names
+      const playerName = player.profile?.playerProfile?.playerName;
+      if (!playerName || playerName === 'Unknown Player' || playerName.trim() === '') {
+        return false;
+      }
+      
+      // Simple league filter
+      if (currentLeague && currentLeague !== 'All') {
+        if (player.league !== currentLeague) {
           return false;
         }
-        
-        filteredCount++;
-        if (filteredCount <= 5) {
-          console.log(`Player ${filteredCount}: ${playerName} passed name filter`);
+      }
+      
+      // Simple position filter - use English positions directly
+      if (currentPosition && currentPosition !== 'All') {
+        const playerPosition = translatePosition(player.profile?.playerProfile?.position || player.profile?.playerProfile?.playerMainPosition || '');
+        if (playerPosition !== currentPosition) {
+          return false;
         }
-        
-        // Filter by league
-        if (currentLeague && currentLeague !== 'All') {
-          console.log(`League filter: currentLeague="${currentLeague}", player.league="${player.league}"`);
-          if (player.league !== currentLeague) {
-            console.log(`League mismatch for ${playerName}: player.league="${player.league}" !== currentLeague="${currentLeague}"`);
-            return false;
-          }
+      }
+      
+      // Simple nationality filter
+      if (currentNationality && currentNationality !== 'All') {
+        const playerNationality = translateNationality(player.profile?.playerProfile?.birthplaceCountry);
+        if (playerNationality !== currentNationality) {
+          return false;
         }
-        
-        // Filter by position (convert English position back to German for comparison)
-        if (currentPosition && currentPosition !== 'All') {
-          const germanPosition = reverseTranslatePosition(currentPosition);
-          const playerPosition = player.profile?.playerProfile?.position || player.profile?.playerProfile?.playerMainPosition || '';
-          console.log(`Checking position for ${playerName}: player position "${playerPosition}" vs filter "${germanPosition}"`);
-          if (playerPosition !== germanPosition) {
-            console.log(`Position mismatch for ${playerName}: "${playerPosition}" !== "${germanPosition}"`);
-            return false;
-          }
-        }
-        
-        // Filter by nationality (if not 'All')
-        if (currentNationality && currentNationality !== 'All') {
-          const playerNationality = translateNationality(player.profile?.playerProfile?.birthplaceCountry);
-          console.log(`Checking nationality for ${playerName}: player nationality "${playerNationality}" vs filter "${currentNationality}"`);
-          if (playerNationality !== currentNationality) {
-            console.log(`Nationality mismatch for ${playerName}: "${playerNationality}" !== "${currentNationality}"`);
-            return false;
-          }
-        }
-        
-        // Search term filtering
+      }
+      
+      // Simple search filter
+      if (searchTerm) {
         const searchLower = searchTerm.toLowerCase();
-        const clubName = player.profile?.playerProfile?.club || player.club?.name || 'Unknown';
-        const matchesSearch = playerName.toLowerCase().includes(searchLower) || 
-                             clubName.toLowerCase().includes(searchLower);
+        const playerNameLower = playerName.toLowerCase();
+        const clubName = player.profile?.playerProfile?.club || player.club?.name || '';
+        const clubNameLower = clubName.toLowerCase();
         
-        if (!matchesSearch && searchTerm) {
-          console.log(`Search term mismatch for ${playerName}: "${playerName}" or "${clubName}" doesn't include "${searchTerm}"`);
+        if (!playerNameLower.includes(searchLower) && !clubNameLower.includes(searchLower)) {
           return false;
         }
-        
-        return true;
-      })
+      }
+      
+      return true;
+    })
       .sort((a, b) => {
         let aValue, bValue;
         switch (sortBy) {
@@ -779,7 +735,7 @@ const PlayerCards = ({ filters, onBack }) => {
       });
     
     return filteredPlayers;
-  }, [players, searchTerm, sortBy, sortOrder, currentLeague, currentPosition, currentNationality, reverseTranslatePosition, translateNationality]);
+  }, [players, searchTerm, sortBy, sortOrder, currentLeague, currentPosition, currentNationality, translateNationality]);
 
   const formatMinutes = useCallback((minutes) => {
     if (!minutes) return '0';
