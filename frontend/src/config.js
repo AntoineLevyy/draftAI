@@ -15,8 +15,8 @@ const getApiBaseUrl = () => {
   }
   
   // Otherwise, use production API
-  console.log('Using production API (draftme.onrender.com)');
-  return 'https://draftme.onrender.com';
+  console.log('Using production API (draftai.onrender.com)');
+  return 'https://draftai.onrender.com';
 };
 
 // Export the dynamically determined API URL
