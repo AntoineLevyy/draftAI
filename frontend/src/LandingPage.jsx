@@ -143,6 +143,8 @@ const proLeagues = [
   'Canadian Premier League (Tier 1 Canada)',
   'Liga MX Apertura (Tier 1 Mexico)',
   'Primera Divisió (Tier 1 Andorra)',
+  'Efbet Liga (Tier 1 Bulgaria)',
+  'Vtora Liga (Tier 2 Bulgaria)',
 ];
 
 function LandingPage({ onApplyFilters, onBack }) {

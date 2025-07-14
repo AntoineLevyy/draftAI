@@ -529,7 +529,9 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
     'MLS Next Pro',
     'Canadian Premier League',
     'Liga MX Apertura',
-    'Primera Divisió'
+    'Primera Divisió',
+    'Efbet Liga',
+    'Vtora Liga'
   ];
 
   // Filter state
@@ -686,14 +688,15 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
         return false;
       }
       
-      // League filter: handle array (for 'All') or string
+      // League filter: handle array (for 'All') or string, case-insensitive
       if (currentLeague && currentLeague !== 'All') {
         if (Array.isArray(currentLeague)) {
-          if (!currentLeague.includes(player.league)) {
+          const leagueLower = (player.league || '').toLowerCase();
+          if (!currentLeague.map(l => l.toLowerCase()).includes(leagueLower)) {
             return false;
           }
         } else {
-          if (player.league !== currentLeague) {
+          if ((player.league || '').toLowerCase() !== currentLeague.toLowerCase()) {
             return false;
           }
         }
@@ -934,6 +937,8 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
             <option value="Canadian Premier League">Canadian Premier League (Tier 1 Canada)</option>
             <option value="Liga MX Apertura">Liga MX Apertura (Tier 1 Mexico)</option>
             <option value="Primera Divisió">Primera Divisió (Tier 1 Andorra)</option>
+            <option value="Efbet Liga">Efbet Liga (Tier 1 Bulgaria)</option>
+            <option value="Vtora Liga">Vtora Liga (Tier 2 Bulgaria)</option>
           </select>
         </div>
         

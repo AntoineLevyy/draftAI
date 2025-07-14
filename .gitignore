@@ -90,3 +90,5 @@ backend/pro/*.json
 !backend/pro/chunks/njcaa_d2_players.json
 !backend/pro/chunks/njcaa_d3_players.json
 frontend/public/*.json
+!backend/pro/efbet_liga_players_api.json
+!backend/pro/vtora_liga_players_api.json

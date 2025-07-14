@@ -61,6 +61,8 @@ NJCAA_D1_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main
 NJCAA_D2_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/njcaa_d2_players.json'
 NJCAA_D3_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/njcaa_d3_players.json'
 TEAM_LOGOS_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/college/njcaa/team_logos.json'
+EFBET_LIGA_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/efbet_liga_players_api.json'
+VTORA_LIGA_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/vtora_liga_players_api.json'
 
 # Cache for loaded data
 _player_cache = {}
@@ -176,6 +178,40 @@ def fetch_player_data():
     except Exception as e:
         print(f"Error fetching Andorra data: {e}")
     
+    # Fetch Efbet Liga players
+    try:
+        print("Fetching Efbet Liga data from GitHub...")
+        response = requests.get(EFBET_LIGA_DATA_URL, timeout=30)
+        if response.status_code == 200:
+            efbet_data = response.json()
+            efbet_players = efbet_data.get('players', [])
+            # Add league info to each player
+            for player in efbet_players:
+                player['league'] = 'Efbet Liga'
+            players.extend(efbet_players)
+            print(f"Loaded {len(efbet_players)} Efbet Liga players")
+        else:
+            print(f"Failed to fetch Efbet Liga data: {response.status_code}")
+    except Exception as e:
+        print(f"Error fetching Efbet Liga data: {e}")
+    
+    # Fetch Vtora Liga players
+    try:
+        print("Fetching Vtora Liga data from GitHub...")
+        response = requests.get(VTORA_LIGA_DATA_URL, timeout=30)
+        if response.status_code == 200:
+            vtora_data = response.json()
+            vtora_players = vtora_data.get('players', [])
+            # Add league info to each player
+            for player in vtora_players:
+                player['league'] = 'Vtora Liga'
+            players.extend(vtora_players)
+            print(f"Loaded {len(vtora_players)} Vtora Liga players")
+        else:
+            print(f"Failed to fetch Vtora Liga data: {response.status_code}")
+    except Exception as e:
+        print(f"Error fetching Vtora Liga data: {e}")
+    
     # Fetch NJCAA D1 players
     try:
         print("Fetching NJCAA D1 data from GitHub...")
@@ -224,7 +260,7 @@ def fetch_player_data():
     _player_cache = players
     print(f"Total players loaded: {len(players)}")
     print(f"Sample players by league:")
-    for league in ['USL Championship', 'USL League One', 'MLS Next Pro', 'Canadian Premier League', 'Liga MX Apertura', 'Primera Divisió', 'NJCAA D1', 'NJCAA D2', 'NJCAA D3']:
+    for league in ['USL Championship', 'USL League One', 'MLS Next Pro', 'Canadian Premier League', 'Liga MX Apertura', 'Primera Divisió', 'NJCAA D1', 'NJCAA D2', 'NJCAA D3', 'Efbet Liga', 'Vtora Liga']:
         league_players = [p for p in players if p.get('league') == league]
         print(f"  {league}: {len(league_players)} players")
     return players
