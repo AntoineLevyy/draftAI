@@ -522,10 +522,30 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
   const [savedPlayerIds, setSavedPlayerIds] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
   
+  // List of all possible leagues (base names, as used in filtering)
+  const ALL_LEAGUES = [
+    'USL Championship',
+    'USL League One',
+    'MLS Next Pro',
+    'Canadian Premier League',
+    'Liga MX Apertura',
+    'Primera Divisió'
+  ];
+
   // Filter state
   const [currentLeague, setCurrentLeague] = useState(() => {
     if (Array.isArray(filters?.league)) {
-      return filters.league[0] || 'All';
+      // If the array matches all leagues, treat as 'All'
+      const sortedFilter = [...filters.league].sort().join(',');
+      const sortedAll = [...ALL_LEAGUES].sort().join(',');
+      if (sortedFilter === sortedAll) {
+        return 'All';
+      } else if (filters.league.length === 1) {
+        return filters.league[0];
+      } else {
+        // If it's a subset, treat as 'All' (or could be custom multi-select in future)
+        return 'All';
+      }
     }
     return filters?.league || 'All';
   });
@@ -666,10 +686,16 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
         return false;
       }
       
-      // Simple league filter
+      // League filter: handle array (for 'All') or string
       if (currentLeague && currentLeague !== 'All') {
-        if (player.league !== currentLeague) {
-          return false;
+        if (Array.isArray(currentLeague)) {
+          if (!currentLeague.includes(player.league)) {
+            return false;
+          }
+        } else {
+          if (player.league !== currentLeague) {
+            return false;
+          }
         }
       }
       
