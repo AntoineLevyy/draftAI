@@ -64,6 +64,7 @@ TEAM_LOGOS_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/ba
 EFBET_LIGA_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/efbet_liga_players_api.json'
 VTORA_LIGA_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/vtora_liga_players_api.json'
 NATIONAL_LEAGUE_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/national_league_players_api.json'
+LEAGUE_TWO_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/league_two_players_api.json'
 
 # Cache for loaded data
 _player_cache = {}
@@ -230,6 +231,23 @@ def fetch_player_data():
     except Exception as e:
         print(f"Error fetching National League data: {e}")
     
+    # Fetch League Two players
+    try:
+        print("Fetching League Two data from GitHub...")
+        response = requests.get(LEAGUE_TWO_DATA_URL, timeout=30)
+        if response.status_code == 200:
+            league_two_data = response.json()
+            league_two_players = league_two_data.get('players', league_two_data if isinstance(league_two_data, list) else [])
+            # Add league info to each player
+            for player in league_two_players:
+                player['league'] = 'League Two'
+            players.extend(league_two_players)
+            print(f"Loaded {len(league_two_players)} League Two players.")
+        else:
+            print(f"Failed to fetch League Two data: {response.status_code}")
+    except Exception as e:
+        print(f"Error fetching League Two data: {e}")
+    
     # Fetch NJCAA D1 players
     try:
         print("Fetching NJCAA D1 data from GitHub...")
@@ -278,7 +296,7 @@ def fetch_player_data():
     _player_cache = players
     print(f"Total players loaded: {len(players)}")
     print(f"Sample players by league:")
-    for league in ['USL Championship', 'USL League One', 'MLS Next Pro', 'Canadian Premier League', 'Liga MX Apertura', 'Primera Divisió', 'NJCAA D1', 'NJCAA D2', 'NJCAA D3', 'Efbet Liga', 'Vtora Liga', 'National League']:
+    for league in ['USL Championship', 'USL League One', 'MLS Next Pro', 'Canadian Premier League', 'Liga MX Apertura', 'Primera Divisió', 'NJCAA D1', 'NJCAA D2', 'NJCAA D3', 'Efbet Liga', 'Vtora Liga', 'National League', 'League Two']:
         league_players = [p for p in players if p.get('league') == league]
         print(f"  {league}: {len(league_players)} players")
     return players
