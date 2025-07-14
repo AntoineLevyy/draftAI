@@ -531,7 +531,8 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
     'Liga MX Apertura',
     'Primera Divisió',
     'Efbet Liga',
-    'Vtora Liga'
+    'Vtora Liga',
+    'National League'
   ];
 
   // Filter state
@@ -939,6 +940,7 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
             <option value="Primera Divisió">Primera Divisió (Tier 1 Andorra)</option>
             <option value="Efbet Liga">Efbet Liga (Tier 1 Bulgaria)</option>
             <option value="Vtora Liga">Vtora Liga (Tier 2 Bulgaria)</option>
+            <option value="National League">National League (Tier 5 England)</option>
           </select>
         </div>
         
