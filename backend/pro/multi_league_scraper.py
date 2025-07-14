@@ -52,6 +52,12 @@ class MultiLeagueAPIScraper:
                 "id": "AND1",
                 "name": "Primera Divisió",
                 "short_name": "Primera Divisió"
+            },
+            
+            "Efbet Liga": {
+                "id": "BU1",
+                "name": "Efbet Liga",
+                "short_name": "Efbet Liga"
             }
         }
         
