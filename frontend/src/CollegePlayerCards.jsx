@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './USLPlayerCards.css';
 import { apiBaseUrl } from './config';
+import { savePlayer, unsavePlayer, getSavedPlayersBatch } from './services/saveService';
+import { useAuth } from './AuthContext';
 
 // Add the highlights button styles to match the pro section
 const highlightsButtonStyles = `
@@ -92,11 +94,50 @@ const expandYear = (year) => {
   return yearTranslations[year] || year;
 };
 
-const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, translatePosition, formatMinutes, isValidPlayer, handleViewFootage, selectedLeague, loadingVideos }) => {
+const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, translatePosition, formatMinutes, isValidPlayer, handleViewFootage, selectedLeague, loadingVideos, savedPlayerIds, onSaveToggle, onShowSignupModal }) => {
+  const { user } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
+  // Defensive: Warn if playerId is missing
+  if (!player.playerId) {
+    console.warn('College player is missing playerId:', player);
+  }
+
+  // Only use playerId for saved state and key
+  const playerId = String(player.playerId);
+  const savedPlayerIdsStrings = savedPlayerIds.map(id => String(id));
+  const isSaved = user && savedPlayerIdsStrings.includes(playerId);
+
+  // Debug: Log the player ID and saved status (only for players that are saved or being saved)
+  if (user && (isSaved || isSaving)) {
+    console.log(`Player ${playerId}: savedPlayerIds=${savedPlayerIds}, isSaved=${isSaved}, isSaving=${isSaving}`);
+    console.log(`Player ${playerId}: playerIdString="${playerId}", savedPlayerIdsStrings=${savedPlayerIdsStrings}`);
+  }
+
+  const handleSaveToggle = async () => {
+    if (!user) {
+      if (onShowSignupModal) onShowSignupModal();
+      return;
+    }
+    setIsSaving(true);
+    try {
+      if (isSaved) {
+        await unsavePlayer(player, 'college');
+      } else {
+        await savePlayer(player, 'college');
+      }
+      if (onSaveToggle) await onSaveToggle();
+    } catch (error) {
+      console.error('Error saving/unsaving player:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Additional validation to ensure we have valid data
   if (!isValidPlayer(player)) {
-    return null;
+    return null; // Don't render cards for players without valid names
   }
 
   // Read from the cleaned JSON structure - simple fields only
@@ -126,8 +167,8 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
     photoUrl !== '' && 
     (photoUrl.startsWith('http://') || photoUrl.startsWith('https://') || photoUrl.startsWith('data:'));
 
-  // Debug: log the player name and photoUrl
-  console.log('Player:', playerName, '| photo_url:', photoUrl, '| isRealPhoto:', isRealPhoto);
+  // Debug: log the player name and photoUrl (only for debugging specific issues)
+  // console.log('Player:', playerName, '| photo_url:', photoUrl, '| isRealPhoto:', isRealPhoto);
 
   return (
     <div className="player-card">
@@ -178,6 +219,31 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
             }}
           />
         </div>
+        <button
+          className={`save-button ${isSaved ? 'saved' : ''} ${isSaving ? 'saving' : ''}`}
+          onClick={handleSaveToggle}
+          disabled={isSaving}
+          style={{
+            position: 'absolute',
+            top: '10px',
+            left: '10px',
+            background: isSaved ? '#10b981' : 'rgba(255, 255, 255, 0.9)',
+            color: isSaved ? 'white' : '#374151',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '8px 12px',
+            fontSize: '12px',
+            fontWeight: '600',
+            cursor: isSaving ? 'default' : 'pointer',
+            transition: 'all 0.2s ease',
+            zIndex: 10,
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+            opacity: isSaved ? 0.8 : 1
+          }}
+        >
+          {isSaving ? (isSaved ? 'Unsaving...' : 'Saving...') : isSaved ? 'Saved ✓' : 'Save'}
+        </button>
       </div>
 
       <div className="card-body">
@@ -266,7 +332,8 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
   );
 });
 
-const CollegePlayerCards = ({ filters, onBack }) => {
+const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
+  const { user } = useAuth();
   console.log('CollegePlayerCards received filters:', filters);
   
   const [players, setPlayers] = useState([]);
@@ -281,6 +348,8 @@ const CollegePlayerCards = ({ filters, onBack }) => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [videoLoading, setVideoLoading] = useState(false);
+  const [savedPlayerIds, setSavedPlayerIds] = useState([]);
+  const [refreshKey, setRefreshKey] = useState(0);
   
   // Use filters passed from landing page, with local state for adjustments
   const [localFilters, setLocalFilters] = useState({
@@ -349,7 +418,45 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
   }, []);
 
+  // Load saved players when user changes
+  useEffect(() => {
+    if (user) {
+      getSavedPlayersBatch('college').then(setSavedPlayerIds);
+    } else {
+      setSavedPlayerIds([]);
+    }
+  }, [user]);
 
+  // Clear saved players when user logs out
+  useEffect(() => {
+    if (!user) {
+      setSavedPlayerIds([]);
+    }
+  }, [user]);
+
+  // Function to refresh saved players list
+  const refreshSavedPlayers = useCallback(async () => {
+    console.log('=== REFRESH SAVED PLAYERS STARTED ===');
+    if (user) {
+      try {
+        console.log('Current savedPlayerIds before refresh:', savedPlayerIds);
+        const updatedSavedPlayers = await getSavedPlayersBatch('college');
+        console.log('Updated saved players from database:', updatedSavedPlayers);
+        console.log('Setting savedPlayerIds to:', updatedSavedPlayers);
+        setSavedPlayerIds(updatedSavedPlayers);
+        setRefreshKey(prev => {
+          const newKey = prev + 1;
+          console.log('Forced re-render with new key:', newKey);
+          return newKey;
+        });
+        console.log('=== REFRESH SAVED PLAYERS COMPLETED ===');
+      } catch (error) {
+        console.error('Error refreshing saved players:', error);
+      }
+    } else {
+      console.log('No user, skipping refresh');
+    }
+  }, [user, savedPlayerIds]);
 
   useEffect(() => {
     console.log('useEffect triggered - fetching players');
@@ -373,71 +480,22 @@ const CollegePlayerCards = ({ filters, onBack }) => {
           'Content-Type': 'application/json',
         },
       });
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
       
       if (!response.ok) {
-        console.error('Response not ok:', response.status, response.statusText);
         throw new Error(`Failed to fetch players: ${response.status} ${response.statusText}`);
       }
       
-      const responseText = await response.text();
-      console.log('Raw response text (first 1000 chars):', responseText.substring(0, 1000));
-      
-      let data;
-      try {
-        data = JSON.parse(responseText);
-        console.log('API Response parsed successfully');
-      } catch (error) {
-        console.error('Error parsing JSON:', error);
-        throw new Error('Invalid JSON response from server');
-      }
-      console.log('API Response:', data);
+      const data = await response.json();
       console.log('Total players from API:', data.players?.length || 0);
-      console.log('=== RAW API DATA CHECK ===');
-      console.log('First 3 players from API:', data.players?.slice(0, 3).map(p => ({ name: p.name, league: p.league, photo_url: p.photo_url })));
-      console.log('NJCAA players count from API:', data.players?.filter(p => p.league?.startsWith('NJCAA')).length || 0);
-      console.log('=== END RAW API DATA CHECK ===');
-      
-      // Debug: Check if Juan Jose Montoya is in the API response
-      const juanJoseInAPI = data.players?.find(p => p.name === 'Juan Jose Montoya');
-      if (juanJoseInAPI) {
-        console.log('Found Juan Jose Montoya in API response:', juanJoseInAPI);
-        console.log('His photo_url from API:', juanJoseInAPI.photo_url);
-      } else {
-        console.log('Juan Jose Montoya NOT found in API response');
-      }
-      
-      // Debug: Check what positions are in the data
-      const allPlayers = data.players || [];
-      const uniquePositions = [...new Set(allPlayers.map(p => p.position).filter(Boolean))];
-      console.log('Unique positions in data:', uniquePositions);
-      console.log('Sample players with positions:', allPlayers.slice(0, 10).map(p => ({ name: p.name, position: p.position })));
       
       // Filter for NJCAA players only
-      console.log('Total players from API:', allPlayers.length);
-      console.log('Sample player leagues:', allPlayers.slice(0, 5).map(p => p.league));
-      
+      const allPlayers = data.players || [];
       const njcaaPlayers = allPlayers.filter(player => 
         player.league && player.league.startsWith('NJCAA')
       );
       console.log('NJCAA players filtered:', njcaaPlayers.length);
-      console.log('Sample NJCAA player leagues:', njcaaPlayers.slice(0, 5).map(p => p.league));
-      console.log('=== NJCAA FILTERING CHECK ===');
-      console.log('First 3 NJCAA players after filtering:', njcaaPlayers.slice(0, 3).map(p => ({ name: p.name, league: p.league, photo_url: p.photo_url })));
-      console.log('=== END NJCAA FILTERING CHECK ===');
       
-      const playersToSet = njcaaPlayers;
-      console.log('Setting players state with:', playersToSet.length, 'players');
-      
-      // Check Juan Jose Montoya in the data we're about to set
-      const juanJoseBeforeSet = playersToSet.find(p => p.name === 'Juan Jose Montoya');
-      if (juanJoseBeforeSet) {
-        console.log('Juan Jose Montoya before setState:', juanJoseBeforeSet);
-        console.log('His photo_url before setState:', juanJoseBeforeSet.photo_url);
-      }
-      
-      setPlayers(playersToSet);
+      setPlayers(njcaaPlayers);
       setLoading(false);
       console.log('=== FETCH PLAYERS COMPLETED ===');
     } catch (error) {
@@ -535,36 +593,15 @@ const CollegePlayerCards = ({ filters, onBack }) => {
 
     const filteredAndSortedPlayers = useMemo(() => {
     console.log('Filtering college players. Total players:', players.length);
-    console.log('Current filters:', currentFilters);
-    console.log('Search term:', searchTerm);
-    console.log('Sample player data:', players[0]);
-    console.log('Active filters:', {
-      position: currentFilters.position,
-      academicLevel: currentFilters.academicLevel,
-      league: currentFilters.league,
-      searchTerm: searchTerm
-    });
     
-    // Debug: Check if Juan Jose Montoya is in the players array
-    const juanJose = players.find(p => p.name === 'Juan Jose Montoya');
-    if (juanJose) {
-      console.log('Found Juan Jose Montoya in players array:', juanJose);
-      console.log('His photo_url:', juanJose.photo_url);
-    } else {
-      console.log('Juan Jose Montoya NOT found in players array');
-    }
-    
-    // Apply filters
     let filteredPlayers = players.filter(player => {
-      // Only filter out players with completely missing names
+      // Filter out players with missing or invalid names
       const playerName = player.name;
-      if (!playerName || playerName.trim() === '') {
-        console.log('Filtering out player with missing name:', player);
+      if (!playerName || playerName === 'Unknown Player' || playerName.trim() === '') {
         return false;
       }
       return true;
     });
-    console.log('After name filter:', filteredPlayers.length);
     
     // Search filter
     if (searchTerm && searchTerm.trim() !== '') {
@@ -573,62 +610,35 @@ const CollegePlayerCards = ({ filters, onBack }) => {
         const playerName = player.name;
         const nameMatch = playerName.toLowerCase().includes(searchLower);
         const teamMatch = (player.team || '').toLowerCase().includes(searchLower);
-        if (!nameMatch && !teamMatch) {
-          console.log('Filtering out player due to search term:', playerName, 'search term:', searchTerm);
-          return false;
-        }
-        return true;
+        return nameMatch || teamMatch;
       });
-      console.log('After search filter:', filteredPlayers.length);
     }
     
     // Filter by position
     if (currentFilters.position && currentFilters.position !== 'All') {
-      console.log('Position filter active:', currentFilters.position);
       filteredPlayers = filteredPlayers.filter(player => {
-        const playerName = player.name;
-        const originalPosition = player.position || '';
         const playerPosition = getMainPositionCategory(player.position || '');
-        console.log(`Player: ${playerName}, Original position: "${originalPosition}", Mapped to: "${playerPosition}", Filter: "${currentFilters.position}"`);
-        if (playerPosition !== currentFilters.position) {
-          console.log('Filtering out player due to position:', playerName, 'position:', playerPosition, 'filter:', currentFilters.position);
-          return false;
-        }
-        return true;
+        return playerPosition === currentFilters.position;
       });
-      console.log('After position filter:', filteredPlayers.length);
     }
     
     // Filter by academic year
     if (currentFilters.academicLevel && currentFilters.academicLevel !== 'All') {
       filteredPlayers = filteredPlayers.filter(player => {
-        const playerName = player.name;
         const playerYear = expandYear(player.year || '');
-        if (playerYear !== currentFilters.academicLevel) {
-          console.log('Filtering out player due to academic year:', playerName, 'year:', playerYear, 'filter:', currentFilters.academicLevel);
-          return false;
-        }
-        return true;
+        return playerYear === currentFilters.academicLevel;
       });
-      console.log('After academic year filter:', filteredPlayers.length);
     }
     
     // Filter by league
     if (currentFilters.league && currentFilters.league !== 'All') {
       filteredPlayers = filteredPlayers.filter(player => {
-        const playerName = player.name;
         const playerLeague = player.league || 'NJCAA D1';
-        if (playerLeague !== currentFilters.league) {
-          console.log('Filtering out player due to league:', playerName, 'league:', playerLeague, 'filter:', currentFilters.league);
-          return false;
-        }
-        return true;
+        return playerLeague === currentFilters.league;
       });
-      console.log('After league filter:', filteredPlayers.length);
     }
     
-    console.log('After basic filtering:', filteredPlayers.length);
-    
+    // Sort the filtered players
     return filteredPlayers.sort((a, b) => {
         let aValue, bValue;
         switch (sortBy) {
@@ -662,9 +672,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
           return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
         }
       });
-    
-    return filteredPlayers;
-  }, [players, searchTerm, sortBy, sortOrder, currentFilters, translatePosition, expandYear, getMainPositionCategory]);
+  }, [players, searchTerm, sortBy, sortOrder, currentFilters, expandYear, getMainPositionCategory]);
 
   const formatMinutes = useCallback((minutes) => {
     if (!minutes) return '0';
@@ -680,11 +688,9 @@ const CollegePlayerCards = ({ filters, onBack }) => {
     // For college teams, try to use actual team logo from the team_logos.json file
     const teamName = player.team;
     if (teamName && window.teamLogos && window.teamLogos[teamName] && window.teamLogos[teamName] !== null) {
-      console.log('Using team logo for:', teamName, 'URL:', window.teamLogos[teamName]);
       return window.teamLogos[teamName];
     }
     
-    console.log('No team logo found for:', teamName, 'using fallback');
     // Fallback to a simple data URI if no logo found
     return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjQiIGZpbGw9IiNmMWY1ZjkiLz4KPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMjAiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNCA0QzI2LjIgNCAyOCA1LjggMjggOFYxNkMyOCAxOC4yIDI2LjIgMjAgMjQgMjBDMjEuOCAyMCAyMCAxOC4yIDIwIDE2VjhDMjAgNS44IDIxLjggNCAyNCA0WiIgZmlsbD0iIzljYTNhZiIvPgo8L3N2Zz4K';
   }, []);
@@ -753,7 +759,6 @@ const CollegePlayerCards = ({ filters, onBack }) => {
       await fetchYoutubeVideos(playerName, teamName);
     }
   }, [youtubeVideos, fetchYoutubeVideos]);
-
 
 
   if (loading) {
@@ -901,7 +906,7 @@ const CollegePlayerCards = ({ filters, onBack }) => {
       <div className="player-cards-grid">
         {filteredAndSortedPlayers.map(player => (
           <CollegePlayerCard
-            key={player.id}
+            key={String(player.playerId) + '-' + savedPlayerIds.includes(String(player.playerId)) + '-' + refreshKey}
             player={player}
             getPlayerImage={getPlayerImage}
             getClubImage={getClubImage}
@@ -911,6 +916,9 @@ const CollegePlayerCards = ({ filters, onBack }) => {
             handleViewFootage={handleViewFootage}
             selectedLeague={currentFilters.league || 'All'}
             loadingVideos={loadingVideos}
+            savedPlayerIds={savedPlayerIds}
+            onSaveToggle={refreshSavedPlayers}
+            onShowSignupModal={onShowSignupModal}
           />
         ))}
       </div>

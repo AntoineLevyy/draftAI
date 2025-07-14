@@ -3,6 +3,15 @@ import json
 import os
 import requests
 from flask_cors import CORS
+import stripe
+
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+
+# Membership price IDs (replace with your actual Stripe price IDs)
+MEMBERSHIP_PRICES = {
+    'monthly': os.getenv('STRIPE_MONTHLY_PRICE_ID', 'price_monthly_placeholder'),
+    'yearly': os.getenv('STRIPE_YEARLY_PRICE_ID', 'price_yearly_placeholder'),
+}
 
 # Try to import YouTube highlights, but handle import errors gracefully
 try:
@@ -396,6 +405,37 @@ def get_team_logos():
 def health_check():
     """Health check endpoint"""
     return jsonify({'status': 'healthy', 'message': 'API is running'})
+
+@app.route('/api/create-checkout-session', methods=['POST', 'OPTIONS'])
+def create_checkout_session():
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        return response
+
+    data = request.get_json()
+    membership = data.get('membership')
+    if membership not in MEMBERSHIP_PRICES:
+        return jsonify({'error': 'Invalid membership type. Must be "monthly" or "yearly".'}), 400
+
+    price_id = MEMBERSHIP_PRICES[membership]
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price': price_id,
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=os.getenv('STRIPE_SUCCESS_URL', 'http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}'),
+            cancel_url=os.getenv('STRIPE_CANCEL_URL', 'http://localhost:5173/cancel'),
+        )
+        return jsonify({'url': session.url})
+    except Exception as e:
+        print(f"Stripe error: {e}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001) 

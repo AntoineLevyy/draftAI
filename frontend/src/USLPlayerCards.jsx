@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import './USLPlayerCards.css';
 import { apiBaseUrl } from './config';
+import { savePlayer, unsavePlayer, getSavedPlayersBatch } from './services/saveService';
+import { useAuth } from './AuthContext';
 
 const translateNationality = (nationality) => {
   const translations = {
@@ -192,12 +194,59 @@ const translateNationality = (nationality) => {
   return translations[nationality] || nationality;
 };
 
-const PlayerCard = memo(({ player, getPlayerImage, getClubImage, translatePosition, formatMinutes, isValidPlayer, expandedStats, setExpandedStats, handleViewFootage, selectedLeague }) => {
+const PlayerCard = memo(({ player, getPlayerImage, getClubImage, translatePosition, formatMinutes, isValidPlayer, expandedStats, setExpandedStats, handleViewFootage, selectedLeague, savedPlayerIds, onSaveToggle, onShowSignupModal }) => {
+  const { user } = useAuth();
+  const [isSaving, setIsSaving] = useState(false);
+
   // Additional validation to ensure we have valid data
   const playerName = player.profile?.playerProfile?.playerName;
   if (!playerName || playerName === 'Unknown Player' || playerName.trim() === '') {
     return null; // Don't render cards for players without valid names
   }
+
+  // Check if player is saved using the passed savedPlayerIds
+  // Only consider a player saved if user is logged in AND player is in savedPlayerIds
+  // For pro players, use the profile.playerID as the unique identifier
+  const playerId = player.profile?.playerProfile?.playerID || player.id || player.name;
+  // Convert both to strings to handle type mismatches
+  const playerIdString = String(playerId);
+  const savedPlayerIdsStrings = savedPlayerIds.map(id => String(id));
+  const isSaved = user && savedPlayerIdsStrings.includes(playerIdString);
+  
+  // Debug: Log the player ID and saved status with more detail
+  if (user) {
+    console.log(`Player ${playerId} (type: ${typeof playerId}): savedPlayerIds=${savedPlayerIds} (types: ${savedPlayerIds.map(id => typeof id)}), isSaved=${isSaved}`);
+    console.log(`Player object:`, { id: player.id, name: player.name, playerId });
+    console.log(`String comparison: playerIdString="${playerIdString}", savedPlayerIdsStrings=${savedPlayerIdsStrings}`);
+  }
+  
+
+
+  const handleSaveToggle = async () => {
+    if (!user) {
+      if (onShowSignupModal) onShowSignupModal();
+      return;
+    }
+
+    // Don't do anything if already saved
+    if (isSaved) {
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      if (isSaved) {
+        await unsavePlayer(player, 'pro');
+      } else {
+        await savePlayer(player, 'pro');
+      }
+      if (onSaveToggle) await onSaveToggle();
+    } catch (error) {
+      console.error('Error saving/unsaving player:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
   
   return (
     <div className="player-card">
@@ -222,6 +271,31 @@ const PlayerCard = memo(({ player, getPlayerImage, getClubImage, translatePositi
             }}
           />
         </div>
+        <button
+          className={`save-button ${isSaved ? 'saved' : ''} ${isSaving ? 'saving' : ''}`}
+          onClick={handleSaveToggle}
+          disabled={isSaving}
+          style={{
+            position: 'absolute',
+            top: '10px',
+            left: '10px',
+            background: isSaved ? '#10b981' : 'rgba(255, 255, 255, 0.9)',
+            color: isSaved ? 'white' : '#374151',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '8px 12px',
+            fontSize: '12px',
+            fontWeight: '600',
+            cursor: isSaving ? 'default' : 'pointer',
+            transition: 'all 0.2s ease',
+            zIndex: 10,
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+            opacity: isSaved ? 0.8 : 1
+          }}
+        >
+          {isSaving ? (isSaved ? 'Unsaving...' : 'Saving...') : isSaved ? 'Saved ✓' : 'Save'}
+        </button>
       </div>
 
       <div className="card-body">
@@ -431,7 +505,8 @@ const PlayerCard = memo(({ player, getPlayerImage, getClubImage, translatePositi
   );
 });
 
-const PlayerCards = ({ filters, onBack }) => {
+const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
+  const { user } = useAuth();
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -444,6 +519,8 @@ const PlayerCards = ({ filters, onBack }) => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [videoLoading, setVideoLoading] = useState(false);
+  const [savedPlayerIds, setSavedPlayerIds] = useState([]);
+  const [refreshKey, setRefreshKey] = useState(0);
   
   // Filter state
   const [currentLeague, setCurrentLeague] = useState(() => {
@@ -466,6 +543,34 @@ const PlayerCards = ({ filters, onBack }) => {
   const handleSortOrderChange = useCallback(() => {
     setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
   }, []);
+
+  // Load saved players when user changes
+  useEffect(() => {
+    if (user) {
+      getSavedPlayersBatch('pro').then(setSavedPlayerIds);
+    } else {
+      setSavedPlayerIds([]);
+    }
+  }, [user]);
+
+  // Clear saved players when user logs out
+  useEffect(() => {
+    if (!user) {
+      setSavedPlayerIds([]);
+    }
+  }, [user]);
+
+  // Function to refresh saved players list
+  const refreshSavedPlayers = useCallback(async () => {
+    console.log('Refreshing saved players...');
+    if (user) {
+      const updatedSavedPlayers = await getSavedPlayersBatch('pro');
+      console.log('Updated saved players:', updatedSavedPlayers);
+      setSavedPlayerIds(updatedSavedPlayers);
+      setRefreshKey(prev => prev + 1); // Force re-render
+      console.log('Forced re-render with new key:', refreshKey + 1);
+    }
+  }, [user, refreshKey]);
 
   useEffect(() => {
     fetchPlayers();
@@ -904,7 +1009,7 @@ const PlayerCards = ({ filters, onBack }) => {
       <div className="player-cards-grid">
         {filteredAndSortedPlayers.map(player => (
           <PlayerCard
-            key={player.id}
+            key={`${player.id}-${savedPlayerIds.includes(player.id || player.name)}-${refreshKey}`}
             player={player}
             getPlayerImage={getPlayerImage}
             getClubImage={getClubImage}
@@ -915,6 +1020,9 @@ const PlayerCards = ({ filters, onBack }) => {
             setExpandedStats={setExpandedStats}
             handleViewFootage={handleViewFootage}
             selectedLeague={filters?.league || 'USL League One'}
+            savedPlayerIds={savedPlayerIds}
+            onSaveToggle={refreshSavedPlayers}
+            onShowSignupModal={onShowSignupModal}
           />
         ))}
       </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from './AuthContext'
+import MembershipOptions from './MembershipOptions';
 
 const modalOverlayStyle = {
   position: 'fixed',
@@ -109,7 +110,7 @@ const successStyle = {
   textAlign: 'center',
 }
 
-const LoginModal = ({ isOpen, onClose, mode = 'signin' }) => {
+const LoginModal = ({ isOpen, onClose, mode = 'signin', setMode }) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -153,6 +154,13 @@ const LoginModal = ({ isOpen, onClose, mode = 'signin' }) => {
 
   if (!isOpen) return null
 
+  // Show membership options instead of sign-up form
+  if (mode === 'signup') {
+    return (
+      <MembershipOptions setMode={setMode} onClose={onClose} />
+    );
+  }
+
   return (
     <div style={modalOverlayStyle} onClick={onClose}>
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
@@ -194,6 +202,22 @@ const LoginModal = ({ isOpen, onClose, mode = 'signin' }) => {
             {loading ? 'Loading...' : (mode === 'signin' ? 'Sign In' : 'Sign Up')}
           </button>
         </form>
+
+        {/* Add sign up link for sign in mode */}
+        {mode === 'signin' && (
+          <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+            <span style={{ color: '#64748b', fontSize: '0.95em' }}>
+              Don't have an account?{' '}
+              <a
+                href="#"
+                style={{ color: '#4f8cff', textDecoration: 'underline', cursor: 'pointer' }}
+                onClick={e => { e.preventDefault(); setError(''); setSuccess(''); setEmail(''); setPassword(''); setLoading(false); if (setMode) setMode('signup'); }}
+              >
+                Sign up here.
+              </a>
+            </span>
+          </div>
+        )}
 
         <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
           <span style={{ color: '#64748b' }}>or</span>

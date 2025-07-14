@@ -22,6 +22,8 @@ def clean_player_data(player, league_name):
         "weight": player.get("weight", player.get("dataMap", {}).get("weight", "")),
         "hometown": hometown,
         "photo_url": player.get("photo_url", ""),
+        # Unique identifier for college players
+        "playerId": player.get("playerId", ""),
         # Season stats
         "goals": player.get("stats", {}).get("gol", player.get("goals", "0")),
         "assists": player.get("stats", {}).get("ast", player.get("assists", "0")),

@@ -183,9 +183,9 @@ function AppContent() {
   let playerView = null;
   if (filters) {
     if (currentView === 'club') {
-      playerView = <PlayerCards filters={filters} onBack={handleBack} />;
+      playerView = <PlayerCards filters={filters} onBack={handleBack} onShowSignupModal={handleSignInClick} />;
     } else if (currentView === 'college') {
-      playerView = <CollegePlayerCards filters={filters} onBack={handleBack} />;
+      playerView = <CollegePlayerCards filters={filters} onBack={handleBack} onShowSignupModal={handleSignInClick} />;
     }
   }
 
@@ -308,6 +308,7 @@ function AppContent() {
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         mode={loginMode}
+        setMode={setLoginMode}
       />
     </div>
   );
