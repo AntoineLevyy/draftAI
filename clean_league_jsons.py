@@ -11,7 +11,12 @@ def clean_file(path, default_league_name):
     with open(path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     # If data is a dict with 'players', use that; else assume it's a list
-    players = data.get('players', data) if isinstance(data, dict) else data
+    if isinstance(data, dict) and 'players' in data:
+        players = data['players']
+    elif isinstance(data, list):
+        players = data
+    else:
+        players = []
     for player in players:
         # Try to copy from nested field if present
         league = (
@@ -20,15 +25,11 @@ def clean_file(path, default_league_name):
                   .get('league')
         )
         player['league'] = league if league else default_league_name
-    # Save cleaned file (overwrite original)
-    if isinstance(data, dict):
-        data['players'] = players
-        out = data
-    else:
-        out = players
+    # Always wrap in a dict with 'players' key
+    out = {"players": players}
     with open(path, 'w', encoding='utf-8') as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
-    print(f"Cleaned {len(players)} players in {path}")
+    print(f"Cleaned and wrapped {len(players)} players in {path}")
 
 for path, league in FILES:
     clean_file(path, league) 
