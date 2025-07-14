@@ -83,7 +83,8 @@ const optionTitle = {
   fontSize: '1.75rem',
   fontWeight: 700,
   color: '#374151',
-  marginBottom: '0.5rem',
+  marginBottom: '0.2rem', // reduced from 0.5rem
+  marginTop: '-0.5rem', // bring title higher
   letterSpacing: '-0.5px',
   textAlign: 'center'
 };
@@ -92,7 +93,8 @@ const optionDescription = {
   fontSize: '1rem',
   color: '#64748b',
   lineHeight: '1.4',
-  marginBottom: '0',
+  marginBottom: '2.2rem', // increased for space above badge
+  marginTop: '0.1rem',
   textAlign: 'center'
 };
 
@@ -115,6 +117,22 @@ const featureItem = {
 const featureIcon = {
   fontSize: '1.2rem',
   color: '#4ade80'
+};
+
+const tryForFreeBadge = {
+  position: 'absolute',
+  left: '50%',
+  bottom: 18,
+  transform: 'translateX(-50%)',
+  background: 'linear-gradient(90deg, #10b981 0%, #fbbf24 100%)',
+  color: 'white',
+  fontWeight: 600,
+  fontSize: '0.85rem',
+  borderRadius: '10px',
+  padding: '0.22rem 0.7rem',
+  boxShadow: '0 2px 8px rgba(16,185,129,0.13)',
+  letterSpacing: '0.01em',
+  zIndex: 2,
 };
 
 function MainLandingPage({ onSelectCoachType }) {
@@ -143,6 +161,7 @@ function MainLandingPage({ onSelectCoachType }) {
             onMouseLeave={() => setHoveredOption(null)}
             onClick={handleClubCoaches}
           >
+            <div style={tryForFreeBadge}>Try For Free</div>
             <div style={{
               position: 'absolute',
               top: 0,
@@ -169,19 +188,20 @@ function MainLandingPage({ onSelectCoachType }) {
             onMouseLeave={() => setHoveredOption(null)}
             onClick={handleCollegeCoaches}
           >
+            <div style={tryForFreeBadge}>Try For Free</div>
             <div style={{
               position: 'absolute',
               top: 0,
               left: 0,
               right: 0,
               bottom: 0,
-              background: 'linear-gradient(45deg, rgba(111,111,255,0.05) 0%, transparent 50%, rgba(56,189,248,0.05) 100%)',
+              background: 'linear-gradient(45deg, rgba(79,140,255,0.05) 0%, transparent 50%, rgba(111,111,255,0.05) 100%)',
               borderRadius: '24px',
               pointerEvents: 'none'
             }} />
             <h2 style={optionTitle}>For College Coaches</h2>
             <p style={optionDescription}>
-                              Student-athletes for your program
+              College players for your program
             </p>
           </div>
         </div>
