@@ -65,6 +65,8 @@ EFBET_LIGA_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/ma
 VTORA_LIGA_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/vtora_liga_players_api.json'
 NATIONAL_LEAGUE_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/national_league_players_api.json'
 LEAGUE_TWO_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/league_two_players_api.json'
+NATIONAL_LEAGUE_SOUTH_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/national_league_south_players_api.json'
+NATIONAL_LEAGUE_NORTH_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/national_league_north_players_api.json'
 
 # Cache for loaded data
 _player_cache = {}
@@ -230,6 +232,37 @@ def fetch_player_data():
             print(f"Failed to fetch National League data: {response.status_code}")
     except Exception as e:
         print(f"Error fetching National League data: {e}")
+    
+    # Fetch National League South players
+    try:
+        print("Fetching National League South data from GitHub...")
+        response = requests.get(NATIONAL_LEAGUE_SOUTH_DATA_URL, timeout=30)
+        if response.status_code == 200:
+            nls_data = response.json()
+            nls_players = nls_data.get('players', nls_data if isinstance(nls_data, list) else [])
+            for player in nls_players:
+                player['league'] = 'National League South'
+            players.extend(nls_players)
+            print(f"Loaded {len(nls_players)} National League South players.")
+        else:
+            print(f"Failed to fetch National League South data: {response.status_code}")
+    except Exception as e:
+        print(f"Error fetching National League South data: {e}")
+    # Fetch National League North players
+    try:
+        print("Fetching National League North data from GitHub...")
+        response = requests.get(NATIONAL_LEAGUE_NORTH_DATA_URL, timeout=30)
+        if response.status_code == 200:
+            nln_data = response.json()
+            nln_players = nln_data.get('players', nln_data if isinstance(nln_data, list) else [])
+            for player in nln_players:
+                player['league'] = 'National League North'
+            players.extend(nln_players)
+            print(f"Loaded {len(nln_players)} National League North players.")
+        else:
+            print(f"Failed to fetch National League North data: {response.status_code}")
+    except Exception as e:
+        print(f"Error fetching National League North data: {e}")
     
     # Fetch League Two players
     try:

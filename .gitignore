@@ -93,4 +93,6 @@ frontend/public/*.json
 !backend/pro/efbet_liga_players_api.json
 !backend/pro/vtora_liga_players_api.json
 !backend/pro/national_league_players_api.json
+!backend/pro/national_league_south_players_api.json
+!backend/pro/national_league_north_players_api.json
 !backend/pro/league_two_players_api.json
