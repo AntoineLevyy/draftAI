@@ -67,6 +67,12 @@ NATIONAL_LEAGUE_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draft
 LEAGUE_TWO_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/league_two_players_api.json'
 NATIONAL_LEAGUE_SOUTH_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/national_league_south_players_api.json'
 NATIONAL_LEAGUE_NORTH_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/national_league_north_players_api.json'
+GIBRALTAR_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/gibraltar_players_api.json'
+SPAIN_SEGUNDA_G1_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/spain_segunda_g1_players_api.json'
+SPAIN_SEGUNDA_G2_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/spain_segunda_g2_players_api.json'
+SPAIN_SEGUNDA_G3_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/spain_segunda_g3_players_api.json'
+SPAIN_SEGUNDA_G4_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/spain_segunda_g4_players_api.json'
+SPAIN_SEGUNDA_G5_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/spain_segunda_g5_players_api.json'
 
 # Cache for loaded data
 _player_cache = {}
@@ -281,6 +287,45 @@ def fetch_player_data():
     except Exception as e:
         print(f"Error fetching League Two data: {e}")
     
+    # Fetch Gibraltar Football League players
+    try:
+        print("Fetching Gibraltar Football League data from GitHub...")
+        response = requests.get(GIBRALTAR_DATA_URL, timeout=30)
+        if response.status_code == 200:
+            gibraltar_data = response.json()
+            gibraltar_players = gibraltar_data.get('players', [])
+            for player in gibraltar_players:
+                player['league'] = 'Gibraltar Football League'
+            players.extend(gibraltar_players)
+            print(f"Loaded {len(gibraltar_players)} Gibraltar Football League players")
+        else:
+            print(f"Failed to fetch Gibraltar Football League data: {response.status_code}")
+    except Exception as e:
+        print(f"Error fetching Gibraltar Football League data: {e}")
+
+    # Fetch Spain Segunda Federacion Grupo 1-5 players
+    for url, league_name in [
+        (SPAIN_SEGUNDA_G1_DATA_URL, 'Segunda Federacion Grupo 1'),
+        (SPAIN_SEGUNDA_G2_DATA_URL, 'Segunda Federacion Grupo 2'),
+        (SPAIN_SEGUNDA_G3_DATA_URL, 'Segunda Federacion Grupo 3'),
+        (SPAIN_SEGUNDA_G4_DATA_URL, 'Segunda Federacion Grupo 4'),
+        (SPAIN_SEGUNDA_G5_DATA_URL, 'Segunda Federacion Grupo 5'),
+    ]:
+        try:
+            print(f"Fetching {league_name} data from GitHub...")
+            response = requests.get(url, timeout=30)
+            if response.status_code == 200:
+                data = response.json()
+                players_list = data.get('players', [])
+                for player in players_list:
+                    player['league'] = league_name
+                players.extend(players_list)
+                print(f"Loaded {len(players_list)} {league_name} players")
+            else:
+                print(f"Failed to fetch {league_name} data: {response.status_code}")
+        except Exception as e:
+            print(f"Error fetching {league_name} data: {e}")
+    
     # Fetch NJCAA D1 players
     try:
         print("Fetching NJCAA D1 data from GitHub...")
@@ -329,7 +374,7 @@ def fetch_player_data():
     _player_cache = players
     print(f"Total players loaded: {len(players)}")
     print(f"Sample players by league:")
-    for league in ['USL Championship', 'USL League One', 'MLS Next Pro', 'Canadian Premier League', 'Liga MX Apertura', 'Primera Divisió', 'NJCAA D1', 'NJCAA D2', 'NJCAA D3', 'Efbet Liga', 'Vtora Liga', 'National League', 'League Two']:
+    for league in ['USL Championship', 'USL League One', 'MLS Next Pro', 'Canadian Premier League', 'Liga MX Apertura', 'Primera Divisió', 'NJCAA D1', 'NJCAA D2', 'NJCAA D3', 'Efbet Liga', 'Vtora Liga', 'National League', 'League Two', 'Gibraltar Football League', 'Segunda Federacion Grupo 1', 'Segunda Federacion Grupo 2', 'Segunda Federacion Grupo 3', 'Segunda Federacion Grupo 4', 'Segunda Federacion Grupo 5']:
         league_players = [p for p in players if p.get('league') == league]
         print(f"  {league}: {len(league_players)} players")
     return players
