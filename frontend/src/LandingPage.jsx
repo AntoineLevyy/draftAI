@@ -128,6 +128,12 @@ const proLeagues = [
   'National League South (Tier 6 England)',
   'National League North (Tier 6 England)',
   'League Two (Tier 4 England)',
+  'Gibraltar Football League (Tier 1 Gibraltar)',
+  'Segunda Federacion Grupo 1 (Tier 4 Spain)',
+  'Segunda Federacion Grupo 2 (Tier 4 Spain)',
+  'Segunda Federacion Grupo 3 (Tier 4 Spain)',
+  'Segunda Federacion Grupo 4 (Tier 4 Spain)',
+  'Segunda Federacion Grupo 5 (Tier 4 Spain)',
 ];
 
 function LandingPage({ onApplyFilters, onBack }) {

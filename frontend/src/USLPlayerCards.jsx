@@ -947,6 +947,12 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
             <option value="League Two">League Two (Tier 4 England)</option>
             <option value="National League South">National League South (Tier 6 England)</option>
             <option value="National League North">National League North (Tier 6 England)</option>
+            <option value="Gibraltar Football League">Gibraltar Football League (Tier 1 Gibraltar)</option>
+            <option value="Segunda Federacion Grupo 1">Segunda Federacion Grupo 1 (Tier 4 Spain)</option>
+            <option value="Segunda Federacion Grupo 2">Segunda Federacion Grupo 2 (Tier 4 Spain)</option>
+            <option value="Segunda Federacion Grupo 3">Segunda Federacion Grupo 3 (Tier 4 Spain)</option>
+            <option value="Segunda Federacion Grupo 4">Segunda Federacion Grupo 4 (Tier 4 Spain)</option>
+            <option value="Segunda Federacion Grupo 5">Segunda Federacion Grupo 5 (Tier 4 Spain)</option>
           </select>
         </div>
         
