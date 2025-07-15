@@ -43,16 +43,6 @@ const subtitleStyle = {
   textAlign: 'center'
 };
 
-const optionsContainer = {
-  display: 'flex',
-  flexDirection: 'row',
-  gap: '2rem',
-  width: '100%',
-  justifyContent: 'center',
-  marginBottom: '1.5rem',
-  alignItems: 'flex-start',
-};
-
 const optionCard = {
   display: 'flex',
   flexDirection: 'column',
@@ -150,7 +140,7 @@ function MainLandingPage({ onSelectCoachType }) {
     <div style={bgStyle}>
       <div style={mainContainer}>
         <h1 style={headlineStyle}>Find your next player</h1>
-        <div style={optionsContainer}>
+        <div className="optionsContainer">
           {/* Club Coaches Option */}
           <div 
             style={{

@@ -13,17 +13,6 @@ const bgStyle = {
   overflow: 'hidden',
 };
 
-const mainContainer = {
-  maxWidth: 900,
-  width: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  padding: '1rem',
-  justifyContent: 'center',
-  paddingTop: '8rem',
-};
-
 const headlineStyle = {
   fontWeight: 800,
   fontSize: '2rem',
@@ -33,16 +22,6 @@ const headlineStyle = {
   color: 'transparent',
   letterSpacing: '-1px',
   textAlign: 'center',
-};
-
-const filtersRow = {
-  display: 'flex',
-  flexDirection: 'row',
-  gap: '1.5rem',
-  width: '100%',
-  justifyContent: 'center',
-  marginBottom: '1.5rem',
-  alignItems: 'flex-start',
 };
 
 const filterGroup = {
@@ -214,12 +193,10 @@ function LandingPage({ onApplyFilters, onBack }) {
       >
         ← Back to Main Menu
       </button>
-      
-      <div style={mainContainer}>
+      <div className="mainContainer">
         <h1 style={headlineStyle}>Find your next player</h1>
-        
         <form onSubmit={handleSubmit} style={{width: '100%'}}>
-          <div style={filtersRow}>
+          <div className="filtersRow">
             <div style={filterGroup}>
               <label style={labelStyle} htmlFor="league">League</label>
               <select
