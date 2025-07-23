@@ -10,8 +10,8 @@ const getApiBaseUrl = () => {
   
   // If we're on localhost OR in development mode, use local API
   if (isLocalhost || isDevelopment) {
-    console.log('Using local API (localhost:5001)');
-    return 'http://localhost:5001';
+    console.log('Using local API (localhost:5002)');
+    return 'http://localhost:5002';
   }
   
   // Otherwise, use production API

@@ -153,22 +153,6 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
     const commitment = player.commitment || 'Uncommitted';
     const photoUrl = player.picture_url || null;
     const coachInfo = player.coach_info || 'No coach information available';
-    
-    // Add missing variables that are used in the stats section
-    const goals = player.goals || 0;
-    const assists = player.assists || 0;
-    const points = goals + assists;
-    const matches = player.matches || 0;
-    const gamesStarted = player.games_started || 0;
-    const minutesPlayed = player.minutes_played || 0;
-    
-    // Add other missing variables used in the template
-    const teamName = clubName; // Use clubName as teamName for high school players
-    const league = player.league || 'High School';
-    const year = gradYear; // Use gradYear as year for high school players
-    const height = player.height || 'N/A';
-    const weight = player.weight || 'N/A';
-    const hometown = player.hometown || 'N/A';
 
     // Only use photoUrl if it is a real photo (not N/A or empty) and has a valid URL format
     const isRealPhoto = photoUrl && 
@@ -206,31 +190,6 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
           <div className="club-badge">
             <span>{clubName}</span>
           </div>
-          <button
-            className={`save-button ${isSaved ? 'saved' : ''} ${isSaving ? 'saving' : ''}`}
-            onClick={handleSaveToggle}
-            disabled={isSaving}
-            style={{
-              position: 'absolute',
-              top: '10px',
-              left: '10px',
-              background: isSaved ? '#10b981' : 'rgba(255, 255, 255, 0.9)',
-              color: isSaved ? 'white' : '#374151',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '8px 12px',
-              fontSize: '12px',
-              fontWeight: '600',
-              cursor: isSaving ? 'default' : 'pointer',
-              transition: 'all 0.2s ease',
-              zIndex: 10,
-              backdropFilter: 'blur(10px)',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              opacity: isSaved ? 0.8 : 1
-            }}
-          >
-            {isSaving ? (isSaved ? 'Unsaving...' : 'Saving...') : isSaved ? 'Saved ✓' : 'Save'}
-          </button>
         </div>
         
         <div className="card-body">
@@ -289,7 +248,43 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
           </div>
         </div>
         
-
+        <div className="card-footer">
+          <button
+            className={`save-button ${isSaved ? 'saved' : ''}`}
+            onClick={handleSaveToggle}
+            disabled={isSaving}
+            style={{
+              width: '100%',
+              padding: '8px',
+              background: isSaved 
+                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
+                : 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '12px',
+              fontWeight: '600',
+              cursor: isSaving ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 3px 10px rgba(0, 0, 0, 0.1)',
+              opacity: isSaving ? 0.6 : 1
+            }}
+            onMouseEnter={(e) => {
+              if (!isSaving) {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.15)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isSaving) {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 3px 10px rgba(0, 0, 0, 0.1)';
+              }
+            }}
+          >
+            {isSaving ? 'Saving...' : (isSaved ? 'Saved' : 'Save Player')}
+          </button>
+        </div>
       </div>
     );
   } else {
@@ -314,169 +309,168 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
     const gamesStarted = parseInt(player.games_started || 0);
     const minutesPlayed = parseInt(player.minutes || 0);
 
-    // Only use photoUrl if it is a real photo (not N/A or empty) and has a valid URL format
-    const isRealPhoto = photoUrl && 
-      photoUrl !== 'N/A' && 
-      photoUrl !== '' && 
-      (photoUrl.startsWith('http://') || photoUrl.startsWith('https://') || photoUrl.startsWith('data:'));
+  // Only use photoUrl if it is a real photo (not N/A or empty) and has a valid URL format
+  const isRealPhoto = photoUrl && 
+    photoUrl !== 'N/A' && 
+    photoUrl !== '' && 
+    (photoUrl.startsWith('http://') || photoUrl.startsWith('https://') || photoUrl.startsWith('data:'));
 
-    // Debug: log the player name and photoUrl (only for debugging specific issues)
-    // console.log('Player:', playerName, '| photo_url:', photoUrl, '| isRealPhoto:', isRealPhoto);
+  // Debug: log the player name and photoUrl (only for debugging specific issues)
+  // console.log('Player:', playerName, '| photo_url:', photoUrl, '| isRealPhoto:', isRealPhoto);
 
-    return (
-      <div className="player-card">
-        <div className="card-header">
-          <div className="player-image-container">
-            {isRealPhoto ? (
-              <img 
-                src={photoUrl} 
-                alt={playerName}
-                className="player-image"
-                onError={(e) => {
-                  console.warn('Failed to load player image for:', playerName, 'URL:', photoUrl);
-                  e.target.style.display = 'none';
-                  // Show fallback placeholder
-                  e.target.nextSibling.style.display = 'block';
-                }}
-              />
-            ) : null}
-            <div 
-              className="player-image"
-              style={{
-                backgroundColor: 'transparent',
-                border: '3px solid white',
-                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
-                display: isRealPhoto ? 'none' : 'block'
-              }}
-            />
-          </div>
-          <div className="club-badge">
+  return (
+    <div className="player-card">
+      <div className="card-header">
+        <div className="player-image-container">
+          {isRealPhoto ? (
             <img 
-              src={getClubImage(player)} 
-              alt={teamName}
-              className="club-image"
+              src={photoUrl} 
+              alt={playerName}
+              className="player-image"
               onError={(e) => {
-                console.warn('Failed to load team logo for:', teamName);
+                console.warn('Failed to load player image for:', playerName, 'URL:', photoUrl);
                 e.target.style.display = 'none';
                 // Show fallback placeholder
                 e.target.nextSibling.style.display = 'block';
               }}
             />
-            <div 
-              className="club-image"
-              style={{
-                backgroundColor: 'rgba(79, 140, 255, 0.1)',
-                border: '2px solid rgba(79, 140, 255, 0.3)',
-                borderRadius: '50%',
-                display: 'none'
-              }}
-            />
-          </div>
-          <button
-            className={`save-button ${isSaved ? 'saved' : ''} ${isSaving ? 'saving' : ''}`}
-            onClick={handleSaveToggle}
-            disabled={isSaving}
+          ) : null}
+          <div 
+            className="player-image"
             style={{
-              position: 'absolute',
-              top: '10px',
-              left: '10px',
-              background: isSaved ? '#10b981' : 'rgba(255, 255, 255, 0.9)',
-              color: isSaved ? 'white' : '#374151',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '8px 12px',
-              fontSize: '12px',
-              fontWeight: '600',
-              cursor: isSaving ? 'default' : 'pointer',
-              transition: 'all 0.2s ease',
-              zIndex: 10,
-              backdropFilter: 'blur(10px)',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              opacity: isSaved ? 0.8 : 1
+              backgroundColor: 'transparent',
+              border: '3px solid white',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
+              display: isRealPhoto ? 'none' : 'block'
             }}
+          />
+        </div>
+        <div className="club-badge">
+          <img 
+            src={getClubImage(player)} 
+            alt={teamName}
+            className="club-image"
+            onError={(e) => {
+              console.warn('Failed to load team logo for:', teamName);
+              e.target.style.display = 'none';
+              // Show fallback placeholder
+              e.target.nextSibling.style.display = 'block';
+            }}
+          />
+          <div 
+            className="club-image"
+            style={{
+              backgroundColor: 'rgba(79, 140, 255, 0.1)',
+              border: '2px solid rgba(79, 140, 255, 0.3)',
+              borderRadius: '50%',
+              display: 'none'
+            }}
+          />
+        </div>
+        <button
+          className={`save-button ${isSaved ? 'saved' : ''} ${isSaving ? 'saving' : ''}`}
+          onClick={handleSaveToggle}
+          disabled={isSaving}
+          style={{
+            position: 'absolute',
+            top: '10px',
+            left: '10px',
+            background: isSaved ? '#10b981' : 'rgba(255, 255, 255, 0.9)',
+            color: isSaved ? 'white' : '#374151',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '8px 12px',
+            fontSize: '12px',
+            fontWeight: '600',
+            cursor: isSaving ? 'default' : 'pointer',
+            transition: 'all 0.2s ease',
+            zIndex: 10,
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+            opacity: isSaved ? 0.8 : 1
+          }}
+        >
+          {isSaving ? (isSaved ? 'Unsaving...' : 'Saving...') : isSaved ? 'Saved ✓' : 'Save'}
+        </button>
+      </div>
+
+      <div className="card-body">
+        <h3 className="player-name">{playerName}</h3>
+        
+        <div className="club-name">{teamName}</div>
+        
+        <div className="league-badge">{league}</div>
+
+        <div className="player-info">
+          <div className="info-item">
+            <span className="info-label">Position:</span>
+            <span className="info-value">{position}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Year:</span>
+            <span className="info-value">{year}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Height:</span>
+            <span className="info-value">{height}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Weight:</span>
+            <span className="info-value">{weight}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Hometown:</span>
+            <span className="info-value">{hometown}</span>
+          </div>
+        </div>
+
+        <div className="stats-section">
+          <h4>Season Stats</h4>
+          <div className="stats-grid">
+            <div className="stat-item-card">
+              <span className="stat-value">{goals}</span>
+              <span className="stat-label-card">Goals</span>
+            </div>
+            <div className="stat-item-card">
+              <span className="stat-value">{assists}</span>
+              <span className="stat-label-card">Assists</span>
+            </div>
+            <div className="stat-item-card">
+              <span className="stat-value">{points}</span>
+              <span className="stat-label-card">Points</span>
+            </div>
+            <div className="stat-item-card">
+              <span className="stat-value">{matches}</span>
+              <span className="stat-label-card">Games</span>
+            </div>
+            <div className="stat-item-card">
+              <span className="stat-value">{gamesStarted}</span>
+              <span className="stat-label-card">Games Started</span>
+            </div>
+            <div className="stat-item-card">
+              <span className="stat-value">{formatMinutes(minutesPlayed)}</span>
+              <span className="stat-label-card">Minutes</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Highlights Button - Using pro section styling */}
+        <div className="footage-section">
+          <button 
+            className="view-footage-button"
+            onClick={() => handleViewFootage(player)}
+            disabled={loadingVideos[`${playerName}-${teamName}`]}
           >
-            {isSaving ? (isSaved ? 'Unsaving...' : 'Saving...') : isSaved ? 'Saved ✓' : 'Save'}
+            {loadingVideos[`${playerName}-${teamName}`] ? (
+              <span>Loading...</span>
+            ) : (
+              <span>View Highlights</span>
+            )}
           </button>
         </div>
-        
-        <div className="card-body">
-          <h3 className="player-name">{playerName}</h3>
-          
-          <div className="club-name">{teamName}</div>
-          
-          <div className="league-badge">{league}</div>
-
-          <div className="player-info">
-            <div className="info-item">
-              <span className="info-label">Position:</span>
-              <span className="info-value">{position}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Year:</span>
-              <span className="info-value">{year}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Height:</span>
-              <span className="info-value">{height}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Weight:</span>
-              <span className="info-value">{weight}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Hometown:</span>
-              <span className="info-value">{hometown}</span>
-            </div>
-          </div>
-
-          <div className="stats-section">
-            <h4>Season Stats</h4>
-            <div className="stats-grid">
-              <div className="stat-item-card">
-                <span className="stat-value">{goals}</span>
-                <span className="stat-label-card">Goals</span>
-              </div>
-              <div className="stat-item-card">
-                <span className="stat-value">{assists}</span>
-                <span className="stat-label-card">Assists</span>
-              </div>
-              <div className="stat-item-card">
-                <span className="stat-value">{points}</span>
-                <span className="stat-label-card">Points</span>
-              </div>
-              <div className="stat-item-card">
-                <span className="stat-value">{matches}</span>
-                <span className="stat-label-card">Games</span>
-              </div>
-              <div className="stat-item-card">
-                <span className="stat-value">{gamesStarted}</span>
-                <span className="stat-label-card">Games Started</span>
-              </div>
-              <div className="stat-item-card">
-                <span className="stat-value">{formatMinutes(minutesPlayed)}</span>
-                <span className="stat-label-card">Minutes</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Highlights Button - Using pro section styling */}
-          <div className="footage-section">
-            <button 
-              className="view-footage-button"
-              onClick={() => handleViewFootage(player)}
-              disabled={loadingVideos[`${playerName}-${teamName}`]}
-            >
-              {loadingVideos[`${playerName}-${teamName}`] ? (
-                <span>Loading...</span>
-              ) : (
-                <span>View Highlights</span>
-              )}
-            </button>
-          </div>
-        </div>
       </div>
-    );
-  }
+    </div>
+  );
 });
 
 const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
@@ -506,8 +500,8 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [savingMap, setSavingMap] = useState({}); // {playerId: true/false}
   
-  // Type state - can be changed by user
-  const [type, setType] = useState(filters?.type || 'transfer');
+  // Get type from filters passed from landing page
+  const type = filters?.type || 'transfer';
   
   // Add state and graduation year filters for high school
   const [stateFilter, setStateFilter] = useState('All');
@@ -642,7 +636,7 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
   }, [user, savedPlayerIds]);
 
   useEffect(() => {
-    console.log('useEffect triggered - fetching players with type:', type);
+    console.log('useEffect triggered - fetching players');
     fetchPlayers();
   }, [type]); // Refetch when type changes
 
@@ -1106,15 +1100,13 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
       </div>
       {/* Search/Sort/Toggle Controls */}
       <div className="search-sort-bar">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <input
-            type="text"
-            placeholder="Search by player or club..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="search-input"
-          />
-        </div>
+        <input
+          type="text"
+          placeholder="Search by player or club..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="search-input"
+        />
         <div className="sort-controls">
           <label>Sort by:</label>
           <select value={sortBy} onChange={handleSortChange}>

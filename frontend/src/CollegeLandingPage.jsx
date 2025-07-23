@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { apiBaseUrl } from './config';
 
 const bgStyle = {
   flex: 1,
@@ -165,21 +166,71 @@ const collegeLeagues = [
 ];
 
 function CollegeLandingPage({ onApplyFilters, onBack }) {
+  const [type, setType] = useState('transfer'); // 'transfer', 'highschool', 'international'
   const [selectedPosition, setSelectedPosition] = useState('All');
   const [academicLevel, setAcademicLevel] = useState('All');
   const [graduationYear, setGraduationYear] = useState('All');
   const [selectedLeague, setSelectedLeague] = useState('All');
+  const [stateFilter, setStateFilter] = useState('All');
+  const [highSchoolPlayers, setHighSchoolPlayers] = useState([]);
   const [activeSelect, setActiveSelect] = useState('');
   const [hoveredSelect, setHoveredSelect] = useState('');
 
+  // Fetch high school players for dynamic filter options
+  useEffect(() => {
+    if (type === 'highschool') {
+      fetch(`${apiBaseUrl}/api/players`)
+        .then(res => res.json())
+        .then(data => {
+          setHighSchoolPlayers((data.players || []).filter(p => p.type === 'highschool'));
+        });
+    }
+  }, [type]);
+
+  // Compute unique states, positions, grad years from high school players
+  const highSchoolStates = useMemo(() => {
+    const states = new Set();
+    highSchoolPlayers.forEach(p => {
+      if (p.state && p.state.trim() !== '') states.add(p.state);
+    });
+    return ['All', ...Array.from(states).sort()];
+  }, [highSchoolPlayers]);
+
+  const highSchoolPositions = useMemo(() => {
+    const positions = new Set();
+    highSchoolPlayers.forEach(p => {
+      if (p.position && p.position.trim() !== '') positions.add(p.position);
+    });
+    return ['All', ...Array.from(positions).sort()];
+  }, [highSchoolPlayers]);
+
+  const highSchoolGradYears = useMemo(() => {
+    const years = new Set();
+    highSchoolPlayers.forEach(p => {
+      if (p.grad_year && p.grad_year.trim() !== '') years.add(p.grad_year);
+    });
+    return ['All', ...Array.from(years).sort()];
+  }, [highSchoolPlayers]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onApplyFilters({ 
-      position: selectedPosition, 
-      academicLevel, 
-      graduationYear, 
-      league: selectedLeague
-    });
+    if (type === 'highschool') {
+      onApplyFilters({
+        type,
+        state: stateFilter,
+        grad_year: graduationYear,
+        position: selectedPosition
+      });
+    } else if (type === 'transfer') {
+      onApplyFilters({
+        type,
+        position: selectedPosition,
+        academicLevel,
+        league: selectedLeague
+      });
+    } else {
+      onApplyFilters({ type });
+    }
   };
 
   const getSelectStyle = (selectName) => {
@@ -209,63 +260,133 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
       <div className="mainContainer">
         <h1 style={headlineStyle}>Find your next player</h1>
         <form onSubmit={handleSubmit} style={{width: '100%'}}>
-          <div className="filtersRow">
+          <div className="filtersRow" style={{ display: 'flex', gap: 24, marginBottom: 0, justifyContent: 'center', width: '100%' }}>
+            {/* Type Dropdown */}
             <div style={filterGroup}>
-              <label style={labelStyle} htmlFor="position">Position</label>
+              <label style={labelStyle}>Type</label>
               <select
-                style={getSelectStyle('position')}
-                id="position"
-                value={selectedPosition}
-                onChange={e => setSelectedPosition(e.target.value)}
-                onFocus={()=>setActiveSelect('position')}
+                value={type}
+                onChange={e => setType(e.target.value)}
+                style={getSelectStyle('type')}
+                onFocus={()=>setActiveSelect('type')}
                 onBlur={()=>setActiveSelect('')}
-                onMouseEnter={()=>setHoveredSelect('position')}
-                onMouseLeave={()=>setHoveredSelect('')}
-                required
-              >
-                {positions.map(pos => (
-                  <option key={pos} value={pos}>{pos}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* League Filter */}
-            <div style={filterGroup}>
-              <label style={labelStyle}>League</label>
-              <select
-                style={getSelectStyle('league')}
-                value={selectedLeague}
-                onChange={e => setSelectedLeague(e.target.value)}
-                onFocus={() => setActiveSelect('league')}
-                onBlur={() => setActiveSelect('')}
-                onMouseEnter={() => setHoveredSelect('league')}
-                onMouseLeave={() => setHoveredSelect('')}
-              >
-                {collegeLeagues.map(l => (
-                  <option key={l} value={l}>{l}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div style={filterGroup}>
-              <label style={labelStyle} htmlFor="academicLevel">Academic Year</label>
-              <select
-                style={getSelectStyle('academicLevel')}
-                id="academicLevel"
-                value={academicLevel}
-                onChange={e => setAcademicLevel(e.target.value)}
-                onFocus={()=>setActiveSelect('academicLevel')}
-                onBlur={()=>setActiveSelect('')}
-                onMouseEnter={()=>setHoveredSelect('academicLevel')}
+                onMouseEnter={()=>setHoveredSelect('type')}
                 onMouseLeave={()=>setHoveredSelect('')}
               >
-                {academicLevels.map(level => (
-                  <option key={level} value={level}>{level}</option>
-                ))}
+                <option value="transfer">Transfer</option>
+                <option value="highschool">High School</option>
+                <option value="international" disabled>International (coming soon)</option>
               </select>
             </div>
+            {/* Transfer Filters */}
+            {type === 'transfer' && <>
+              <div style={filterGroup}>
+                <label style={labelStyle} htmlFor="position">Position</label>
+                <select
+                  style={getSelectStyle('position')}
+                  id="position"
+                  value={selectedPosition}
+                  onChange={e => setSelectedPosition(e.target.value)}
+                  onFocus={()=>setActiveSelect('position')}
+                  onBlur={()=>setActiveSelect('')}
+                  onMouseEnter={()=>setHoveredSelect('position')}
+                  onMouseLeave={()=>setHoveredSelect('')}
+                  required
+                >
+                  {positions.map(pos => (
+                    <option key={pos} value={pos}>{pos}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={filterGroup}>
+                <label style={labelStyle}>League</label>
+                <select
+                  style={getSelectStyle('league')}
+                  value={selectedLeague}
+                  onChange={e => setSelectedLeague(e.target.value)}
+                  onFocus={() => setActiveSelect('league')}
+                  onBlur={() => setActiveSelect('')}
+                  onMouseEnter={() => setHoveredSelect('league')}
+                  onMouseLeave={() => setHoveredSelect('')}
+                >
+                  {collegeLeagues.map(l => (
+                    <option key={l} value={l}>{l}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={filterGroup}>
+                <label style={labelStyle} htmlFor="academicLevel">Academic Year</label>
+                <select
+                  style={getSelectStyle('academicLevel')}
+                  id="academicLevel"
+                  value={academicLevel}
+                  onChange={e => setAcademicLevel(e.target.value)}
+                  onFocus={()=>setActiveSelect('academicLevel')}
+                  onBlur={()=>setActiveSelect('')}
+                  onMouseEnter={()=>setHoveredSelect('academicLevel')}
+                  onMouseLeave={()=>setHoveredSelect('')}
+                >
+                  {academicLevels.map(level => (
+                    <option key={level} value={level}>{level}</option>
+                  ))}
+                </select>
+              </div>
+            </>}
+            {/* High School Filters */}
+            {type === 'highschool' && <>
+              <div style={filterGroup}>
+                <label style={labelStyle}>State</label>
+                <select
+                  value={stateFilter}
+                  onChange={e => setStateFilter(e.target.value)}
+                  style={getSelectStyle('state')}
+                  onFocus={()=>setActiveSelect('state')}
+                  onBlur={()=>setActiveSelect('')}
+                  onMouseEnter={()=>setHoveredSelect('state')}
+                  onMouseLeave={()=>setHoveredSelect('')}
+                >
+                  {highSchoolStates.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div style={filterGroup}>
+                <label style={labelStyle}>Graduation Year</label>
+                <select
+                  value={graduationYear}
+                  onChange={e => setGraduationYear(e.target.value)}
+                  style={getSelectStyle('grad_year')}
+                  onFocus={()=>setActiveSelect('grad_year')}
+                  onBlur={()=>setActiveSelect('')}
+                  onMouseEnter={()=>setHoveredSelect('grad_year')}
+                  onMouseLeave={()=>setHoveredSelect('')}
+                >
+                  {highSchoolGradYears.map(y => <option key={y} value={y}>{y}</option>)}
+                </select>
+              </div>
+              <div style={filterGroup}>
+                <label style={labelStyle}>Position</label>
+                <select
+                  value={selectedPosition}
+                  onChange={e => setSelectedPosition(e.target.value)}
+                  style={getSelectStyle('position')}
+                  onFocus={()=>setActiveSelect('position')}
+                  onBlur={()=>setActiveSelect('')}
+                  onMouseEnter={()=>setHoveredSelect('position')}
+                  onMouseLeave={()=>setHoveredSelect('')}
+                >
+                  {highSchoolPositions.map(pos => <option key={pos} value={pos}>{pos}</option>)}
+                </select>
+              </div>
+            </>}
+            {/* International: grayed out, no filters */}
+            {type === 'international' && (
+              <div style={filterGroup}>
+                <label style={labelStyle}>No Results</label>
+                <p style={{ fontSize: '0.9rem', color: '#666', marginTop: '10px' }}>
+                  International player data is not yet available.
+                </p>
+              </div>
+            )}
           </div>
-          
           <div style={{display: 'flex', justifyContent: 'center'}}>
             <button 
               type="submit" 
@@ -278,6 +399,7 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
                 e.target.style.transform = 'translateY(0)';
                 e.target.style.boxShadow = '0 4px 16px rgba(79,140,255,0.3)';
               }}
+              disabled={type === 'international'}
             >
               Find players
             </button>

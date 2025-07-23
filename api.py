@@ -371,10 +371,26 @@ def fetch_player_data():
     except Exception as e:
         print(f"Error fetching NJCAA D3 data: {e}")
     
+    # Fetch High School players
+    try:
+        print("Fetching High School players from local file...")
+        with open("backend/college/highschool/highschool_players.json", "r") as f:
+            hs_players = json.load(f)
+            for player in hs_players:
+                player["type"] = "highschool"
+            players.extend(hs_players)
+            print(f"Loaded {len(hs_players)} High School players")
+    except Exception as e:
+        print(f"Error loading High School players: {e}")
+    # Set type='transfer' for NJCAA/college players if not already set
+    for player in players:
+        if (player.get("league", "").startswith("NJCAA") or player.get("league", "").startswith("College")) and not player.get("type"):
+            player["type"] = "transfer"
+    
     _player_cache = players
     print(f"Total players loaded: {len(players)}")
     print(f"Sample players by league:")
-    for league in ['USL Championship', 'USL League One', 'MLS Next Pro', 'Canadian Premier League', 'Liga MX Apertura', 'Primera Divisió', 'NJCAA D1', 'NJCAA D2', 'NJCAA D3', 'Efbet Liga', 'Vtora Liga', 'National League', 'League Two', 'Gibraltar Football League', 'Segunda Federacion Grupo 1', 'Segunda Federacion Grupo 2', 'Segunda Federacion Grupo 3', 'Segunda Federacion Grupo 4', 'Segunda Federacion Grupo 5']:
+    for league in ['USL Championship', 'USL League One', 'MLS Next Pro', 'Canadian Premier League', 'Liga MX Apertura', 'Primera Divisió', 'NJCAA D1', 'NJCAA D2', 'NJCAA D3', 'Efbet Liga', 'Vtora Liga', 'National League', 'League Two', 'Gibraltar Football League', 'Segunda Federacion Grupo 1', 'Segunda Federacion Grupo 2', 'Segunda Federacion Grupo 3', 'Segunda Federacion Grupo 4', 'Segunda Federacion Grupo 5', 'High School']:
         league_players = [p for p in players if p.get('league') == league]
         print(f"  {league}: {len(league_players)} players")
     return players
@@ -387,24 +403,24 @@ def get_players():
         league_filter = request.args.get('league')
         position_filter = request.args.get('position')
         nationality_filter = request.args.get('nationality')
+        type_filter = request.args.get('type')
         
         # Fetch all players
         players = fetch_player_data()
         
         # Debug: Check what we're actually returning
         print(f"API called - returning {len(players)} players")
-        print(f"First 3 players leagues: {[p.get('league', 'NO_LEAGUE') for p in players[:3]]}")
-        print(f"NJCAA players in response: {len([p for p in players if p.get('league', '').startswith('NJCAA')])}")
-        
-        # Check for Juan Jose Montoya specifically
-        juan_jose = [p for p in players if p.get('name') == 'Juan Jose Montoya']
-        if juan_jose:
-            print(f"Juan Jose Montoya found in API response: {juan_jose[0].get('photo_url', 'NO_PHOTO')}")
-        else:
-            print("Juan Jose Montoya NOT found in API response")
+        print(f"Type filter: {type_filter}")
+        print(f"Players by type: {len([p for p in players if p.get('type') == 'transfer'])} transfer, {len([p for p in players if p.get('type') == 'highschool'])} highschool")
         
         # Apply filters
         filtered_players = players
+        
+        # Type filter for college players
+        if type_filter and type_filter in ['transfer', 'highschool']:
+            print(f"Filtering by type: '{type_filter}'")
+            filtered_players = [p for p in filtered_players if p.get('type') == type_filter]
+            print(f"Players after type filter: {len(filtered_players)}")
         
         # Robust league filter: handle unicode/encoding issues
         if league_filter and league_filter != 'All':
@@ -422,6 +438,7 @@ def get_players():
             'players': filtered_players,
             'total': len(filtered_players),
             'filters_applied': {
+                'type': type_filter,
                 'league': league_filter,
                 'position': position_filter,
                 'nationality': nationality_filter

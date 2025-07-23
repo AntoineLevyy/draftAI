@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { apiBaseUrl } from './config';
 
 const getBgStyle = (coachType) => ({
@@ -199,13 +199,52 @@ function LandingPage({ onApplyFilters, onBack, coachType, onToggleCoachType }) {
   const [position, setPosition] = useState('All');
   const [nationality, setNationality] = useState('All');
   // College state
+  const [type, setType] = useState('transfer'); // 'transfer', 'highschool', 'international'
   const [collegePosition, setCollegePosition] = useState('All');
   const [academicLevel, setAcademicLevel] = useState('All');
   const [collegeLeague, setCollegeLeague] = useState('All');
-
+  const [stateFilter, setStateFilter] = useState('All');
+  const [gradYearFilter, setGradYearFilter] = useState('All');
+  const [highSchoolPlayers, setHighSchoolPlayers] = useState([]);
   const [activeSelect, setActiveSelect] = useState('');
   const [hoveredSelect, setHoveredSelect] = useState('');
   const [leagues] = useState(proLeagues);
+
+  // Fetch high school players for dynamic filter options
+  useEffect(() => {
+    if (coachType === 'college' && type === 'highschool') {
+      fetch(`${apiBaseUrl}/api/players`)
+        .then(res => res.json())
+        .then(data => {
+          setHighSchoolPlayers((data.players || []).filter(p => p.type === 'highschool'));
+        });
+    }
+  }, [coachType, type]);
+
+  // Compute unique states, positions, grad years from high school players
+  const highSchoolStates = useMemo(() => {
+    const states = new Set();
+    highSchoolPlayers.forEach(p => {
+      if (p.state && p.state.trim() !== '') states.add(p.state);
+    });
+    return ['All', ...Array.from(states).sort()];
+  }, [highSchoolPlayers]);
+
+  const highSchoolPositions = useMemo(() => {
+    const positions = new Set();
+    highSchoolPlayers.forEach(p => {
+      if (p.position && p.position.trim() !== '') positions.add(p.position);
+    });
+    return ['All', ...Array.from(positions).sort()];
+  }, [highSchoolPlayers]);
+
+  const highSchoolGradYears = useMemo(() => {
+    const years = new Set();
+    highSchoolPlayers.forEach(p => {
+      if (p.grad_year && p.grad_year.trim() !== '') years.add(p.grad_year);
+    });
+    return ['All', ...Array.from(years).sort()];
+  }, [highSchoolPlayers]);
 
   const handleLeagueChange = (e) => {
     setSelectedLeague(e.target.value);
@@ -224,11 +263,23 @@ function LandingPage({ onApplyFilters, onBack, coachType, onToggleCoachType }) {
 
   const handleCollegeSubmit = (e) => {
     e.preventDefault();
-    onApplyFilters({
-      position: collegePosition,
-      academicLevel,
-      league: collegeLeague
-    });
+    if (type === 'highschool') {
+      onApplyFilters({
+        type,
+        state: stateFilter,
+        grad_year: gradYearFilter,
+        position: collegePosition
+      });
+    } else if (type === 'transfer') {
+      onApplyFilters({
+        type,
+        position: collegePosition,
+        academicLevel,
+        league: collegeLeague
+      });
+    } else {
+      onApplyFilters({ type });
+    }
   };
 
   const getSelectStyle = (selectName) => {
@@ -359,7 +410,7 @@ function LandingPage({ onApplyFilters, onBack, coachType, onToggleCoachType }) {
                   e.target.style.boxShadow = '0 6px 20px rgba(79,140,255,0.4)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.transform = '0';
                   e.target.style.boxShadow = '0 4px 16px rgba(79,140,255,0.3)';
                 }}
               >
@@ -370,59 +421,133 @@ function LandingPage({ onApplyFilters, onBack, coachType, onToggleCoachType }) {
         )}
         {coachType === 'college' && (
           <form onSubmit={handleCollegeSubmit} style={{width: '100%'}}>
-            <div className="filtersRow">
+            <div className="filtersRow" style={{ display: 'flex', gap: 24, marginBottom: 0, justifyContent: 'center', width: '100%' }}>
+              {/* Type Dropdown */}
               <div style={filterGroup}>
-                <label style={labelStyle} htmlFor="collegePosition">Position</label>
+                <label style={labelStyle}>Type</label>
                 <select
-                  style={getSelectStyle('collegePosition')}
-                  id="collegePosition"
-                  value={collegePosition}
-                  onChange={e => setCollegePosition(e.target.value)}
-                  onFocus={()=>setActiveSelect('collegePosition')}
+                  value={type}
+                  onChange={e => setType(e.target.value)}
+                  style={getSelectStyle('type')}
+                  onFocus={()=>setActiveSelect('type')}
                   onBlur={()=>setActiveSelect('')}
-                  onMouseEnter={()=>setHoveredSelect('collegePosition')}
-                  onMouseLeave={()=>setHoveredSelect('')}
-                  required
-                >
-                  {collegePositions.map(pos => (
-                    <option key={pos} value={pos}>{pos}</option>
-                  ))}
-                </select>
-              </div>
-              <div style={filterGroup}>
-                <label style={labelStyle} htmlFor="collegeLeague">League</label>
-                <select
-                  style={getSelectStyle('collegeLeague')}
-                  id="collegeLeague"
-                  value={collegeLeague}
-                  onChange={e => setCollegeLeague(e.target.value)}
-                  onFocus={()=>setActiveSelect('collegeLeague')}
-                  onBlur={()=>setActiveSelect('')}
-                  onMouseEnter={()=>setHoveredSelect('collegeLeague')}
+                  onMouseEnter={()=>setHoveredSelect('type')}
                   onMouseLeave={()=>setHoveredSelect('')}
                 >
-                  {collegeLeagues.map(l => (
-                    <option key={l} value={l}>{l}</option>
-                  ))}
+                  <option value="transfer">Transfer</option>
+                  <option value="highschool">High School</option>
+                  <option value="international" disabled>International (coming soon)</option>
                 </select>
               </div>
-              <div style={filterGroup}>
-                <label style={labelStyle} htmlFor="academicLevel">Academic Year</label>
-                <select
-                  style={getSelectStyle('academicLevel')}
-                  id="academicLevel"
-                  value={academicLevel}
-                  onChange={e => setAcademicLevel(e.target.value)}
-                  onFocus={()=>setActiveSelect('academicLevel')}
-                  onBlur={()=>setActiveSelect('')}
-                  onMouseEnter={()=>setHoveredSelect('academicLevel')}
-                  onMouseLeave={()=>setHoveredSelect('')}
-                >
-                  {academicLevels.map(level => (
-                    <option key={level} value={level}>{level}</option>
-                  ))}
-                </select>
-              </div>
+              {/* Transfer Filters */}
+              {type === 'transfer' && <>
+                <div style={filterGroup}>
+                  <label style={labelStyle} htmlFor="collegePosition">Position</label>
+                  <select
+                    style={getSelectStyle('collegePosition')}
+                    id="collegePosition"
+                    value={collegePosition}
+                    onChange={e => setCollegePosition(e.target.value)}
+                    onFocus={()=>setActiveSelect('collegePosition')}
+                    onBlur={()=>setActiveSelect('')}
+                    onMouseEnter={()=>setHoveredSelect('collegePosition')}
+                    onMouseLeave={()=>setHoveredSelect('')}
+                    required
+                  >
+                    {collegePositions.map(pos => (
+                      <option key={pos} value={pos}>{pos}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={filterGroup}>
+                  <label style={labelStyle} htmlFor="collegeLeague">League</label>
+                  <select
+                    style={getSelectStyle('collegeLeague')}
+                    id="collegeLeague"
+                    value={collegeLeague}
+                    onChange={e => setCollegeLeague(e.target.value)}
+                    onFocus={()=>setActiveSelect('collegeLeague')}
+                    onBlur={()=>setActiveSelect('')}
+                    onMouseEnter={()=>setHoveredSelect('collegeLeague')}
+                    onMouseLeave={()=>setHoveredSelect('')}
+                  >
+                    {collegeLeagues.map(l => (
+                      <option key={l} value={l}>{l}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={filterGroup}>
+                  <label style={labelStyle} htmlFor="academicLevel">Academic Year</label>
+                  <select
+                    style={getSelectStyle('academicLevel')}
+                    id="academicLevel"
+                    value={academicLevel}
+                    onChange={e => setAcademicLevel(e.target.value)}
+                    onFocus={()=>setActiveSelect('academicLevel')}
+                    onBlur={()=>setActiveSelect('')}
+                    onMouseEnter={()=>setHoveredSelect('academicLevel')}
+                    onMouseLeave={()=>setHoveredSelect('')}
+                  >
+                    {academicLevels.map(level => (
+                      <option key={level} value={level}>{level}</option>
+                    ))}
+                  </select>
+                </div>
+              </>}
+              {/* High School Filters */}
+              {type === 'highschool' && <>
+                <div style={filterGroup}>
+                  <label style={labelStyle}>State</label>
+                  <select
+                    value={stateFilter}
+                    onChange={e => setStateFilter(e.target.value)}
+                    style={getSelectStyle('state')}
+                    onFocus={()=>setActiveSelect('state')}
+                    onBlur={()=>setActiveSelect('')}
+                    onMouseEnter={()=>setHoveredSelect('state')}
+                    onMouseLeave={()=>setHoveredSelect('')}
+                  >
+                    {highSchoolStates.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div style={filterGroup}>
+                  <label style={labelStyle}>Graduation Year</label>
+                  <select
+                    value={gradYearFilter}
+                    onChange={e => setGradYearFilter(e.target.value)}
+                    style={getSelectStyle('grad_year')}
+                    onFocus={()=>setActiveSelect('grad_year')}
+                    onBlur={()=>setActiveSelect('')}
+                    onMouseEnter={()=>setHoveredSelect('grad_year')}
+                    onMouseLeave={()=>setHoveredSelect('')}
+                  >
+                    {highSchoolGradYears.map(y => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                </div>
+                <div style={filterGroup}>
+                  <label style={labelStyle}>Position</label>
+                  <select
+                    value={collegePosition}
+                    onChange={e => setCollegePosition(e.target.value)}
+                    style={getSelectStyle('collegePosition')}
+                    onFocus={()=>setActiveSelect('collegePosition')}
+                    onBlur={()=>setActiveSelect('')}
+                    onMouseEnter={()=>setHoveredSelect('collegePosition')}
+                    onMouseLeave={()=>setHoveredSelect('')}
+                  >
+                    {highSchoolPositions.map(pos => <option key={pos} value={pos}>{pos}</option>)}
+                  </select>
+                </div>
+              </>}
+              {/* International: grayed out, no filters */}
+              {type === 'international' && (
+                <div style={filterGroup}>
+                  <label style={labelStyle}>No Results</label>
+                  <p style={{ fontSize: '0.9rem', color: '#666', marginTop: '10px' }}>
+                    International player data is not yet available.
+                  </p>
+                </div>
+              )}
             </div>
             <div style={{display: 'flex', justifyContent: 'center'}}>
               <button 
@@ -433,9 +558,10 @@ function LandingPage({ onApplyFilters, onBack, coachType, onToggleCoachType }) {
                   e.target.style.boxShadow = '0 6px 20px rgba(79,140,255,0.4)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.transform = '0';
                   e.target.style.boxShadow = '0 4px 16px rgba(79,140,255,0.3)';
                 }}
+                disabled={type === 'international'}
               >
                 Find Players
               </button>

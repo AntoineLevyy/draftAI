@@ -35,7 +35,7 @@ def extract_player_info(item_div):
             for l in lines:
                 if not l.startswith("State:") and not l.startswith("Pos:"):
                     club = l
-                    break
+                break
     # State
     state = None
     state_div = item_div.select_one(".col-state")
@@ -92,7 +92,7 @@ def scrape_all_players():
             resp.raise_for_status()
         except Exception as e:
             print(f"Failed to fetch page {page}: {e}")
-            break
+                                break
         soup = BeautifulSoup(resp.text, "html.parser")
         items = soup.select("div.d-flex.item")
         if not items:
@@ -101,12 +101,12 @@ def scrape_all_players():
                 with open("debug_first_page.html", "w") as f:
                     f.write(resp.text)
                 print("No player cards found on first page. HTML saved to debug_first_page.html")
-            break
+                            break
         for item in items:
-            try:
+                        try:
                 player = extract_player_info(item)
                 players.append(player)
-            except Exception as e:
+    except Exception as e:
                 print(f"Error extracting player info: {e}")
         # Check for 'Next' button in pagination
         pagination = soup.find("ul", class_="pagination")
