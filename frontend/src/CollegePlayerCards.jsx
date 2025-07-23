@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import './USLPlayerCards.css';
 import { apiBaseUrl } from './config';
 import { savePlayer, unsavePlayer, getSavedPlayersBatch } from './services/saveService';
@@ -342,6 +342,13 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('goals');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list' | 'tinder'
+  const [tinderIndex, setTinderIndex] = useState(0);
+  const [tinderAnimating, setTinderAnimating] = useState(false);
+  const [tinderDecision, setTinderDecision] = useState(null); // 'save' | 'skip' | null
+  const tinderCardRef = useRef(null);
+  const [dragStart, setDragStart] = useState(null);
+  const [dragDelta, setDragDelta] = useState(0);
 
   const [youtubeVideos, setYoutubeVideos] = useState({});
   const [loadingVideos, setLoadingVideos] = useState({});
@@ -350,6 +357,7 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
   const [videoLoading, setVideoLoading] = useState(false);
   const [savedPlayerIds, setSavedPlayerIds] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [savingMap, setSavingMap] = useState({}); // {playerId: true/false}
   
   // Use filters passed from landing page, with local state for adjustments
   const [localFilters, setLocalFilters] = useState({
@@ -760,12 +768,25 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
     }
   }, [youtubeVideos, fetchYoutubeVideos]);
 
+  const handleOptimisticSave = async (player, playerId) => {
+    if (!user && onShowSignupModal) { onShowSignupModal(); return; }
+    if (savedPlayerIds.map(id => String(id)).includes(String(playerId))) return;
+    setSavingMap(prev => ({ ...prev, [playerId]: true }));
+    setSavedPlayerIds(prev => [...prev, String(playerId)]); // Optimistic update
+    try {
+      await savePlayer(player, 'college');
+      await refreshSavedPlayers();
+    } finally {
+      setSavingMap(prev => ({ ...prev, [playerId]: false }));
+    }
+  };
+
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Loading college players...</p>
+      <div className="loading-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '40vh' }}>
+        <div className="modern-spinner" style={{ width: 56, height: 56, marginBottom: 24 }}></div>
+        <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#4f8cff', letterSpacing: '0.02em' }}>Loading…</div>
       </div>
     );
   }
@@ -781,6 +802,92 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
 
   return (
     <div className="usl-player-cards-container">
+      {/* Filter Controls - move above search/sort */}
+      <div style={{
+        display: 'flex',
+        gap: '2rem',
+        justifyContent: 'center',
+        margin: '2rem 0 1.2rem 0',
+        padding: '1.5rem',
+        background: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(10px)',
+        borderRadius: '12px',
+        border: '1px solid rgba(255, 255, 255, 0.2)'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+            League
+          </label>
+          <select
+            value={currentFilters.league}
+            onChange={e => setLocalFilters(prev => ({ ...prev, league: e.target.value }))}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '8px',
+              border: '2px solid rgba(79,140,255,0.2)',
+              background: 'rgba(255,255,255,0.9)',
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              minWidth: 150
+            }}
+          >
+            <option value="All">All</option>
+            <option value="NJCAA D1">NJCAA D1</option>
+            <option value="NJCAA D2">NJCAA D2</option>
+            <option value="NJCAA D3">NJCAA D3</option>
+          </select>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+            Position
+          </label>
+          <select
+            value={currentFilters.position}
+            onChange={e => setLocalFilters(prev => ({ ...prev, position: e.target.value }))}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '8px',
+              border: '2px solid rgba(79,140,255,0.2)',
+              background: 'rgba(255,255,255,0.9)',
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              minWidth: 150
+            }}
+          >
+            <option value="All">All</option>
+            <option value="Goalkeeper">Goalkeeper</option>
+            <option value="Defender">Defender</option>
+            <option value="Midfielder">Midfielder</option>
+            <option value="Forward">Forward</option>
+          </select>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+            Academic Year
+          </label>
+          <select
+            value={currentFilters.academicLevel}
+            onChange={e => setLocalFilters(prev => ({ ...prev, academicLevel: e.target.value }))}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '8px',
+              border: '2px solid rgba(79,140,255,0.2)',
+              background: 'rgba(255,255,255,0.9)',
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              minWidth: 150
+            }}
+          >
+            <option value="All">All</option>
+            <option value="Freshman">Freshman</option>
+            <option value="Sophomore">Sophomore</option>
+            <option value="Junior">Junior</option>
+            <option value="Senior">Senior</option>
+            <option value="Graduate Student">Graduate Student</option>
+          </select>
+        </div>
+      </div>
+      {/* Search/Sort/Toggle Controls */}
       <div className="search-sort-bar">
         <input
           type="text"
@@ -802,91 +909,27 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
           <button onClick={handleSortOrderChange} className="sort-order-btn">
             {sortOrder === 'desc' ? '↓' : '↑'}
           </button>
-        </div>
-      </div>
-      {/* Filter Controls */}
-      <div style={{
-        display: 'flex',
-        gap: '2rem',
-        justifyContent: 'center',
-        margin: '2rem 0',
-        padding: '1.5rem',
-        background: 'rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(10px)',
-        borderRadius: '12px',
-        border: '1px solid rgba(255, 255, 255, 0.2)'
-      }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
-            Position
-          </label>
-          <select
-            value={currentFilters.position || 'All'}
-            onChange={(e) => setLocalFilters(prev => ({ ...prev, position: e.target.value }))}
-            style={{
-              padding: '0.5rem',
-              borderRadius: '8px',
-              border: '2px solid rgba(79,140,255,0.2)',
-              background: 'rgba(255,255,255,0.9)',
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              minWidth: 150
-            }}
+          <button
+            className={viewMode === 'grid' ? 'toggle-text-btn active' : 'toggle-text-btn'}
+            onClick={() => setViewMode('grid')}
+            style={{ marginLeft: 16 }}
           >
-            <option value="All">All</option>
-            <option value="Goalkeeper">Goalkeeper</option>
-            <option value="Defender">Defender</option>
-            <option value="Midfielder">Midfielder</option>
-            <option value="Forward">Forward</option>
-          </select>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
-            League
-          </label>
-          <select
-            value={currentFilters.league || 'All'}
-            onChange={(e) => setLocalFilters(prev => ({ ...prev, league: e.target.value }))}
-            style={{
-              padding: '0.5rem',
-              borderRadius: '8px',
-              border: '2px solid rgba(79,140,255,0.2)',
-              background: 'rgba(255,255,255,0.9)',
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              minWidth: 150
-            }}
+            Grid View
+          </button>
+          <button
+            className={viewMode === 'list' ? 'toggle-text-btn active' : 'toggle-text-btn'}
+            onClick={() => setViewMode('list')}
+            style={{ marginLeft: 4 }}
           >
-            <option value="All">All</option>
-            <option value="NJCAA D1">NJCAA D1</option>
-            <option value="NJCAA D2">NJCAA D2</option>
-            <option value="NJCAA D3">NJCAA D3</option>
-          </select>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
-            Academic Year
-          </label>
-          <select
-            value={currentFilters.academicLevel || 'All'}
-            onChange={(e) => setLocalFilters(prev => ({ ...prev, academicLevel: e.target.value }))}
-            style={{
-              padding: '0.5rem',
-              borderRadius: '8px',
-              border: '2px solid rgba(79,140,255,0.2)',
-              background: 'rgba(255,255,255,0.9)',
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              minWidth: 150
-            }}
+            List View
+          </button>
+          <button
+            className={viewMode === 'tinder' ? 'toggle-text-btn active' : 'toggle-text-btn'}
+            onClick={() => setViewMode('tinder')}
+            style={{ marginLeft: 4 }}
           >
-            <option value="All">All</option>
-            <option value="Freshman">Freshman</option>
-            <option value="Sophomore">Sophomore</option>
-            <option value="Junior">Junior</option>
-            <option value="Senior">Senior</option>
-            <option value="Graduate Student">Graduate Student</option>
-          </select>
+            Tinder Mode
+          </button>
         </div>
       </div>
       
@@ -903,25 +946,258 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
         We found {filteredAndSortedPlayers.length} college players for you
       </div>
       
-      <div className="player-cards-grid">
-        {filteredAndSortedPlayers.map(player => (
-          <CollegePlayerCard
-            key={String(player.playerId) + '-' + savedPlayerIds.includes(String(player.playerId)) + '-' + refreshKey}
-            player={player}
-            getPlayerImage={getPlayerImage}
-            getClubImage={getClubImage}
-            translatePosition={translatePosition}
-            formatMinutes={formatMinutes}
-            isValidPlayer={isValidPlayer}
-            handleViewFootage={handleViewFootage}
-            selectedLeague={currentFilters.league || 'All'}
-            loadingVideos={loadingVideos}
-            savedPlayerIds={savedPlayerIds}
-            onSaveToggle={refreshSavedPlayers}
-            onShowSignupModal={onShowSignupModal}
-          />
-        ))}
-      </div>
+      {viewMode === 'tinder' ? (
+        <div className="tinder-mode-container">
+          {tinderIndex >= filteredAndSortedPlayers.length ? (
+            <div className="tinder-complete">
+              <h2>You're all caught up!</h2>
+              <button className="toggle-text-btn" onClick={() => setTinderIndex(0)}>Restart</button>
+              <button className="toggle-text-btn" onClick={() => setViewMode('grid')}>Back to Grid</button>
+            </div>
+          ) : (
+            <div className="tinder-swipe-layout">
+              <button className="tinder-swipe-btn left" onClick={async () => {
+                if (tinderAnimating) return;
+                setTinderDecision('skip');
+                setTinderAnimating(true);
+                setTimeout(() => {
+                  setTinderAnimating(false);
+                  setTinderDecision(null);
+                  setTinderIndex(i => i + 1);
+                }, 500);
+              }}>✗</button>
+              <div
+                className={`tinder-card-outer ${tinderAnimating ? (tinderDecision === 'save' ? 'slide-right' : 'slide-left') : ''}`}
+                ref={tinderCardRef}
+                style={{
+                  transform: dragDelta ? `translateX(${dragDelta}px) rotate(${dragDelta/30}deg)` : undefined,
+                  transition: tinderAnimating || dragDelta === 0 ? 'transform 0.45s cubic-bezier(0.4,0.2,0.2,1), opacity 0.45s' : 'none',
+                }}
+                onMouseDown={e => setDragStart(e.clientX)}
+                onMouseMove={e => {
+                  if (dragStart !== null) setDragDelta(e.clientX - dragStart);
+                }}
+                onMouseUp={async e => {
+                  if (dragStart !== null) {
+                    if (dragDelta > 120) {
+                      // Save
+                      if (user) {
+                        setTinderDecision('save');
+                        setTinderAnimating(true);
+                        await savePlayer(filteredAndSortedPlayers[tinderIndex], 'college');
+                        await refreshSavedPlayers();
+                        setTimeout(() => {
+                          setTinderAnimating(false);
+                          setTinderDecision(null);
+                          setTinderIndex(i => i + 1);
+                          setDragDelta(0);
+                          setDragStart(null);
+                        }, 500);
+                        return;
+                      } else {
+                        onShowSignupModal();
+                        setDragDelta(0);
+                        setDragStart(null);
+                        return;
+                      }
+                    } else if (dragDelta < -120) {
+                      // Skip
+                      setTinderDecision('skip');
+                      setTinderAnimating(true);
+                      setTimeout(() => {
+                        setTinderAnimating(false);
+                        setTinderDecision(null);
+                        setTinderIndex(i => i + 1);
+                        setDragDelta(0);
+                        setDragStart(null);
+                      }, 500);
+                      return;
+                    }
+                    // Snap back if not enough drag
+                    setDragDelta(0);
+                    setDragStart(null);
+                  }
+                }}
+                onTouchStart={e => setDragStart(e.touches[0].clientX)}
+                onTouchMove={e => {
+                  if (dragStart !== null) setDragDelta(e.touches[0].clientX - dragStart);
+                }}
+                onTouchEnd={async e => {
+                  if (dragStart !== null) {
+                    if (dragDelta > 80) {
+                      // Save
+                      if (user) {
+                        setTinderDecision('save');
+                        setTinderAnimating(true);
+                        await savePlayer(filteredAndSortedPlayers[tinderIndex], 'college');
+                        await refreshSavedPlayers();
+                        setTimeout(() => {
+                          setTinderAnimating(false);
+                          setTinderDecision(null);
+                          setTinderIndex(i => i + 1);
+                          setDragDelta(0);
+                          setDragStart(null);
+                        }, 500);
+                        return;
+                      } else {
+                        onShowSignupModal();
+                        setDragDelta(0);
+                        setDragStart(null);
+                        return;
+                      }
+                    } else if (dragDelta < -80) {
+                      // Skip
+                      setTinderDecision('skip');
+                      setTinderAnimating(true);
+                      setTimeout(() => {
+                        setTinderAnimating(false);
+                        setTinderDecision(null);
+                        setTinderIndex(i => i + 1);
+                        setDragDelta(0);
+                        setDragStart(null);
+                      }, 500);
+                      return;
+                    }
+                    // Snap back if not enough drag
+                    setDragDelta(0);
+                    setDragStart(null);
+                  }
+                }}
+              >
+                <div className="tinder-card-inner ultra-wide compact">
+                  <CollegePlayerCard
+                    player={filteredAndSortedPlayers[tinderIndex]}
+                    getPlayerImage={getPlayerImage}
+                    getClubImage={getClubImage}
+                    translatePosition={translatePosition}
+                    formatMinutes={formatMinutes}
+                    isValidPlayer={isValidPlayer}
+                    handleViewFootage={handleViewFootage}
+                    selectedLeague={currentFilters.league || 'All'}
+                    loadingVideos={loadingVideos}
+                    savedPlayerIds={savedPlayerIds}
+                    onSaveToggle={refreshSavedPlayers}
+                    onShowSignupModal={onShowSignupModal}
+                  />
+                  {tinderAnimating && (
+                    <div className={`tinder-overlay ${tinderDecision}`}>{tinderDecision === 'save' ? 'Saved' : 'Skipped'}</div>
+                  )}
+                </div>
+              </div>
+              <button className="tinder-swipe-btn right" onClick={async () => {
+                if (tinderAnimating) return;
+                if (user) {
+                  setTinderDecision('save');
+                  setTinderAnimating(true);
+                  await savePlayer(filteredAndSortedPlayers[tinderIndex], 'college');
+                  await refreshSavedPlayers();
+                  setTimeout(() => {
+                    setTinderAnimating(false);
+                    setTinderDecision(null);
+                    setTinderIndex(i => i + 1);
+                  }, 500);
+                } else {
+                  onShowSignupModal();
+                }
+              }}>✓</button>
+            </div>
+          )}
+        </div>
+      ) : viewMode === 'grid' ? (
+        <div className="player-cards-grid">
+          {filteredAndSortedPlayers.slice(0, 10).map((player, visibleIdx) => (
+            <div key={String(player.playerId) + '-' + savedPlayerIds.includes(String(player.playerId)) + '-' + refreshKey} style={{ position: 'relative' }}>
+              <CollegePlayerCard
+                player={player}
+                getPlayerImage={getPlayerImage}
+                getClubImage={getClubImage}
+                translatePosition={translatePosition}
+                formatMinutes={formatMinutes}
+                isValidPlayer={isValidPlayer}
+                handleViewFootage={handleViewFootage}
+                selectedLeague={currentFilters.league || 'All'}
+                loadingVideos={loadingVideos}
+                savedPlayerIds={savedPlayerIds}
+                onSaveToggle={refreshSavedPlayers}
+                onShowSignupModal={onShowSignupModal}
+              />
+            </div>
+          ))}
+          {!user && filteredAndSortedPlayers.length > 10 && (
+            <div className="unlock-more-message" style={{ gridColumn: '1 / -1', textAlign: 'center', margin: '2rem 0', width: '100%' }}>
+              <button className="unlock-more-btn" onClick={onShowSignupModal} style={{ fontSize: '1.2rem', fontWeight: 700, color: '#4f8cff', background: '#f8fafc', border: '1px solid #e3e9f5', borderRadius: 12, padding: '1.2rem 2.5rem', cursor: 'pointer', boxShadow: '0 2px 12px rgba(79,140,255,0.07)' }}>
+                Sign in to unlock more
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="player-cards-table-wrap">
+          <table className="player-cards-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Club</th>
+                <th>League</th>
+                <th>Position</th>
+                <th>Goals</th>
+                <th>Assists</th>
+                <th>Matches</th>
+                <th>Save</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAndSortedPlayers.slice(0, 10).map((player, visibleIdx) => {
+                const playerName = player.name || 'Unknown Player';
+                const club = player.team || 'Unknown Club';
+                const league = player.league || 'Unknown League';
+                const position = player.position || 'Unknown';
+                const goals = player.goals || 0;
+                const assists = player.assists || 0;
+                const matches = player.games || 0;
+                const playerId = player.playerId;
+                const isSaved = user && savedPlayerIds.map(id => String(id)).includes(String(playerId));
+                const isSaving = !!savingMap[playerId];
+                return (
+                  <tr key={String(player.playerId) + '-' + playerName}>
+                    <td><img src={getPlayerImage(player)} alt={playerName} className="player-list-img" /></td>
+                    <td>{playerName}</td>
+                    <td>{club}</td>
+                    <td>{league}</td>
+                    <td>{position}</td>
+                    <td>{goals}</td>
+                    <td>{assists}</td>
+                    <td>{matches}</td>
+                    <td>
+                      <button
+                        className={isSaved ? 'save-btn saved' : 'save-btn'}
+                        onClick={async () => {
+                          if (isSaved || isSaving) return;
+                          await handleOptimisticSave(player, playerId);
+                        }}
+                        disabled={isSaved || isSaving}
+                        style={{ minWidth: 60 }}
+                      >
+                        {isSaving ? 'Saving...' : isSaved ? 'Saved ✓' : 'Save'}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+              {!user && filteredAndSortedPlayers.length > 10 && (
+                <tr>
+                  <td colSpan={9} style={{ textAlign: 'center', background: '#f8fafc', color: '#4f8cff', fontWeight: 700, fontSize: '1.1rem', borderRadius: 12, height: 60 }}>
+                    <button className="unlock-more-btn" onClick={onShowSignupModal} style={{ fontSize: '1.2rem', fontWeight: 700, color: '#4f8cff', background: '#f8fafc', border: '1px solid #e3e9f5', borderRadius: 12, padding: '1.2rem 2.5rem', cursor: 'pointer', boxShadow: '0 2px 12px rgba(79,140,255,0.07)' }}>
+                      Sign in to unlock more
+                    </button>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
       
       {filteredAndSortedPlayers.length === 0 && (
         <div className="no-results">

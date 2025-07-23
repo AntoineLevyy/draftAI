@@ -1,22 +1,56 @@
 import React, { useState } from 'react';
 import { apiBaseUrl } from './config';
 
-const bgStyle = {
+const getBgStyle = (coachType) => ({
   flex: 1,
   width: '100%',
-  background: 'linear-gradient(120deg, #f8fafc 0%, #e0e7ff 40%, #c7d2fe 100%)',
+  background: coachType === 'pro'
+    ? 'linear-gradient(120deg, #f8fafc 0%, #e0e7ff 40%, #4f8cff 100%)'
+    : 'linear-gradient(120deg, #f0fdf4 0%, #bbf7d0 40%, #10b981 100%)',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'flex-start',
   padding: '0',
   overflow: 'hidden',
+});
+
+const toggleContainer = {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: '0.5rem',
+  margin: '1.2rem 0 1.2rem 0',
+  background: 'rgba(255,255,255,0.5)',
+  borderRadius: '1.2rem',
+  padding: '0.18rem 0.5rem',
+  boxShadow: '0 1px 6px rgba(79,140,255,0.04)',
 };
+
+const toggleButton = (active, type) => ({
+  padding: '0.32rem 1.1rem',
+  borderRadius: '1rem',
+  border: 'none',
+  background: active
+    ? (type === 'pro' ? 'linear-gradient(90deg, #4f8cff 0%, #38bdf8 100%)' : 'linear-gradient(90deg, #10b981 0%, #22d3ee 100%)')
+    : '#fff',
+  color: active ? '#fff' : '#222',
+  fontWeight: 700,
+  fontSize: '0.98rem',
+  cursor: 'pointer',
+  boxShadow: active
+    ? (type === 'pro' ? '0 2px 8px rgba(79,140,255,0.10)' : '0 2px 8px rgba(16,185,129,0.10)')
+    : 'none',
+  transition: 'all 0.18s',
+  outline: 'none',
+  borderBottom: active ? (type === 'pro' ? '2px solid #4f8cff' : '2px solid #10b981') : '2px solid transparent',
+  letterSpacing: '0.01em',
+});
 
 const headlineStyle = {
   fontWeight: 800,
   fontSize: '2rem',
-  marginBottom: '4.5rem',
+  marginBottom: '2.5rem',
   background: 'linear-gradient(90deg, #4f8cff, #6f6fff 60%, #38bdf8 100%)',
   WebkitBackgroundClip: 'text',
   color: 'transparent',
@@ -136,10 +170,39 @@ const proLeagues = [
   'Segunda Federacion Grupo 5 (Tier 4 Spain)',
 ];
 
-function LandingPage({ onApplyFilters, onBack }) {
+// College filter data
+const collegePositions = [
+  'All',
+  'Goalkeeper',
+  'Defender',
+  'Midfielder',
+  'Forward',
+];
+const academicLevels = [
+  'All',
+  'Freshman',
+  'Sophomore',
+  'Junior',
+  'Senior',
+  'Graduate Student',
+];
+const collegeLeagues = [
+  'All',
+  'NJCAA D1',
+  'NJCAA D2',
+  'NJCAA D3',
+];
+
+function LandingPage({ onApplyFilters, onBack, coachType, onToggleCoachType }) {
+  // Pro state
   const [selectedLeague, setSelectedLeague] = useState('All');
   const [position, setPosition] = useState('All');
   const [nationality, setNationality] = useState('All');
+  // College state
+  const [collegePosition, setCollegePosition] = useState('All');
+  const [academicLevel, setAcademicLevel] = useState('All');
+  const [collegeLeague, setCollegeLeague] = useState('All');
+
   const [activeSelect, setActiveSelect] = useState('');
   const [hoveredSelect, setHoveredSelect] = useState('');
   const [leagues] = useState(proLeagues);
@@ -148,18 +211,24 @@ function LandingPage({ onApplyFilters, onBack }) {
     setSelectedLeague(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleProSubmit = (e) => {
     e.preventDefault();
-    // If 'All' is selected, pass all leagues except 'All'
     let leagueToSend;
     if (selectedLeague === 'All') {
-      // Extract base league names from display text
       leagueToSend = leagues.slice(1).map(league => league.split(' (')[0]);
     } else {
-      // Extract base league name from selected display text
       leagueToSend = [selectedLeague.split(' (')[0]];
     }
     onApplyFilters({ league: leagueToSend, position, nationality });
+  };
+
+  const handleCollegeSubmit = (e) => {
+    e.preventDefault();
+    onApplyFilters({
+      position: collegePosition,
+      academicLevel,
+      league: collegeLeague
+    });
   };
 
   const getSelectStyle = (selectName) => {
@@ -173,7 +242,21 @@ function LandingPage({ onApplyFilters, onBack }) {
   };
 
   return (
-    <div style={bgStyle}>
+    <div style={getBgStyle(coachType)}>
+      <div style={toggleContainer}>
+        <button
+          style={toggleButton(coachType === 'pro', 'pro')}
+          onClick={() => onToggleCoachType('pro')}
+        >
+          Pro
+        </button>
+        <button
+          style={toggleButton(coachType === 'college', 'college')}
+          onClick={() => onToggleCoachType('college')}
+        >
+          College
+        </button>
+      </div>
       <button 
         style={{
           position: 'absolute',
@@ -199,82 +282,166 @@ function LandingPage({ onApplyFilters, onBack }) {
       >
         ← Back to Main Menu
       </button>
-      <div className="mainContainer">
-        <h1 style={headlineStyle}>Find your next player</h1>
-        <form onSubmit={handleSubmit} style={{width: '100%'}}>
-          <div className="filtersRow">
-            <div style={filterGroup}>
-              <label style={labelStyle} htmlFor="league">League</label>
-              <select
-                style={getSelectStyle('league')}
-                id="league"
-                value={selectedLeague}
-                onChange={handleLeagueChange}
-                onFocus={()=>setActiveSelect('league')}
-                onBlur={()=>setActiveSelect('')}
-                onMouseEnter={()=>setHoveredSelect('league')}
-                onMouseLeave={()=>setHoveredSelect('')}
-              >
-                {leagues.map(l => (
-                  <option key={l} value={l}>{l}</option>
-                ))}
-              </select>
+      <div className="mainContainer" style={{ paddingTop: '2.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+        <h1 style={{
+          fontWeight: 800,
+          fontSize: '2.2rem',
+          marginBottom: '1.2rem',
+          marginTop: 0,
+          letterSpacing: '-1px',
+        }}>
+          <span className={`gradient-headline${coachType === 'college' ? ' college' : ''}`}>
+            Find your next player
+          </span>
+        </h1>
+        {coachType === 'pro' && (
+          <form onSubmit={handleProSubmit} style={{width: '100%'}}>
+            <div className="filtersRow">
+              <div style={filterGroup}>
+                <label style={labelStyle} htmlFor="league">League</label>
+                <select
+                  style={getSelectStyle('league')}
+                  id="league"
+                  value={selectedLeague}
+                  onChange={handleLeagueChange}
+                  onFocus={()=>setActiveSelect('league')}
+                  onBlur={()=>setActiveSelect('')}
+                  onMouseEnter={()=>setHoveredSelect('league')}
+                  onMouseLeave={()=>setHoveredSelect('')}
+                >
+                  {leagues.map(l => (
+                    <option key={l} value={l}>{l}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={filterGroup}>
+                <label style={labelStyle} htmlFor="position">Position</label>
+                <select
+                  style={getSelectStyle('position')}
+                  id="position"
+                  value={position}
+                  onChange={e => setPosition(e.target.value)}
+                  onFocus={()=>setActiveSelect('position')}
+                  onBlur={()=>setActiveSelect('')}
+                  onMouseEnter={()=>setHoveredSelect('position')}
+                  onMouseLeave={()=>setHoveredSelect('')}
+                  required
+                >
+                  {positions.map(pos => (
+                    <option key={pos} value={pos}>{pos}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={filterGroup}>
+                <label style={labelStyle} htmlFor="nationality">Nationality</label>
+                <select
+                  style={getSelectStyle('nationality')}
+                  id="nationality"
+                  value={nationality}
+                  onChange={e => setNationality(e.target.value)}
+                  onFocus={()=>setActiveSelect('nationality')}
+                  onBlur={()=>setActiveSelect('')}
+                  onMouseEnter={()=>setHoveredSelect('nationality')}
+                  onMouseLeave={()=>setHoveredSelect('')}
+                >
+                  {nationalities.map(nat => (
+                    <option key={nat} value={nat}>{nat}</option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div style={filterGroup}>
-              <label style={labelStyle} htmlFor="position">Position</label>
-              <select
-                style={getSelectStyle('position')}
-                id="position"
-                value={position}
-                onChange={e => setPosition(e.target.value)}
-                onFocus={()=>setActiveSelect('position')}
-                onBlur={()=>setActiveSelect('')}
-                onMouseEnter={()=>setHoveredSelect('position')}
-                onMouseLeave={()=>setHoveredSelect('')}
-                required
+            <div style={{display: 'flex', justifyContent: 'center'}}>
+              <button 
+                type="submit" 
+                style={buttonStyle}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 6px 20px rgba(79,140,255,0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 16px rgba(79,140,255,0.3)';
+                }}
               >
-                {positions.map(pos => (
-                  <option key={pos} value={pos}>{pos}</option>
-                ))}
-              </select>
+                Find Players
+              </button>
             </div>
-            <div style={filterGroup}>
-              <label style={labelStyle} htmlFor="nationality">Nationality</label>
-              <select
-                style={getSelectStyle('nationality')}
-                id="nationality"
-                value={nationality}
-                onChange={e => setNationality(e.target.value)}
-                onFocus={()=>setActiveSelect('nationality')}
-                onBlur={()=>setActiveSelect('')}
-                onMouseEnter={()=>setHoveredSelect('nationality')}
-                onMouseLeave={()=>setHoveredSelect('')}
+          </form>
+        )}
+        {coachType === 'college' && (
+          <form onSubmit={handleCollegeSubmit} style={{width: '100%'}}>
+            <div className="filtersRow">
+              <div style={filterGroup}>
+                <label style={labelStyle} htmlFor="collegePosition">Position</label>
+                <select
+                  style={getSelectStyle('collegePosition')}
+                  id="collegePosition"
+                  value={collegePosition}
+                  onChange={e => setCollegePosition(e.target.value)}
+                  onFocus={()=>setActiveSelect('collegePosition')}
+                  onBlur={()=>setActiveSelect('')}
+                  onMouseEnter={()=>setHoveredSelect('collegePosition')}
+                  onMouseLeave={()=>setHoveredSelect('')}
+                  required
+                >
+                  {collegePositions.map(pos => (
+                    <option key={pos} value={pos}>{pos}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={filterGroup}>
+                <label style={labelStyle} htmlFor="collegeLeague">League</label>
+                <select
+                  style={getSelectStyle('collegeLeague')}
+                  id="collegeLeague"
+                  value={collegeLeague}
+                  onChange={e => setCollegeLeague(e.target.value)}
+                  onFocus={()=>setActiveSelect('collegeLeague')}
+                  onBlur={()=>setActiveSelect('')}
+                  onMouseEnter={()=>setHoveredSelect('collegeLeague')}
+                  onMouseLeave={()=>setHoveredSelect('')}
+                >
+                  {collegeLeagues.map(l => (
+                    <option key={l} value={l}>{l}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={filterGroup}>
+                <label style={labelStyle} htmlFor="academicLevel">Academic Year</label>
+                <select
+                  style={getSelectStyle('academicLevel')}
+                  id="academicLevel"
+                  value={academicLevel}
+                  onChange={e => setAcademicLevel(e.target.value)}
+                  onFocus={()=>setActiveSelect('academicLevel')}
+                  onBlur={()=>setActiveSelect('')}
+                  onMouseEnter={()=>setHoveredSelect('academicLevel')}
+                  onMouseLeave={()=>setHoveredSelect('')}
+                >
+                  {academicLevels.map(level => (
+                    <option key={level} value={level}>{level}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div style={{display: 'flex', justifyContent: 'center'}}>
+              <button 
+                type="submit" 
+                style={buttonStyle}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 6px 20px rgba(79,140,255,0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 16px rgba(79,140,255,0.3)';
+                }}
               >
-                {nationalities.map(nat => (
-                  <option key={nat} value={nat}>{nat}</option>
-                ))}
-              </select>
+                Find Players
+              </button>
             </div>
-          </div>
-          <div style={{display: 'flex', justifyContent: 'center'}}>
-            <button 
-              type="submit" 
-              style={buttonStyle}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 6px 20px rgba(79,140,255,0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 16px rgba(79,140,255,0.3)';
-              }}
-            >
-              Find Players
-            </button>
-          </div>
-        </form>
-        
-
+          </form>
+        )}
       </div>
     </div>
   );

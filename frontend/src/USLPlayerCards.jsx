@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo, useRef } from 'react';
 import './USLPlayerCards.css';
 import { apiBaseUrl } from './config';
 import { savePlayer, unsavePlayer, getSavedPlayersBatch } from './services/saveService';
@@ -521,6 +521,14 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
   const [videoLoading, setVideoLoading] = useState(false);
   const [savedPlayerIds, setSavedPlayerIds] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list' | 'tinder'
+  const [tinderIndex, setTinderIndex] = useState(0);
+  const [tinderAnimating, setTinderAnimating] = useState(false);
+  const [tinderDecision, setTinderDecision] = useState(null); // 'save' | 'skip' | null
+  const [savingMap, setSavingMap] = useState({}); // {playerId: true/false}
+  const tinderCardRef = useRef(null);
+  const [dragStart, setDragStart] = useState(null);
+  const [dragDelta, setDragDelta] = useState(0);
   
   // List of all possible leagues (base names, as used in filtering)
   const ALL_LEAGUES = [
@@ -863,11 +871,24 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
     }
   }, [youtubeVideos, fetchYoutubeVideos]);
 
+  const handleOptimisticSave = async (player, playerId) => {
+    if (!user && onShowSignupModal) { onShowSignupModal(); return; }
+    if (savedPlayerIds.map(id => String(id)).includes(String(playerId))) return;
+    setSavingMap(prev => ({ ...prev, [playerId]: true }));
+    setSavedPlayerIds(prev => [...prev, String(playerId)]); // Optimistic update
+    try {
+      await savePlayer(player, 'pro');
+      await refreshSavedPlayers();
+    } finally {
+      setSavingMap(prev => ({ ...prev, [playerId]: false }));
+    }
+  };
+
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Loading {filters?.league || 'USL League One'} players...</p>
+      <div className="loading-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '40vh' }}>
+        <div className="modern-spinner" style={{ width: 56, height: 56, marginBottom: 24 }}></div>
+        <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#4f8cff', letterSpacing: '0.02em' }}>Loading…</div>
       </div>
     );
   }
@@ -883,35 +904,12 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
 
   return (
     <div className="usl-player-cards-container">
-      <div className="search-sort-bar">
-        <input
-          type="text"
-          placeholder="Search by player or club..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-          className="search-input"
-        />
-        <div className="sort-controls">
-          <label>Sort by:</label>
-          <select value={sortBy} onChange={handleSortChange}>
-            <option value="goals">Goals</option>
-            <option value="assists">Assists</option>
-            <option value="matches">Matches</option>
-            <option value="minutes">Minutes</option>
-            <option value="name">Name</option>
-          </select>
-          <button onClick={handleSortOrderChange} className="sort-order-btn">
-            {sortOrder === 'desc' ? '↓' : '↑'}
-          </button>
-        </div>
-      </div>
-      
-      {/* Filter Controls */}
+      {/* Filter Controls - move above search/sort */}
       <div style={{
         display: 'flex',
         gap: '2rem',
         justifyContent: 'center',
-        margin: '2rem 0',
+        margin: '2rem 0 1.2rem 0',
         padding: '1.5rem',
         background: 'rgba(255, 255, 255, 0.1)',
         backdropFilter: 'blur(10px)',
@@ -924,14 +922,15 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
           </label>
           <select
             value={currentLeague}
-            onChange={(e) => setCurrentLeague(e.target.value)}
+            onChange={e => setCurrentLeague(e.target.value)}
             style={{
               padding: '0.5rem',
               borderRadius: '8px',
               border: '2px solid rgba(79,140,255,0.2)',
               background: 'rgba(255,255,255,0.9)',
               fontSize: '0.9rem',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              minWidth: 150
             }}
           >
             <option value="All">All</option>
@@ -955,21 +954,21 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
             <option value="Segunda Federacion Grupo 5">Segunda Federacion Grupo 5 (Tier 4 Spain)</option>
           </select>
         </div>
-        
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
           <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
             Position
           </label>
           <select
             value={currentPosition}
-            onChange={(e) => setCurrentPosition(e.target.value)}
+            onChange={e => setCurrentPosition(e.target.value)}
             style={{
               padding: '0.5rem',
               borderRadius: '8px',
               border: '2px solid rgba(79,140,255,0.2)',
               background: 'rgba(255,255,255,0.9)',
               fontSize: '0.9rem',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              minWidth: 150
             }}
           >
             <option value="All">All</option>
@@ -987,21 +986,21 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
             <option value="Center Forward">Center Forward</option>
           </select>
         </div>
-        
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
           <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
             Nationality
           </label>
           <select
             value={currentNationality}
-            onChange={(e) => setCurrentNationality(e.target.value)}
+            onChange={e => setCurrentNationality(e.target.value)}
             style={{
               padding: '0.5rem',
               borderRadius: '8px',
               border: '2px solid rgba(79,140,255,0.2)',
               background: 'rgba(255,255,255,0.9)',
               fontSize: '0.9rem',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              minWidth: 150
             }}
           >
             <option value="All">All</option>
@@ -1039,6 +1038,50 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
           </select>
         </div>
       </div>
+      {/* Search/Sort/Toggle Controls */}
+      <div className="search-sort-bar">
+        <input
+          type="text"
+          placeholder="Search by player or club..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="search-input"
+        />
+        <div className="sort-controls">
+          <label>Sort by:</label>
+          <select value={sortBy} onChange={handleSortChange}>
+            <option value="goals">Goals</option>
+            <option value="assists">Assists</option>
+            <option value="matches">Matches</option>
+            <option value="minutes">Minutes</option>
+            <option value="name">Name</option>
+          </select>
+          <button onClick={handleSortOrderChange} className="sort-order-btn">
+            {sortOrder === 'desc' ? '↓' : '↑'}
+          </button>
+          <button
+            className={viewMode === 'grid' ? 'toggle-text-btn active' : 'toggle-text-btn'}
+            onClick={() => setViewMode('grid')}
+            style={{ marginLeft: 16 }}
+          >
+            Grid View
+          </button>
+          <button
+            className={viewMode === 'list' ? 'toggle-text-btn active' : 'toggle-text-btn'}
+            onClick={() => setViewMode('list')}
+            style={{ marginLeft: 4 }}
+          >
+            List View
+          </button>
+          <button
+            className={viewMode === 'tinder' ? 'toggle-text-btn active' : 'toggle-text-btn'}
+            onClick={() => setViewMode('tinder')}
+            style={{ marginLeft: 4 }}
+          >
+            Tinder Mode
+          </button>
+        </div>
+      </div>
       <div style={{
         textAlign: 'center',
         margin: '2rem 0',
@@ -1051,26 +1094,256 @@ const PlayerCards = ({ filters, onBack, onShowSignupModal }) => {
       }}>
         We found {filteredAndSortedPlayers.length} players for you
       </div>
-      <div className="player-cards-grid">
-        {filteredAndSortedPlayers.map(player => (
-          <PlayerCard
-            key={`${player.id}-${savedPlayerIds.includes(player.id || player.name)}-${refreshKey}`}
-            player={player}
-            getPlayerImage={getPlayerImage}
-            getClubImage={getClubImage}
-            translatePosition={translatePosition}
-            formatMinutes={formatMinutes}
-            isValidPlayer={isValidPlayer}
-            expandedStats={expandedStats}
-            setExpandedStats={setExpandedStats}
-            handleViewFootage={handleViewFootage}
-            selectedLeague={filters?.league || 'USL League One'}
-            savedPlayerIds={savedPlayerIds}
-            onSaveToggle={refreshSavedPlayers}
-            onShowSignupModal={onShowSignupModal}
-          />
-        ))}
-      </div>
+      {viewMode === 'tinder' ? (
+        <div className="tinder-mode-container">
+          {tinderIndex >= filteredAndSortedPlayers.length ? (
+            <div className="tinder-complete">
+              <h2>You're all caught up!</h2>
+              <button className="toggle-text-btn" onClick={() => setTinderIndex(0)}>Restart</button>
+              <button className="toggle-text-btn" onClick={() => setViewMode('grid')}>Back to Grid</button>
+            </div>
+          ) : (
+            <div className="tinder-swipe-layout">
+              <button className="tinder-swipe-btn left" onClick={async () => {
+                if (tinderAnimating) return;
+                setTinderDecision('skip');
+                setTinderAnimating(true);
+                setTimeout(() => {
+                  setTinderAnimating(false);
+                  setTinderDecision(null);
+                  setTinderIndex(i => i + 1);
+                }, 500);
+              }}>✗</button>
+              <div
+                className={`tinder-card-outer ${tinderAnimating ? (tinderDecision === 'save' ? 'slide-right' : 'slide-left') : ''}`}
+                ref={tinderCardRef}
+                style={{
+                  transform: dragDelta ? `translateX(${dragDelta}px) rotate(${dragDelta/30}deg)` : undefined,
+                  transition: tinderAnimating || dragDelta === 0 ? 'transform 0.45s cubic-bezier(0.4,0.2,0.2,1), opacity 0.45s' : 'none',
+                }}
+                onMouseDown={e => setDragStart(e.clientX)}
+                onMouseMove={e => {
+                  if (dragStart !== null) setDragDelta(e.clientX - dragStart);
+                }}
+                onMouseUp={async e => {
+                  if (dragStart !== null) {
+                    if (dragDelta > 120) {
+                      // Save
+                      if (user) {
+                        setTinderDecision('save');
+                        setTinderAnimating(true);
+                        await savePlayer(filteredAndSortedPlayers[tinderIndex], 'pro');
+                        await refreshSavedPlayers();
+                        setTimeout(() => {
+                          setTinderAnimating(false);
+                          setTinderDecision(null);
+                          setTinderIndex(i => i + 1);
+                          setDragDelta(0);
+                          setDragStart(null);
+                        }, 500);
+                        return;
+                      } else {
+                        onShowSignupModal();
+                        setDragDelta(0);
+                        setDragStart(null);
+                        return;
+                      }
+                    } else if (dragDelta < -120) {
+                      // Skip
+                      setTinderDecision('skip');
+                      setTinderAnimating(true);
+                      setTimeout(() => {
+                        setTinderAnimating(false);
+                        setTinderDecision(null);
+                        setTinderIndex(i => i + 1);
+                        setDragDelta(0);
+                        setDragStart(null);
+                      }, 500);
+                      return;
+                    }
+                    // Snap back if not enough drag
+                    setDragDelta(0);
+                    setDragStart(null);
+                  }
+                }}
+                onTouchEnd={async e => {
+                  if (dragStart !== null) {
+                    if (dragDelta > 80) {
+                      // Save
+                      if (user) {
+                        setTinderDecision('save');
+                        setTinderAnimating(true);
+                        await savePlayer(filteredAndSortedPlayers[tinderIndex], 'pro');
+                        await refreshSavedPlayers();
+                        setTimeout(() => {
+                          setTinderAnimating(false);
+                          setTinderDecision(null);
+                          setTinderIndex(i => i + 1);
+                          setDragDelta(0);
+                          setDragStart(null);
+                        }, 500);
+                        return;
+                      } else {
+                        onShowSignupModal();
+                        setDragDelta(0);
+                        setDragStart(null);
+                        return;
+                      }
+                    } else if (dragDelta < -80) {
+                      // Skip
+                      setTinderDecision('skip');
+                      setTinderAnimating(true);
+                      setTimeout(() => {
+                        setTinderAnimating(false);
+                        setTinderDecision(null);
+                        setTinderIndex(i => i + 1);
+                        setDragDelta(0);
+                        setDragStart(null);
+                      }, 500);
+                      return;
+                    }
+                    // Snap back if not enough drag
+                    setDragDelta(0);
+                    setDragStart(null);
+                  }
+                }}
+              >
+                <div className="tinder-card-inner ultra-wide compact">
+                  <PlayerCard
+                    player={filteredAndSortedPlayers[tinderIndex]}
+                    getPlayerImage={getPlayerImage}
+                    getClubImage={getClubImage}
+                    translatePosition={translatePosition}
+                    formatMinutes={formatMinutes}
+                    isValidPlayer={isValidPlayer}
+                    expandedStats={expandedStats}
+                    setExpandedStats={setExpandedStats}
+                    handleViewFootage={handleViewFootage}
+                    selectedLeague={filters?.league || 'USL League One'}
+                    savedPlayerIds={savedPlayerIds}
+                    onSaveToggle={refreshSavedPlayers}
+                    onShowSignupModal={onShowSignupModal}
+                  />
+                  {tinderAnimating && (
+                    <div className={`tinder-overlay ${tinderDecision}`}>{tinderDecision === 'save' ? 'Saved' : 'Skipped'}</div>
+                  )}
+                </div>
+              </div>
+              <button className="tinder-swipe-btn right" onClick={async () => {
+                if (tinderAnimating) return;
+                if (user) {
+                  setTinderDecision('save');
+                  setTinderAnimating(true);
+                  await savePlayer(filteredAndSortedPlayers[tinderIndex], 'pro');
+                  await refreshSavedPlayers();
+                  setTimeout(() => {
+                    setTinderAnimating(false);
+                    setTinderDecision(null);
+                    setTinderIndex(i => i + 1);
+                  }, 500);
+                } else {
+                  onShowSignupModal();
+                }
+              }}>✓</button>
+            </div>
+          )}
+        </div>
+      ) : viewMode === 'grid' ? (
+        <div className="player-cards-grid">
+          {filteredAndSortedPlayers.slice(0, 10).map((player, visibleIdx) => (
+            <div key={player.id || player.name} style={{ position: 'relative' }}>
+              <PlayerCard
+                player={player}
+                getPlayerImage={getPlayerImage}
+                getClubImage={getClubImage}
+                translatePosition={translatePosition}
+                formatMinutes={formatMinutes}
+                isValidPlayer={isValidPlayer}
+                expandedStats={expandedStats}
+                setExpandedStats={setExpandedStats}
+                handleViewFootage={handleViewFootage}
+                selectedLeague={filters?.league || 'USL League One'}
+                savedPlayerIds={savedPlayerIds}
+                onSaveToggle={refreshSavedPlayers}
+                onShowSignupModal={onShowSignupModal}
+              />
+            </div>
+          ))}
+          {!user && filteredAndSortedPlayers.length > 10 && (
+            <div className="unlock-more-message" style={{ gridColumn: '1 / -1', textAlign: 'center', margin: '2rem 0', width: '100%' }}>
+              <button className="unlock-more-btn" onClick={onShowSignupModal} style={{ fontSize: '1.2rem', fontWeight: 700, color: '#4f8cff', background: '#f8fafc', border: '1px solid #e3e9f5', borderRadius: 12, padding: '1.2rem 2.5rem', cursor: 'pointer', boxShadow: '0 2px 12px rgba(79,140,255,0.07)' }}>
+                Sign in to unlock more
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="player-cards-table-wrap">
+          <table className="player-cards-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Club</th>
+                <th>League</th>
+                <th>Position</th>
+                <th>Goals</th>
+                <th>Assists</th>
+                <th>Matches</th>
+                <th>Save</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAndSortedPlayers.slice(0, 10).map((player, visibleIdx) => {
+                const playerName = player.profile?.playerProfile?.playerName || 'Unknown Player';
+                const club = player.profile?.playerProfile?.club || player.club?.name || 'Unknown Club';
+                const league = player.league || 'Unknown League';
+                const position = translatePosition(player.profile?.playerProfile?.playerMainPosition) || 'Unknown';
+                const goals = player.performance?.goals || 0;
+                const assists = player.performance?.assists || 0;
+                const matches = player.performance?.matches || 0;
+                const playerId = player.profile?.playerProfile?.playerID || player.id || player.name;
+                const isSaved = user && savedPlayerIds.map(id => String(id)).includes(String(playerId));
+                const isSaving = !!savingMap[playerId];
+                return (
+                  <tr key={player.id || playerName}>
+                    <td><img src={getPlayerImage(player)} alt={playerName} className="player-list-img" /></td>
+                    <td>{playerName}</td>
+                    <td>{club}</td>
+                    <td>{league}</td>
+                    <td>{position}</td>
+                    <td>{goals}</td>
+                    <td>{assists}</td>
+                    <td>{matches}</td>
+                    <td>
+                      <button
+                        className={isSaved ? 'save-btn saved' : 'save-btn'}
+                        onClick={async () => {
+                          if (isSaved || isSaving) return;
+                          await handleOptimisticSave(player, playerId);
+                        }}
+                        disabled={isSaved || isSaving}
+                        style={{ minWidth: 60 }}
+                      >
+                        {isSaving ? 'Saving...' : isSaved ? 'Saved ✓' : 'Save'}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+              {!user && filteredAndSortedPlayers.length > 10 && (
+                <tr>
+                  <td colSpan={9} style={{ textAlign: 'center', background: '#f8fafc', color: '#4f8cff', fontWeight: 700, fontSize: '1.1rem', borderRadius: 12, height: 60 }}>
+                    <button className="unlock-more-btn" onClick={onShowSignupModal} style={{ fontSize: '1.2rem', fontWeight: 700, color: '#4f8cff', background: '#f8fafc', border: '1px solid #e3e9f5', borderRadius: 12, padding: '1.2rem 2.5rem', cursor: 'pointer', boxShadow: '0 2px 12px rgba(79,140,255,0.07)' }}>
+                      Sign in to unlock more
+                    </button>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
       {filteredAndSortedPlayers.length === 0 && (
         <div className="no-results">
           <p>No players found matching your search criteria.</p>

@@ -147,10 +147,17 @@ function AppContent() {
   const [filters, setFilters] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginMode, setLoginMode] = useState('signin');
+  const [coachType, setCoachType] = useState('pro'); // 'pro' or 'college'
   const { user, signOut } = useAuth();
 
-  const handleSelectCoachType = (coachType) => {
-    setCurrentView(coachType);
+  const handleSelectCoachType = (coachTypeParam) => {
+    setCoachType(coachTypeParam === 'college' ? 'college' : 'pro');
+    setCurrentView('club'); // go to filtering page
+  };
+
+  const handleToggleCoachType = (type) => {
+    setCoachType(type);
+    setCurrentView(type === 'college' ? 'college' : 'club');
   };
 
   const handleApplyFilters = (selectedFilters) => {
@@ -179,7 +186,7 @@ function AppContent() {
     await signOut();
   };
 
-  // Determine which player view to show based on currentView
+  // Determine which player view to show based on currentView and filters
   let playerView = null;
   if (filters) {
     if (currentView === 'club') {
@@ -189,8 +196,7 @@ function AppContent() {
     }
   }
 
-  // Determine if we're on a landing page (no scroll needed) or player cards page (scroll needed)
-  const isLandingPage = !filters && (currentView === 'main' || currentView === 'club' || currentView === 'college');
+  const isLandingPage = !filters && currentView === 'main';
   
   const dynamicMainContentStyle = {
     ...mainContentStyle,
@@ -223,6 +229,85 @@ function AppContent() {
             <img src={draftmeLogo} alt="draftme logo" style={logoImageStyle} />
             <span style={logoTextStyle}>draftme</span>
           </a>
+
+          {/* Centered nav buttons only on landing page */}
+          {isLandingPage && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1.5rem',
+              position: 'absolute',
+              left: '50%',
+              top: 0,
+              height: '100%',
+              transform: 'translateX(-50%)',
+              zIndex: 2,
+            }}>
+              <button
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#4f8cff',
+                  fontWeight: 700,
+                  fontSize: '0.92rem',
+                  cursor: 'pointer',
+                  padding: '0.28rem 0.7rem',
+                  borderRadius: '1rem',
+                  transition: 'background 0.2s',
+                }}
+                onClick={() => {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              >
+                Home
+              </button>
+              <button
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#4f8cff',
+                  fontWeight: 700,
+                  fontSize: '0.92rem',
+                  cursor: 'pointer',
+                  padding: '0.28rem 0.7rem',
+                  borderRadius: '1rem',
+                  transition: 'background 0.2s',
+                }}
+                onClick={() => {
+                  window.scrollTo({
+                    top: document.querySelector('section:nth-of-type(2)')?.offsetTop || 800,
+                    behavior: 'smooth',
+                  });
+                }}
+              >
+                Features
+              </button>
+              <button
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#4f8cff',
+                  fontWeight: 700,
+                  fontSize: '0.92rem',
+                  cursor: 'pointer',
+                  padding: '0.28rem 0.7rem',
+                  borderRadius: '1rem',
+                  transition: 'background 0.2s',
+                }}
+                onClick={() => {
+                  const pricingSection = document.getElementById('pricing');
+                  if (pricingSection) {
+                    window.scrollTo({
+                      top: pricingSection.offsetTop - 40,
+                      behavior: 'smooth',
+                    });
+                  }
+                }}
+              >
+                Pricing
+              </button>
+            </div>
+          )}
 
           <div style={headerButtonsStyle}>
             {user ? (
@@ -280,10 +365,20 @@ function AppContent() {
           <MainLandingPage onSelectCoachType={handleSelectCoachType} />
         )}
         {currentView === 'club' && !filters && (
-          <LandingPage onApplyFilters={handleApplyFilters} onBack={handleBack} />
+          <LandingPage 
+            onApplyFilters={handleApplyFilters} 
+            onBack={handleBack} 
+            coachType={coachType}
+            onToggleCoachType={handleToggleCoachType}
+          />
         )}
         {currentView === 'college' && !filters && (
-          <CollegeLandingPage onApplyFilters={handleApplyFilters} onBack={handleBack} />
+          <LandingPage 
+            onApplyFilters={handleApplyFilters} 
+            onBack={handleBack} 
+            coachType={coachType}
+            onToggleCoachType={handleToggleCoachType}
+          />
         )}
         {playerView}
       </main>

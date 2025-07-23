@@ -10,13 +10,15 @@ const bgStyle = {
   justifyContent: 'flex-start',
   padding: '0',
   overflow: 'hidden',
-  position: 'relative'
+  position: 'relative',
+  paddingTop: '2.5rem',
 };
 
 const headlineStyle = {
   fontWeight: 800,
-  fontSize: '2rem',
-  marginBottom: '4.5rem',
+  fontSize: '2.2rem',
+  marginBottom: '1.2rem',
+  marginTop: 0,
   background: 'linear-gradient(90deg, #4f8cff, #6f6fff 60%, #38bdf8 100%)',
   WebkitBackgroundClip: 'text',
   color: 'transparent',

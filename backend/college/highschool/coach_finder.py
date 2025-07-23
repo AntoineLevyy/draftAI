@@ -6,6 +6,7 @@ from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema import SystemMessage
 from datetime import datetime
+import json
 
 def grad_year_to_age_group(grad_year: int) -> str:
     current_year = datetime.now().year
@@ -90,19 +91,71 @@ def find_coach_by_graduation_year(team_name: str, grad_year: int):
     except Exception as e:
         return f"Error: {e}"
 
-def main():
-    """Main function to test the coach finder with test values."""
-    
-    # Test with Sporting Kansas, graduation year 2025
-    team_name = "Sporting Kansas"
-    grad_year = 2025
-    
-    print(f"Searching for coach contact information for {team_name} (Graduation Year: {grad_year})...")
-    print("-" * 60)
-    
-    result = find_coach_by_graduation_year(team_name, grad_year)
-    print("\nResult:")
-    print(result)
+def find_coaches_for_all_players(json_path, output_path, limit=None):
+    """
+    For each player in the JSON file, find the coach info and save results to output_path.
+    Resumes from where it left off if output_path exists.
+    Args:
+        json_path (str): Path to the player JSON file.
+        output_path (str): Path to save the results.
+        limit (int, optional): Max number of players to process (for testing).
+    """
+    import os
+    # Load all players
+    with open(json_path, 'r') as f:
+        players = json.load(f)
+    # Load already processed results if output_path exists
+    results = []
+    processed_set = set()
+    if os.path.exists(output_path):
+        with open(output_path, 'r') as f:
+            try:
+                results = json.load(f)
+                for r in results:
+                    # Use (name, club, grad_year) as unique key
+                    processed_set.add((r.get('name'), r.get('club'), r.get('grad_year')))
+            except Exception:
+                results = []
+                processed_set = set()
+    count = len(results)
+    print(f"Resuming from player {count+1} (already processed {count})")
+    for player in players:
+        key = (player.get('name'), player.get('club'), player.get('grad_year'))
+        if key in processed_set:
+            continue
+        if limit and count >= limit:
+            break
+        club = player.get('club')
+        grad_year = player.get('grad_year')
+        name = player.get('name')
+        if not club or not grad_year:
+            continue
+        try:
+            grad_year_int = int(grad_year)
+        except Exception:
+            continue
+        print(f"[{count+1}] Finding coach for {name} | Club: {club} | Grad Year: {grad_year}")
+        coach_info = find_coach_by_graduation_year(club, grad_year_int)
+        results.append({
+            "name": name,
+            "club": club,
+            "grad_year": grad_year,
+            "coach_info": coach_info
+        })
+        count += 1
+        # Optional: Save progress every 10
+        if count % 10 == 0:
+            with open(output_path, 'w') as f:
+                json.dump(results, f, indent=2)
+    # Final save
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    print(f"Saved {len(results)} player-coach mappings to {output_path}")
 
 if __name__ == "__main__":
-    main() 
+    # Batch process all players (no limit)
+    find_coaches_for_all_players(
+        json_path="male_club_players.json",
+        output_path="coaches_for_players.json",
+        limit=None  # No limit, process all
+    ) 
