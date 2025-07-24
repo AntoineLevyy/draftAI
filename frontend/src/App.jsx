@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import MainLandingPage from './MainLandingPage';
-import LandingPage from './LandingPage';
 import CollegeLandingPage from './CollegeLandingPage';
-import PlayerCards from './USLPlayerCards';
 import CollegePlayerCards from './CollegePlayerCards';
 import draftmeLogo from '../assets/images/draftme_logo.png';
 import { AuthProvider, useAuth } from './AuthContext';
@@ -10,9 +8,8 @@ import LoginModal from './LoginModal';
 
 const headerStyle = {
   width: '100%',
-  background: 'rgba(255, 255, 255, 0.1)',
-  backdropFilter: 'blur(10px)',
-  borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+  background: 'rgba(0,0,0,0.95)',
+  borderBottom: '2px solid #b91c1c', // red accent
   padding: '1.1rem 0',
   display: 'flex',
   alignItems: 'center',
@@ -42,15 +39,14 @@ const headerButtonsStyle = {
 const signInButtonStyle = {
   padding: '0.5rem 1.25rem',
   borderRadius: '1.5rem',
-  border: '2px solid rgba(79,140,255,0.3)',
-  background: 'rgba(255,255,255,0.1)',
-  color: '#4f8cff',
+  border: '2px solid #b91c1c',
+  background: 'rgba(0,0,0,0.7)',
+  color: '#fff',
   fontWeight: 600,
   fontSize: '0.875rem',
   cursor: 'pointer',
   transition: 'all 0.2s ease',
   outline: 'none',
-  backdropFilter: 'blur(10px)',
   letterSpacing: '0.01em',
 };
 
@@ -58,12 +54,12 @@ const getStartedButtonStyle = {
   padding: '0.5rem 1.5rem',
   borderRadius: '1.5rem',
   border: 'none',
-  background: 'linear-gradient(90deg, #10b981 0%, #fbbf24 100%)',
+  background: 'linear-gradient(90deg, #b91c1c 0%, #ef4444 100%)',
   color: 'white',
   fontWeight: 600,
   fontSize: '0.875rem',
   cursor: 'pointer',
-  boxShadow: '0 4px 16px rgba(16,185,129,0.3)',
+  boxShadow: '0 4px 16px rgba(185,28,28,0.3)',
   transition: 'all 0.2s ease',
   outline: 'none',
   letterSpacing: '0.01em',
@@ -89,16 +85,14 @@ const logoTextStyle = {
   fontWeight: 900,
   fontSize: '1.5rem',
   letterSpacing: '-1px',
-  background: 'linear-gradient(90deg, #4f8cff, #6f6fff 60%, #38bdf8 100%)',
-  WebkitBackgroundClip: 'text',
-  color: 'transparent',
+  color: '#fff',
+  textShadow: '0 2px 16px rgba(0,0,0,0.18)',
 };
 
 const footerStyle = {
   width: '100%',
-  background: 'rgba(255, 255, 255, 0.1)',
-  backdropFilter: 'blur(10px)',
-  borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+  background: 'rgba(0,0,0,0.95)',
+  borderTop: '2px solid #b91c1c', // red accent
   padding: '1rem 0',
   position: 'relative',
   zIndex: 10,
@@ -112,14 +106,14 @@ const footerContent = {
 };
 
 const footerText = {
-  color: '#64748b',
-  fontSize: '0.85rem',
+  color: '#fff',
+  fontSize: '0.95rem',
   lineHeight: '1.4',
   marginBottom: '0.25rem',
 };
 
 const footerLink = {
-  color: '#4f8cff',
+  color: '#ef4444',
   textDecoration: 'none',
   transition: 'opacity 0.2s',
 };
@@ -139,34 +133,26 @@ const appContainerStyle = {
   flexDirection: 'column',
   minHeight: '100vh',
   width: '100%',
+  background: 'linear-gradient(135deg, #18181b 0%, #111 100%)', // black gradient
   overflow: 'hidden',
 };
 
 function AppContent() {
-  const [currentView, setCurrentView] = useState('main'); // 'main', 'club', 'college'
+  const [currentView, setCurrentView] = useState('main'); // 'main', 'college'
   const [filters, setFilters] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginMode, setLoginMode] = useState('signin');
-  const [coachType, setCoachType] = useState('pro'); // 'pro' or 'college'
   const { user, signOut } = useAuth();
-
-  const handleSelectCoachType = (coachTypeParam) => {
-    setCoachType(coachTypeParam === 'college' ? 'college' : 'pro');
-    setCurrentView('club'); // go to filtering page
-  };
-
-  const handleToggleCoachType = (type) => {
-    setCoachType(type);
-    setCurrentView(type === 'college' ? 'college' : 'club');
-  };
 
   const handleApplyFilters = (selectedFilters) => {
     setFilters(selectedFilters);
+    setCurrentView('college');
   };
 
   const handleBack = () => {
     if (filters) {
       setFilters(null);
+      setCurrentView('main');
     } else {
       setCurrentView('main');
     }
@@ -186,30 +172,17 @@ function AppContent() {
     await signOut();
   };
 
-  // Determine which player view to show based on currentView and filters
-  let playerView = null;
-  if (filters) {
-    if (currentView === 'club') {
-      playerView = <PlayerCards filters={filters} onBack={handleBack} onShowSignupModal={handleSignInClick} />;
-    } else if (currentView === 'college') {
-      playerView = <CollegePlayerCards filters={filters} onBack={handleBack} onShowSignupModal={handleSignInClick} />;
-    }
+  let mainContent = null;
+  if (currentView === 'main') {
+    mainContent = <MainLandingPage onApplyFilters={handleApplyFilters} />;
+  } else if (currentView === 'college' && filters) {
+    mainContent = <CollegePlayerCards filters={filters} onBack={handleBack} onShowSignupModal={handleSignInClick} />;
+  } else if (currentView === 'college') {
+    mainContent = <CollegeLandingPage onApplyFilters={handleApplyFilters} onBack={handleBack} />;
   }
 
-  const isLandingPage = !filters && currentView === 'main';
-  
-  const dynamicMainContentStyle = {
-    ...mainContentStyle,
-    overflow: isLandingPage ? 'hidden' : 'visible',
-  };
-
-  const dynamicAppContainerStyle = {
-    ...appContainerStyle,
-    overflow: isLandingPage ? 'hidden' : 'visible',
-  };
-
   return (
-    <div style={dynamicAppContainerStyle}>
+    <div style={appContainerStyle}>
       <header style={headerStyle}>
         <div style={headerInner}>
           <a 
@@ -229,86 +202,6 @@ function AppContent() {
             <img src={draftmeLogo} alt="draftme logo" style={logoImageStyle} />
             <span style={logoTextStyle}>draftme</span>
           </a>
-
-          {/* Centered nav buttons only on landing page */}
-          {isLandingPage && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1.5rem',
-              position: 'absolute',
-              left: '50%',
-              top: 0,
-              height: '100%',
-              transform: 'translateX(-50%)',
-              zIndex: 2,
-            }}>
-              <button
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#4f8cff',
-                  fontWeight: 700,
-                  fontSize: '0.92rem',
-                  cursor: 'pointer',
-                  padding: '0.28rem 0.7rem',
-                  borderRadius: '1rem',
-                  transition: 'background 0.2s',
-                }}
-                onClick={() => {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-              >
-                Home
-              </button>
-              <button
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#4f8cff',
-                  fontWeight: 700,
-                  fontSize: '0.92rem',
-                  cursor: 'pointer',
-                  padding: '0.28rem 0.7rem',
-                  borderRadius: '1rem',
-                  transition: 'background 0.2s',
-                }}
-                onClick={() => {
-                  window.scrollTo({
-                    top: document.querySelector('section:nth-of-type(2)')?.offsetTop || 800,
-                    behavior: 'smooth',
-                  });
-                }}
-              >
-                Features
-              </button>
-              <button
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#4f8cff',
-                  fontWeight: 700,
-                  fontSize: '0.92rem',
-                  cursor: 'pointer',
-                  padding: '0.28rem 0.7rem',
-                  borderRadius: '1rem',
-                  transition: 'background 0.2s',
-                }}
-                onClick={() => {
-                  const pricingSection = document.getElementById('pricing');
-                  if (pricingSection) {
-                    window.scrollTo({
-                      top: pricingSection.offsetTop - 40,
-                      behavior: 'smooth',
-                    });
-                  }
-                }}
-              >
-                Pricing
-              </button>
-            </div>
-          )}
-
           <div style={headerButtonsStyle}>
             {user ? (
               <button 
@@ -360,27 +253,8 @@ function AppContent() {
           </div>
         </div>
       </header>
-      <main style={dynamicMainContentStyle}>
-        {currentView === 'main' && (
-          <MainLandingPage onSelectCoachType={handleSelectCoachType} />
-        )}
-        {currentView === 'club' && !filters && (
-          <LandingPage 
-            onApplyFilters={handleApplyFilters} 
-            onBack={handleBack} 
-            coachType={coachType}
-            onToggleCoachType={handleToggleCoachType}
-          />
-        )}
-        {currentView === 'college' && !filters && (
-          <LandingPage 
-            onApplyFilters={handleApplyFilters} 
-            onBack={handleBack} 
-            coachType={coachType}
-            onToggleCoachType={handleToggleCoachType}
-          />
-        )}
-        {playerView}
+      <main style={mainContentStyle}>
+        {mainContent}
       </main>
       <footer style={footerStyle}>
         <div style={footerContent}>
@@ -398,7 +272,6 @@ function AppContent() {
           </p>
         </div>
       </footer>
-
       <LoginModal 
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}

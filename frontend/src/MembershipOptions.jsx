@@ -15,17 +15,19 @@ const overlayStyle = {
   zIndex: 2000,
 };
 
-const modalStyle = {
-  background: 'rgba(255, 255, 255, 0.97)',
-  borderRadius: '20px',
-  padding: '2.5rem 2rem',
-  maxWidth: 420,
+const modalContentStyle = {
+  background: 'rgba(24,24,27,0.98)', // dark modal
+  borderRadius: 18,
+  padding: '2rem 1.2rem',
+  maxWidth: 340,
   width: '95%',
-  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.12)',
-  border: '1px solid rgba(255, 255, 255, 0.2)',
+  boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+  color: '#fff',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
+  border: '1.5px solid #b91c1c',
+  boxSizing: 'border-box',
 };
 
 const titleStyle = {
@@ -33,17 +35,18 @@ const titleStyle = {
   fontWeight: 800,
   marginBottom: '2rem',
   textAlign: 'center',
-  background: 'linear-gradient(90deg, #10b981, #fbbf24 80%)',
+  background: 'linear-gradient(90deg, #b91c1c 0%, #ef4444 100%)',
   WebkitBackgroundClip: 'text',
   color: 'transparent',
 };
 
 const optionsContainer = {
   display: 'flex',
-  flexDirection: 'row',
+  flexDirection: 'column',
   gap: '1.5rem',
   width: '100%',
   justifyContent: 'center',
+  alignItems: 'center',
   marginBottom: '2rem',
 };
 
@@ -51,31 +54,23 @@ const optionCard = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  minWidth: 150,
-  flex: 1,
-  maxWidth: 180,
-  background: 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(16,185,129,0.08) 100%)',
+  width: '100%',
+  maxWidth: 220,
+  background: 'rgba(24,24,27,0.98)',
   borderRadius: '18px',
   padding: '1.5rem 1rem',
-  border: '1.5px solid rgba(16,185,129,0.15)',
+  border: '1.5px solid #b91c1c',
   cursor: 'pointer',
   transition: 'all 0.3s',
-  boxShadow: '0 8px 24px rgba(16,185,129,0.07)',
+  boxShadow: '0 4px 16px rgba(185,28,28,0.10)',
   position: 'relative',
   overflow: 'hidden',
-};
-
-const optionCardHover = {
-  transform: 'translateY(-6px) scale(1.04)',
-  border: '2px solid #10b981',
-  boxShadow: '0 16px 40px rgba(16,185,129,0.13)',
-  background: 'linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(16,185,129,0.13) 100%)',
 };
 
 const optionTitle = {
   fontSize: '1.2rem',
   fontWeight: 700,
-  color: '#374151',
+  color: '#fff',
   marginBottom: '0.5rem',
   letterSpacing: '-0.5px',
   textAlign: 'center',
@@ -84,7 +79,7 @@ const optionTitle = {
 const priceStyle = {
   fontSize: '1.5rem',
   fontWeight: 800,
-  color: '#10b981',
+  color: '#ef4444',
   marginBottom: '0.5rem',
   textAlign: 'center',
 };
@@ -99,16 +94,19 @@ const descStyle = {
 
 const buttonStyle = {
   width: '100%',
-  padding: '0.75rem 1rem',
-  borderRadius: '12px',
+  padding: '0.9rem 0',
+  borderRadius: '2rem',
   border: 'none',
-  background: 'linear-gradient(90deg, #10b981 0%, #fbbf24 100%)',
+  background: 'linear-gradient(90deg, #b91c1c 0%, #ef4444 100%)',
   color: 'white',
-  fontWeight: 700,
-  fontSize: '1rem',
+  fontWeight: 800,
+  fontSize: '1.1rem',
+  letterSpacing: 1,
+  boxShadow: '0 4px 16px rgba(185,28,28,0.18)',
   cursor: 'pointer',
-  marginTop: '2rem',
-  transition: 'all 0.2s',
+  transition: 'background 0.2s, transform 0.1s',
+  outline: 'none',
+  marginBottom: '1.2rem',
 };
 
 const backStyle = {
@@ -130,12 +128,6 @@ const errorStyle = {
 };
 
 const memberships = [
-  {
-    key: 'monthly',
-    title: 'Monthly',
-    price: '$200/mo',
-    desc: '',
-  },
   {
     key: 'yearly',
     title: 'Yearly',
@@ -173,20 +165,13 @@ function MembershipOptions({ setMode, onClose }) {
 
   return (
     <div style={overlayStyle}>
-      <div style={modalStyle}>
+      <div style={modalContentStyle}>
         <h2 style={titleStyle}>Choose your membership</h2>
         <div style={optionsContainer}>
           {memberships.map(option => (
             <div
               key={option.key}
-              style={{
-                ...optionCard,
-                ...(hovered === option.key ? optionCardHover : {}),
-                opacity: loading ? 0.7 : 1,
-                pointerEvents: loading ? 'none' : 'auto',
-              }}
-              onMouseEnter={() => setHovered(option.key)}
-              onMouseLeave={() => setHovered(null)}
+              style={optionCard}
               onClick={() => !loading && handleSelect(option.key)}
             >
               <div style={optionTitle}>{option.title}</div>

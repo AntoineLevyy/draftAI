@@ -4,7 +4,7 @@ import { apiBaseUrl } from './config';
 const bgStyle = {
   flex: 1,
   width: '100%',
-  background: 'linear-gradient(120deg, #f8fafc 0%, #e0e7ff 40%, #c7d2fe 100%)',
+  background: 'linear-gradient(135deg, #18181b 0%, #111 100%)', // black gradient
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -12,19 +12,18 @@ const bgStyle = {
   padding: '0',
   overflow: 'hidden',
   position: 'relative',
-  paddingTop: '2.5rem',
+  paddingTop: '0.2rem',
 };
 
 const headlineStyle = {
-  fontWeight: 800,
-  fontSize: '2.2rem',
+  fontWeight: 900,
+  fontSize: '2.4rem',
   marginBottom: '1.2rem',
   marginTop: 0,
-  background: 'linear-gradient(90deg, #4f8cff, #6f6fff 60%, #38bdf8 100%)',
-  WebkitBackgroundClip: 'text',
-  color: 'transparent',
+  color: '#fff',
   letterSpacing: '-1px',
   textAlign: 'center',
+  textShadow: '0 2px 16px rgba(0,0,0,0.18)',
 };
 
 const subtitleStyle = {
@@ -43,13 +42,19 @@ const filterGroup = {
   minWidth: 200,
   flex: 1,
   maxWidth: 220,
+  // Remove white card background for native look
+  background: 'transparent',
+  borderRadius: 0,
+  padding: 0,
+  boxShadow: 'none',
+  margin: '0 0.5rem',
 };
 
 const labelStyle = {
-  fontWeight: 600,
+  fontWeight: 700,
   marginBottom: '12px',
-  color: '#374151',
-  fontSize: '0.8rem',
+  color: '#b91c1c', // red
+  fontSize: '0.85rem',
   letterSpacing: '0.025em',
   textTransform: 'uppercase',
 };
@@ -57,18 +62,20 @@ const labelStyle = {
 const selectStyle = {
   width: '100%',
   padding: '0.75rem 1rem',
-  borderRadius: '12px',
-  border: '2px solid rgba(79,140,255,0.2)',
-  fontSize: '0.9rem',
-  background: 'rgba(255,255,255,0.9)',
-  boxShadow: '0 2px 8px rgba(79,140,255,0.08)',
+  borderRadius: '8px',
+  border: '2px solid #b91c1c', // red border
+  fontSize: '1rem',
+  background: 'rgba(24,24,27,0.95)', // dark background
+  color: '#fff',
+  fontWeight: 500,
   outline: 'none',
   marginBottom: 0,
   transition: 'all 0.2s ease',
   cursor: 'pointer',
-  backdropFilter: 'blur(10px)',
-  color: '#374151',
-  fontWeight: '500',
+  boxShadow: 'none',
+  appearance: 'auto', // native dropdown
+  WebkitAppearance: 'auto',
+  MozAppearance: 'auto',
 };
 
 const selectStyleActive = {
@@ -85,19 +92,19 @@ const selectStyleHover = {
 };
 
 const buttonStyle = {
-  padding: '0.875rem 2rem',
+  padding: '1rem 2.5rem',
   borderRadius: '2rem',
   border: 'none',
-  background: 'linear-gradient(90deg, #4f8cff 0%, #6f6fff 100%)',
+  background: 'linear-gradient(90deg, #b91c1c 0%, #ef4444 100%)', // red gradient
   color: 'white',
-  fontWeight: 700,
-  fontSize: '1rem',
+  fontWeight: 800,
+  fontSize: '1.15rem',
   cursor: 'pointer',
-  boxShadow: '0 4px 16px rgba(79,140,255,0.3)',
+  boxShadow: '0 4px 16px rgba(185,28,28,0.18)',
   transition: 'all 0.2s ease',
   outline: 'none',
-  marginTop: '0.75rem',
   letterSpacing: '0.01em',
+  marginTop: '1.2rem',
 };
 
 const buttonStyleHover = {
@@ -175,6 +182,7 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
   const [highSchoolPlayers, setHighSchoolPlayers] = useState([]);
   const [activeSelect, setActiveSelect] = useState('');
   const [hoveredSelect, setHoveredSelect] = useState('');
+  const [claimedFilter, setClaimedFilter] = useState('all'); // 'all' | 'claimed' | 'unclaimed'
 
   // Fetch high school players for dynamic filter options
   useEffect(() => {
@@ -219,17 +227,19 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
         type,
         state: stateFilter,
         grad_year: graduationYear,
-        position: selectedPosition
+        position: selectedPosition,
+        claimedFilter,
       });
     } else if (type === 'transfer') {
       onApplyFilters({
         type,
         position: selectedPosition,
         academicLevel,
-        league: selectedLeague
+        league: selectedLeague,
+        claimedFilter,
       });
     } else {
-      onApplyFilters({ type });
+      onApplyFilters({ type, claimedFilter });
     }
   };
 
@@ -245,29 +255,34 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
 
   return (
     <div style={bgStyle}>
-      <button 
-        style={backButtonStyle}
-        onClick={onBack}
-        onMouseEnter={(e) => {
-          e.target.style.background = 'rgba(255,255,255,0.2)';
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.background = 'rgba(255,255,255,0.1)';
-        }}
-      >
-        ← Back to Main Menu
-      </button>
-      <div className="mainContainer">
+      <div className="mainContainer" style={{ marginTop: 0 }}>
         <h1 style={headlineStyle}>Find your next player</h1>
-        <form onSubmit={handleSubmit} style={{width: '100%'}}>
-          <div className="filtersRow" style={{ display: 'flex', gap: 24, marginBottom: 0, justifyContent: 'center', width: '100%' }}>
+        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+          <div className="filtersRow" style={{ display: 'flex', gap: 48, marginTop: 48, marginBottom: 0, justifyContent: 'center', width: '100%' }}>
+            {/* Claimed/Unclaimed Filter */}
+            <div style={filterGroup}>
+              <label style={labelStyle}>Claimed Status</label>
+              <select
+                value={claimedFilter}
+                onChange={e => setClaimedFilter(e.target.value)}
+                style={getSelectStyle('claimedFilter')}
+                onFocus={()=>setActiveSelect('claimedFilter')}
+                onBlur={()=>setActiveSelect('')}
+                onMouseEnter={()=>setHoveredSelect('claimedFilter')}
+                onMouseLeave={()=>setHoveredSelect('')}
+              >
+                <option value="all">All</option>
+                <option value="claimed">Claimed</option>
+                <option value="unclaimed">Unclaimed</option>
+              </select>
+            </div>
             {/* Type Dropdown */}
             <div style={filterGroup}>
               <label style={labelStyle}>Type</label>
               <select
                 value={type}
                 onChange={e => setType(e.target.value)}
-                style={getSelectStyle('type')}
+                style={selectStyle}
                 onFocus={()=>setActiveSelect('type')}
                 onBlur={()=>setActiveSelect('')}
                 onMouseEnter={()=>setHoveredSelect('type')}
@@ -387,21 +402,10 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
               </div>
             )}
           </div>
-          <div style={{display: 'flex', justifyContent: 'center'}}>
-            <button 
-              type="submit" 
-              style={buttonStyle}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 6px 20px rgba(79,140,255,0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 16px rgba(79,140,255,0.3)';
-              }}
-              disabled={type === 'international'}
-            >
-              Find players
+          <div style={{ height: 96 }} />
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }}>
+            <button type="submit" style={buttonStyle}>
+              Find Players
             </button>
           </div>
         </form>

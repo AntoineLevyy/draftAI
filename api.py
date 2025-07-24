@@ -4,6 +4,8 @@ import os
 import requests
 from flask_cors import CORS
 import stripe
+import csv
+import pandas as pd
 
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 
@@ -73,12 +75,13 @@ SPAIN_SEGUNDA_G2_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draf
 SPAIN_SEGUNDA_G3_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/spain_segunda_g3_players_api.json'
 SPAIN_SEGUNDA_G4_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/spain_segunda_g4_players_api.json'
 SPAIN_SEGUNDA_G5_DATA_URL = 'https://raw.githubusercontent.com/AntoineLevyy/draftAI/main/backend/pro/spain_segunda_g5_players_api.json'
+CLEAN_CLAIMED_PLAYERS_JSON = 'backend/college/njcaa/clean_claimed_players.json'
 
 # Cache for loaded data
 _player_cache = {}
 
 def fetch_player_data():
-    """Fetch player data from GitHub raw URLs"""
+    """Fetch player data from GitHub raw URLs and local files, including claimed players"""
     global _player_cache
     
     if _player_cache:
@@ -382,10 +385,25 @@ def fetch_player_data():
             print(f"Loaded {len(hs_players)} High School players")
     except Exception as e:
         print(f"Error loading High School players: {e}")
+    # Fetch claimed players from JSON
+    try:
+        print("Loading claimed players from JSON...")
+        with open(CLEAN_CLAIMED_PLAYERS_JSON, 'r', encoding='utf-8') as f:
+            claimed_players = json.load(f)
+        for p in claimed_players:
+            p['claimed'] = True
+            p['type'] = 'transfer'
+        print(f"Loaded {len(claimed_players)} claimed players from JSON")
+        # Place claimed players at the top for visibility
+        players = claimed_players + players
+    except Exception as e:
+        print(f"Error loading claimed players: {e}")
     # Set type='transfer' for NJCAA/college players if not already set
     for player in players:
         if (player.get("league", "").startswith("NJCAA") or player.get("league", "").startswith("College")) and not player.get("type"):
             player["type"] = "transfer"
+        if player.get('claimed'):
+            player['type'] = 'transfer'
     
     _player_cache = players
     print(f"Total players loaded: {len(players)}")

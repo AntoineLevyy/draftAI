@@ -4,42 +4,56 @@ import { apiBaseUrl } from './config';
 import { savePlayer, unsavePlayer, getSavedPlayersBatch } from './services/saveService';
 import { useAuth } from './AuthContext';
 
-// Add the highlights button styles to match the pro section
-const highlightsButtonStyles = `
-  .footage-section {
-    margin-top: 10px;
-  }
+/**
+ * @typedef {Object} Player
+ * @property {boolean} claimed
+ * @property {string} name
+ * @property {string} [position]
+ * @property {string} [awards]
+ * @property {string} [eligibility]
+ * @property {string} [email]
+ * @property {string} [goals]
+ * @property {string} [team]
+ * @property {string} [league]
+ * @property {string} [year]
+ * @property {string} [photo_url]
+ * // ...all other possible fields
+ */
 
-  .view-footage-button {
-    width: 100%;
-    padding: 8px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+function normalizePlayer(rawPlayer) {
+  // Heuristic: if it has 'Email Address' or 'Why Player is Transferring', it's claimed
+  const isClaimed = !!rawPlayer['Email Address'] || !!rawPlayer['Why Player is Transferring'];
+  if (isClaimed) {
+    return {
+      claimed: true,
+      name: rawPlayer['Name'] || '',
+      position: rawPlayer['Position'] || '',
+      awards: rawPlayer['Individual Awards'] || '',
+      eligibility: rawPlayer['Years of Eligibility Left'] || '',
+      email: rawPlayer['Email Address'] || '',
+      team: rawPlayer['Current School'] || '',
+      league: rawPlayer['Division Transferring From'] || '',
+      year: rawPlayer['Year of Birth'] || '',
+      photo_url: rawPlayer['photo_url'] || '',
+      raw: rawPlayer // keep all original fields for full display
+    };
+  } else {
+    return {
+      claimed: false,
+      name: rawPlayer.name || '',
+      position: rawPlayer.position || '',
+      awards: '',
+      eligibility: '',
+      email: '',
+      team: rawPlayer.team || '',
+      league: rawPlayer.league || '',
+      year: rawPlayer.year || '',
+      photo_url: rawPlayer.photo_url || '',
+      goals: rawPlayer.goals || '',
+      raw: rawPlayer
+    };
   }
-
-  .view-footage-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-  }
-
-  .view-footage-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
-
-// Inject the styles
-const styleSheet = document.createElement('style');
-styleSheet.textContent = highlightsButtonStyles;
-document.head.appendChild(styleSheet);
+}
 
 const translateNationality = (nationality) => {
   const translations = {
@@ -430,7 +444,7 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
           </div>
 
           <div className="stats-section">
-            <h4>Season Stats</h4>
+            <h4 className="season-stats-title">Season Stats</h4>
             <div className="stats-grid">
               <div className="stat-item-card">
                 <span className="stat-value">{goals}</span>
@@ -506,12 +520,22 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [savingMap, setSavingMap] = useState({}); // {playerId: true/false}
   
+  // Add state for list mode modal
+  const [showPlayerModal, setShowPlayerModal] = useState(false);
+  const [selectedPlayerForModal, setSelectedPlayerForModal] = useState(null);
+  
   // Type state - can be changed by user
   const [type, setType] = useState(filters?.type || 'transfer');
   
   // Add state and graduation year filters for high school
   const [stateFilter, setStateFilter] = useState('All');
   const [gradYearFilter, setGradYearFilter] = useState('All');
+
+  // 2. Add claimed/unclaimed filter and claimed-specific filters state
+  const [claimedFilter, setClaimedFilter] = useState(filters?.claimedFilter || 'all'); // 'all' | 'claimed' | 'unclaimed'
+  const [claimedPosition, setClaimedPosition] = useState('All');
+  const [claimedEligibility, setClaimedEligibility] = useState('All');
+  const [claimedAwards, setClaimedAwards] = useState('All');
 
   // Compute unique states and grad years from players
   const highSchoolStates = useMemo(() => {
@@ -532,6 +556,23 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
       }
     });
     return ['All', ...Array.from(years).sort()];
+  }, [players]);
+
+  // 4. Compute unique claimed positions, eligibility, awards for filters
+  const claimedPositions = useMemo(() => {
+    const setP = new Set();
+    players.forEach(p => { if (p.claimed && p.position) setP.add(p.position); });
+    return ['All', ...Array.from(setP).sort()];
+  }, [players]);
+  const claimedEligibilities = useMemo(() => {
+    const setE = new Set();
+    players.forEach(p => { if (p.claimed && p.eligibility) setE.add(p.eligibility); });
+    return ['All', ...Array.from(setE).sort()];
+  }, [players]);
+  const claimedAwardsList = useMemo(() => {
+    const setA = new Set();
+    players.forEach(p => { if (p.claimed && p.awards) setA.add(p.awards); });
+    return ['All', ...Array.from(setA).sort()];
   }, [players]);
 
   // Use filters passed from landing page, with local state for adjustments
@@ -673,7 +714,9 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
       console.log('Players from API:', data.players?.length || 0);
       console.log('Type filter applied:', data.filters_applied?.type);
       
-      setPlayers(data.players || []);
+      // Normalize all players
+      const normalized = (data.players || []).map(normalizePlayer);
+      setPlayers(normalized);
       setLoading(false);
       console.log('=== FETCH PLAYERS COMPLETED ===');
     } catch (error) {
@@ -772,7 +815,16 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
     const filteredAndSortedPlayers = useMemo(() => {
     console.log('Filtering college players. Total players:', players.length);
     
-    let filteredPlayers = players.filter(player => {
+    let filtered = players;
+    if (claimedFilter === 'claimed') filtered = filtered.filter(p => p.claimed);
+    if (claimedFilter === 'unclaimed') filtered = filtered.filter(p => !p.claimed);
+    if (claimedFilter === 'claimed') {
+      if (claimedPosition !== 'All') filtered = filtered.filter(p => p.position === claimedPosition);
+      if (claimedEligibility !== 'All') filtered = filtered.filter(p => p.eligibility === claimedEligibility);
+      if (claimedAwards !== 'All') filtered = filtered.filter(p => p.awards === claimedAwards);
+    }
+
+    let filteredPlayers = filtered.filter(player => {
       // Filter out players with missing or invalid names
       const playerName = player.name;
       if (!playerName || playerName === 'Unknown Player' || playerName.trim() === '') {
@@ -849,7 +901,7 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
           return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
         }
       });
-  }, [players, searchTerm, sortBy, sortOrder, currentFilters, expandYear, getMainPositionCategory, type, stateFilter, gradYearFilter]);
+  }, [players, searchTerm, sortBy, sortOrder, currentFilters, expandYear, getMainPositionCategory, type, stateFilter, gradYearFilter, claimedFilter, claimedPosition, claimedEligibility, claimedAwards]);
 
   const formatMinutes = useCallback((minutes) => {
     if (!minutes) return '0';
@@ -972,41 +1024,108 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
   return (
     <div className="usl-player-cards-container">
       {/* Filter Controls - move above search/sort */}
-      <div style={{
-        display: 'flex',
-        gap: '2rem',
-        justifyContent: 'center',
-        margin: '2rem 0 1.2rem 0',
-        padding: '1.5rem',
-        background: 'rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(10px)',
-        borderRadius: '12px',
-        border: '1px solid rgba(255, 255, 255, 0.2)'
-      }}>
+      {/* In the main filter row, move Claimed Status to the far left and make the filter row responsive */}
+      {/* Add a container for the filters with flex-wrap and overflow for responsiveness */}
+      <div
+        className="filtersRow"
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 24,
+          marginTop: 24,
+          marginBottom: 16,
+          justifyContent: 'flex-start',
+          alignItems: 'flex-end',
+          width: '100%',
+          background: '#18181b',
+          borderRadius: 12,
+          padding: '16px 24px',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          overflowX: 'auto',
+          minHeight: 0,
+        }}
+      >
+        {/* Claimed/Unclaimed Filter - always first */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+            Claimed Status
+          </label>
+          <select
+            value={claimedFilter}
+            onChange={e => setClaimedFilter(e.target.value)}
+            className="filter-select"
+          >
+            <option value="all">All</option>
+            <option value="claimed">Claimed</option>
+            <option value="unclaimed">Unclaimed</option>
+          </select>
+        </div>
+        {/* Type Filter - restore after Claimed Status */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+          <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
             Type
           </label>
           <select
             value={type}
             onChange={e => setType(e.target.value)}
-            style={{ padding: '0.5rem', borderRadius: '8px', border: '2px solid rgba(79,140,255,0.2)', background: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', cursor: 'pointer', minWidth: 150 }}
+            className="filter-select"
           >
             <option value="transfer">Transfer</option>
             <option value="highschool">High School</option>
             <option value="international" disabled>International (coming soon)</option>
           </select>
         </div>
+        {claimedFilter === 'claimed' && (
+          <>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+                Position
+              </label>
+              <select
+                value={claimedPosition}
+                onChange={e => setClaimedPosition(e.target.value)}
+                className="filter-select"
+              >
+                {claimedPositions.map(pos => <option key={pos} value={pos}>{pos}</option>)}
+              </select>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+                Eligibility
+              </label>
+              <select
+                value={claimedEligibility}
+                onChange={e => setClaimedEligibility(e.target.value)}
+                className="filter-select"
+              >
+                {claimedEligibilities.map(el => <option key={el} value={el}>{el}</option>)}
+              </select>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+                Awards
+              </label>
+              <select
+                value={claimedAwards}
+                onChange={e => setClaimedAwards(e.target.value)}
+                className="filter-select"
+              >
+                {claimedAwardsList.map(aw => <option key={aw} value={aw}>{aw}</option>)}
+              </select>
+            </div>
+          </>
+        )}
+        {/* Add other regular filters here as needed, after Claimed Status */}
         {type === 'transfer' && (
           <>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
                 League
               </label>
               <select
                 value={currentFilters.league}
                 onChange={e => setLocalFilters(prev => ({ ...prev, league: e.target.value }))}
-                style={{ padding: '0.5rem', borderRadius: '8px', border: '2px solid rgba(79,140,255,0.2)', background: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', cursor: 'pointer', minWidth: 150 }}
+                className="filter-select"
               >
                 <option value="All">All</option>
                 <option value="NJCAA D1">NJCAA D1</option>
@@ -1015,13 +1134,13 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
               </select>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
                 Position
               </label>
               <select
                 value={currentFilters.position}
                 onChange={e => setLocalFilters(prev => ({ ...prev, position: e.target.value }))}
-                style={{ padding: '0.5rem', borderRadius: '8px', border: '2px solid rgba(79,140,255,0.2)', background: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', cursor: 'pointer', minWidth: 150 }}
+                className="filter-select"
               >
                 <option value="All">All</option>
                 <option value="Goalkeeper">Goalkeeper</option>
@@ -1031,13 +1150,13 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
               </select>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
                 Academic Year
               </label>
               <select
                 value={currentFilters.academicLevel}
                 onChange={e => setLocalFilters(prev => ({ ...prev, academicLevel: e.target.value }))}
-                style={{ padding: '0.5rem', borderRadius: '8px', border: '2px solid rgba(79,140,255,0.2)', background: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', cursor: 'pointer', minWidth: 150 }}
+                className="filter-select"
               >
                 <option value="All">All</option>
                 <option value="Freshman">Freshman</option>
@@ -1052,37 +1171,37 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
         {type === 'highschool' && (
           <>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
                 State
               </label>
               <select
                 value={stateFilter}
                 onChange={e => setStateFilter(e.target.value)}
-                style={{ padding: '0.5rem', borderRadius: '8px', border: '2px solid rgba(79,140,255,0.2)', background: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', cursor: 'pointer', minWidth: 150 }}
+                className="filter-select"
               >
                 {highSchoolStates.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
                 Graduation Year
               </label>
               <select
                 value={gradYearFilter}
                 onChange={e => setGradYearFilter(e.target.value)}
-                style={{ padding: '0.5rem', borderRadius: '8px', border: '2px solid rgba(79,140,255,0.2)', background: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', cursor: 'pointer', minWidth: 150 }}
+                className="filter-select"
               >
                 {highSchoolGradYears.map(y => <option key={y} value={y}>{y}</option>)}
               </select>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
                 Position
               </label>
               <select
                 value={currentFilters.position}
                 onChange={e => setLocalFilters(prev => ({ ...prev, position: e.target.value }))}
-                style={{ padding: '0.5rem', borderRadius: '8px', border: '2px solid rgba(79,140,255,0.2)', background: 'rgba(255,255,255,0.9)', fontSize: '0.9rem', cursor: 'pointer', minWidth: 150 }}
+                className="filter-select"
               >
                 <option value="All">All</option>
                 <option value="Goalkeeper">Goalkeeper</option>
@@ -1095,7 +1214,7 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
         )}
         {type === 'international' && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-            <label style={{ fontWeight: 600, marginBottom: '8px', color: '#374151', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+            <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
               No Results
             </label>
             <p style={{ fontSize: '0.9rem', color: '#666', marginTop: '10px' }}>
@@ -1105,19 +1224,43 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
         )}
       </div>
       {/* Search/Sort/Toggle Controls */}
-      <div className="search-sort-bar">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <input
-            type="text"
-            placeholder="Search by player or club..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="search-input"
-          />
+      <div className="controls-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '2rem', marginBottom: '1.5rem' }}>
+        <input
+          type="text"
+          placeholder="Search by player or club..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="search-input"
+        />
+        <div>
+          <button
+            className={viewMode === 'grid' ? 'toggle-text-btn active' : 'toggle-text-btn'}
+            onClick={() => setViewMode('grid')}
+          >
+            Grid View
+          </button>
+          <button
+            className={viewMode === 'list' ? 'toggle-text-btn active' : 'toggle-text-btn'}
+            onClick={() => setViewMode('list')}
+          >
+            List View
+          </button>
+          <button
+            className={viewMode === 'tinder' ? 'toggle-text-btn active' : 'toggle-text-btn'}
+            onClick={() => setViewMode('tinder')}
+          >
+            Tinder Mode
+          </button>
+        </div>
+      </div>
+
+      <div className="headline-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '2rem', marginBottom: '2rem' }}>
+        <div className="gradient-headline college">
+          We found {filteredAndSortedPlayers.length} college players for you
         </div>
         <div className="sort-controls">
           <label>Sort by:</label>
-          <select value={sortBy} onChange={handleSortChange}>
+          <select value={sortBy} onChange={handleSortChange} className="sort-select">
             <option value="goals">Goals</option>
             <option value="assists">Assists</option>
             <option value="matches">Matches</option>
@@ -1128,43 +1271,12 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
           <button onClick={handleSortOrderChange} className="sort-order-btn">
             {sortOrder === 'desc' ? '↓' : '↑'}
           </button>
-          <button
-            className={viewMode === 'grid' ? 'toggle-text-btn active' : 'toggle-text-btn'}
-            onClick={() => setViewMode('grid')}
-            style={{ marginLeft: 16 }}
-          >
-            Grid View
-          </button>
-          <button
-            className={viewMode === 'list' ? 'toggle-text-btn active' : 'toggle-text-btn'}
-            onClick={() => setViewMode('list')}
-            style={{ marginLeft: 4 }}
-          >
-            List View
-          </button>
-          <button
-            className={viewMode === 'tinder' ? 'toggle-text-btn active' : 'toggle-text-btn'}
-            onClick={() => setViewMode('tinder')}
-            style={{ marginLeft: 4 }}
-          >
-            Tinder Mode
-          </button>
         </div>
       </div>
       
-      <div style={{
-        textAlign: 'center',
-        margin: '2rem 0',
-        fontWeight: 900,
-        fontSize: '1.5rem',
-        letterSpacing: '-1px',
-        background: 'linear-gradient(90deg, #4f8cff, #6f6fff 60%, #38bdf8 100%)',
-        WebkitBackgroundClip: 'text',
-        color: 'transparent'
-      }}>
-        We found {filteredAndSortedPlayers.length} college players for you
-      </div>
-      
+      {/* 5. Add filter UI for claimed/unclaimed and claimed-specific filters */}
+      {/* Removed the separate claimed filter dropdown from above the cards list */}
+
       {viewMode === 'tinder' ? (
         <div className="tinder-mode-container">
           {tinderIndex >= filteredAndSortedPlayers.length ? (
@@ -1283,7 +1395,7 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
                   }
                 }}
               >
-                <div className="tinder-card-inner ultra-wide compact">
+                <div className="tinder-card-inner ultra-wide compact" style={{ maxWidth: 420, margin: '0 auto' }}>
                   <CollegePlayerCard
                     player={filteredAndSortedPlayers[tinderIndex]}
                     getPlayerImage={getPlayerImage}
@@ -1340,11 +1452,29 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
                 onSaveToggle={refreshSavedPlayers}
                 onShowSignupModal={onShowSignupModal}
               />
+              {player.claimed && (
+                <span style={{
+                  position: 'absolute',
+                  top: 10,
+                  right: 10,
+                  background: 'linear-gradient(90deg, #FFD700 0%, #FFC300 100%)',
+                  color: '#333',
+                  fontWeight: 700,
+                  padding: '4px 10px',
+                  borderRadius: 8,
+                  fontSize: 13,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+                  letterSpacing: 1,
+                  zIndex: 20,
+                  border: '2px solid #fff',
+                  textShadow: '0 1px 2px #fff',
+                }}>Claimed</span>
+              )}
             </div>
           ))}
           {!user && filteredAndSortedPlayers.length > 10 && (
-            <div className="unlock-more-message" style={{ gridColumn: '1 / -1', textAlign: 'center', margin: '2rem 0', width: '100%' }}>
-              <button className="unlock-more-btn" onClick={onShowSignupModal} style={{ fontSize: '1.2rem', fontWeight: 700, color: '#4f8cff', background: '#f8fafc', border: '1px solid #e3e9f5', borderRadius: 12, padding: '1.2rem 2.5rem', cursor: 'pointer', boxShadow: '0 2px 12px rgba(79,140,255,0.07)' }}>
+            <div className="unlock-more-message">
+              <button className="unlock-more-btn" onClick={onShowSignupModal}>
                 Sign in to unlock more
               </button>
             </div>
@@ -1379,15 +1509,15 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
                 const isSaved = user && savedPlayerIds.map(id => String(id)).includes(String(playerId));
                 const isSaving = !!savingMap[playerId];
                 return (
-                  <tr key={String(player.playerId) + '-' + playerName}>
+                  <tr key={String(player.playerId) + '-' + playerName} onClick={() => { setSelectedPlayerForModal(player); setShowPlayerModal(true); }} style={{ cursor: 'pointer', background: 'transparent', border: 'none' }}>
                     <td><img src={getPlayerImage(player)} alt={playerName} className="player-list-img" /></td>
-                    <td>{playerName}</td>
-                    <td>{club}</td>
-                    <td>{league}</td>
-                    <td>{position}</td>
-                    <td>{goals}</td>
-                    <td>{assists}</td>
-                    <td>{matches}</td>
+                    <td style={{ color: 'white' }}>{playerName}</td>
+                    <td style={{ color: 'white' }}>{club}</td>
+                    <td style={{ color: 'white' }}>{league}</td>
+                    <td style={{ color: 'white' }}>{position}</td>
+                    <td style={{ color: 'white' }}>{goals}</td>
+                    <td style={{ color: 'white' }}>{assists}</td>
+                    <td style={{ color: 'white' }}>{matches}</td>
                     <td>
                       <button
                         className={isSaved ? 'save-btn saved' : 'save-btn'}
@@ -1407,7 +1537,7 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
               {!user && filteredAndSortedPlayers.length > 10 && (
                 <tr>
                   <td colSpan={9} style={{ textAlign: 'center', background: '#f8fafc', color: '#4f8cff', fontWeight: 700, fontSize: '1.1rem', borderRadius: 12, height: 60 }}>
-                    <button className="unlock-more-btn" onClick={onShowSignupModal} style={{ fontSize: '1.2rem', fontWeight: 700, color: '#4f8cff', background: '#f8fafc', border: '1px solid #e3e9f5', borderRadius: 12, padding: '1.2rem 2.5rem', cursor: 'pointer', boxShadow: '0 2px 12px rgba(79,140,255,0.07)' }}>
+                    <button className="unlock-more-btn" onClick={onShowSignupModal}>
                       Sign in to unlock more
                     </button>
                   </td>
@@ -1510,6 +1640,37 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+      {showPlayerModal && selectedPlayerForModal && (
+        <div className="player-modal-overlay" onClick={() => setShowPlayerModal(false)}>
+          <div className="player-modal" onClick={e => e.stopPropagation()}>
+            <button className="close-modal-button" onClick={() => setShowPlayerModal(false)}>×</button>
+            <CollegePlayerCard
+              player={selectedPlayerForModal}
+              getPlayerImage={getPlayerImage}
+              getClubImage={getClubImage}
+              translatePosition={translatePosition}
+              formatMinutes={formatMinutes}
+              isValidPlayer={isValidPlayer}
+              handleViewFootage={handleViewFootage}
+              selectedLeague={currentFilters.league || 'All'}
+              loadingVideos={loadingVideos}
+              savedPlayerIds={savedPlayerIds}
+              onSaveToggle={refreshSavedPlayers}
+              onShowSignupModal={onShowSignupModal}
+            />
+            {selectedPlayerForModal.claimed && (
+              <div style={{ marginTop: 16, background: '#fffbe6', borderRadius: 8, padding: 12, color: '#333', fontSize: 13 }}>
+                <h4 style={{ margin: 0, marginBottom: 8, color: '#bfa100' }}>Claimed Player Details</h4>
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                  {Object.entries(selectedPlayerForModal.raw).map(([key, value]) => (
+                    <li key={key}><b>{key}:</b> {String(value)}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       )}

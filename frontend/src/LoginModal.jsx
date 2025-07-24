@@ -6,81 +6,106 @@ const modalOverlayStyle = {
   position: 'fixed',
   top: 0,
   left: 0,
-  right: 0,
-  bottom: 0,
-  background: 'rgba(0, 0, 0, 0.5)',
-  backdropFilter: 'blur(4px)',
+  width: '100vw',
+  height: '100vh',
+  background: 'rgba(0,0,0,0.7)',
+  zIndex: 2000,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  zIndex: 2000,
-}
+};
 
-const modalStyle = {
-  background: 'rgba(255, 255, 255, 0.95)',
-  backdropFilter: 'blur(20px)',
-  borderRadius: '20px',
-  padding: '2rem',
-  maxWidth: '400px',
-  width: '90%',
-  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
-  border: '1px solid rgba(255, 255, 255, 0.2)',
-}
+const modalContentStyle = {
+  background: 'rgba(24,24,27,0.98)', // dark modal
+  borderRadius: 18,
+  padding: '2rem 1.2rem', // reduced padding
+  maxWidth: 340, // reduced max width
+  width: '95%',
+  boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+  color: '#fff',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  border: '1.5px solid #b91c1c',
+  boxSizing: 'border-box', // ensure padding is included in width
+};
 
-const titleStyle = {
-  fontSize: '1.5rem',
-  fontWeight: 700,
+const modalTitleStyle = {
+  fontWeight: 800,
+  fontSize: '1.7rem',
   marginBottom: '1.5rem',
-  textAlign: 'center',
-  background: 'linear-gradient(90deg, #4f8cff, #6f6fff 60%, #38bdf8 100%)',
+  background: 'linear-gradient(90deg, #b91c1c 0%, #ef4444 100%)',
   WebkitBackgroundClip: 'text',
   color: 'transparent',
-}
+  textAlign: 'center',
+};
 
 const inputStyle = {
   width: '100%',
-  padding: '0.75rem 1rem',
-  borderRadius: '12px',
-  border: '2px solid rgba(79,140,255,0.2)',
-  fontSize: '0.9rem',
-  background: 'rgba(255,255,255,0.9)',
-  boxShadow: '0 2px 8px rgba(79,140,255,0.08)',
+  maxWidth: '100%', // never overflow modal
+  padding: '0.7rem 0.9rem', // reduced padding
+  borderRadius: '8px', // slightly less round
+  border: '2px solid #b91c1c',
+  fontSize: '1rem',
+  background: 'rgba(24,24,27,0.95)',
+  color: '#fff',
+  fontWeight: 500,
   outline: 'none',
-  marginBottom: '1rem',
+  marginBottom: '1rem', // slightly less margin
   transition: 'all 0.2s ease',
-}
+  boxShadow: 'none',
+  boxSizing: 'border-box', // ensure padding is included in width
+};
 
 const buttonStyle = {
   width: '100%',
-  padding: '0.75rem 1rem',
-  borderRadius: '12px',
+  padding: '0.9rem 0',
+  borderRadius: '2rem',
   border: 'none',
-  background: 'linear-gradient(90deg, #4f8cff 0%, #6f6fff 100%)',
+  background: 'linear-gradient(90deg, #b91c1c 0%, #ef4444 100%)',
   color: 'white',
-  fontWeight: 600,
-  fontSize: '0.9rem',
+  fontWeight: 800,
+  fontSize: '1.1rem',
+  letterSpacing: 1,
+  boxShadow: '0 4px 16px rgba(185,28,28,0.18)',
   cursor: 'pointer',
-  marginBottom: '1rem',
-  transition: 'all 0.2s ease',
-}
+  transition: 'background 0.2s, transform 0.1s',
+  outline: 'none',
+  marginBottom: '1.2rem',
+};
 
+const switchModeStyle = {
+  color: '#ef4444',
+  fontWeight: 600,
+  fontSize: '1rem',
+  cursor: 'pointer',
+  background: 'none',
+  border: 'none',
+  marginTop: 8,
+  textDecoration: 'underline',
+};
+
+// Google/social button style
 const googleButtonStyle = {
   width: '100%',
-  padding: '0.75rem 1rem',
-  borderRadius: '12px',
-  border: '2px solid rgba(79,140,255,0.2)',
-  background: 'rgba(255,255,255,0.9)',
-  color: '#374151',
-  fontWeight: 600,
-  fontSize: '0.9rem',
+  padding: '0.8rem 0',
+  borderRadius: '2rem',
+  border: '2px solid #b91c1c',
+  background: 'rgba(24,24,27,0.95)',
+  color: '#fff',
+  fontWeight: 700,
+  fontSize: '1.05rem',
+  letterSpacing: 1,
+  boxShadow: 'none',
   cursor: 'pointer',
-  marginBottom: '1rem',
-  transition: 'all 0.2s ease',
+  transition: 'background 0.2s, border 0.2s',
+  outline: 'none',
+  marginBottom: '1.2rem',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: '0.5rem',
-}
+  gap: 10,
+};
 
 const closeButtonStyle = {
   position: 'absolute',
@@ -163,12 +188,12 @@ const LoginModal = ({ isOpen, onClose, mode = 'signin', setMode }) => {
 
   return (
     <div style={modalOverlayStyle} onClick={onClose}>
-      <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+      <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
         <button style={closeButtonStyle} onClick={onClose}>
           ×
         </button>
         
-        <h2 style={titleStyle}>
+        <h2 style={modalTitleStyle}>
           {mode === 'signin' ? 'Sign In' : 'Get Started'}
         </h2>
 
@@ -210,7 +235,7 @@ const LoginModal = ({ isOpen, onClose, mode = 'signin', setMode }) => {
               Don't have an account?{' '}
               <a
                 href="#"
-                style={{ color: '#4f8cff', textDecoration: 'underline', cursor: 'pointer' }}
+                style={{ color: '#ef4444', textDecoration: 'underline', cursor: 'pointer' }}
                 onClick={e => { e.preventDefault(); setError(''); setSuccess(''); setEmail(''); setPassword(''); setLoading(false); if (setMode) setMode('signup'); }}
               >
                 Sign up here.
