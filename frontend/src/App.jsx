@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import MainLandingPage from './MainLandingPage';
 import CollegeLandingPage from './CollegeLandingPage';
 import CollegePlayerCards from './CollegePlayerCards';
-import draftmeLogo from '../assets/images/draftme_logo.png';
+import draftmeLogo from '../assets/images/cst_logo.png';
 import { AuthProvider, useAuth } from './AuthContext';
 import LoginModal from './LoginModal';
 
@@ -77,7 +77,7 @@ const logoContainerStyle = {
 };
 
 const logoImageStyle = {
-  height: '2rem',
+  height: '4rem',
   width: 'auto',
 };
 
@@ -199,8 +199,7 @@ function AppContent() {
               e.target.style.opacity = '1';
             }}
           >
-            <img src={draftmeLogo} alt="draftme logo" style={logoImageStyle} />
-            <span style={logoTextStyle}>draftme</span>
+            <img src={draftmeLogo} alt="CST logo" style={logoImageStyle} />
           </a>
           <div style={headerButtonsStyle}>
             {user ? (

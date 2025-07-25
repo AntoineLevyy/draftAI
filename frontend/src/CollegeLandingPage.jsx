@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { apiBaseUrl } from './config';
 
@@ -172,6 +173,8 @@ const collegeLeagues = [
   // Add more college leagues here as needed
 ];
 
+
+
 function CollegeLandingPage({ onApplyFilters, onBack }) {
   const [type, setType] = useState('transfer'); // 'transfer', 'highschool', 'international'
   const [selectedPosition, setSelectedPosition] = useState('All');
@@ -183,6 +186,9 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
   const [activeSelect, setActiveSelect] = useState('');
   const [hoveredSelect, setHoveredSelect] = useState('');
   const [claimedFilter, setClaimedFilter] = useState('all'); // 'all' | 'claimed' | 'unclaimed'
+  const [selectedEligibility, setSelectedEligibility] = useState('All');
+  const [selectedAwards, setSelectedAwards] = useState('All');
+  const [minGpa, setMinGpa] = useState('All');
 
   // Fetch high school players for dynamic filter options
   useEffect(() => {
@@ -194,6 +200,49 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
         });
     }
   }, [type]);
+
+  // Fetch all players to populate claimed filter options
+  const [allPlayers, setAllPlayers] = useState([]);
+  useEffect(() => {
+    fetch(`${apiBaseUrl}/api/players`)
+      .then(res => res.json())
+      .then(data => {
+        setAllPlayers(data.players || []);
+      });
+  }, []);
+
+  // Compute claimed filter options from all players
+  const claimedPositions = useMemo(() => {
+    const positions = new Set();
+    allPlayers.forEach(p => { 
+      if (p.claimed && p.position) positions.add(p.position); 
+    });
+    return ['All', ...Array.from(positions).sort()];
+  }, [allPlayers]);
+
+  const claimedLeagues = useMemo(() => {
+    const leagues = new Set();
+    allPlayers.forEach(p => { 
+      if (p.claimed && p.league) leagues.add(p.league); 
+    });
+    return ['All', ...Array.from(leagues).sort()];
+  }, [allPlayers]);
+
+  const claimedEligibilities = useMemo(() => {
+    const eligibilities = new Set();
+    allPlayers.forEach(p => { 
+      if (p.claimed && p.eligibility) eligibilities.add(p.eligibility); 
+    });
+    return ['All', ...Array.from(eligibilities).sort()];
+  }, [allPlayers]);
+
+  const claimedAwardsList = useMemo(() => {
+    const awards = new Set();
+    allPlayers.forEach(p => { 
+      if (p.claimed && p.awards) awards.add(p.awards); 
+    });
+    return ['All', ...Array.from(awards).sort()];
+  }, [allPlayers]);
 
   // Compute unique states, positions, grad years from high school players
   const highSchoolStates = useMemo(() => {
@@ -231,13 +280,25 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
         claimedFilter,
       });
     } else if (type === 'transfer') {
-      onApplyFilters({
-        type,
-        position: selectedPosition,
-        academicLevel,
-        league: selectedLeague,
-        claimedFilter,
-      });
+      if (claimedFilter === 'claimed') {
+        onApplyFilters({
+          type,
+          position: selectedPosition,
+          league: selectedLeague,
+          eligibility: selectedEligibility,
+          awards: selectedAwards,
+          minGpa,
+          claimedFilter,
+        });
+      } else {
+        onApplyFilters({
+          type,
+          position: selectedPosition,
+          academicLevel,
+          league: selectedLeague,
+          claimedFilter,
+        });
+      }
     } else {
       onApplyFilters({ type, claimedFilter });
     }
@@ -258,7 +319,7 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
       <div className="mainContainer" style={{ marginTop: 0 }}>
         <h1 style={headlineStyle}>Find your next player</h1>
         <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-          <div className="filtersRow" style={{ display: 'flex', gap: 48, marginTop: 48, marginBottom: 0, justifyContent: 'center', width: '100%' }}>
+          <div className="filtersRow" style={{ display: 'flex', flexWrap: 'wrap', gap: 48, marginTop: 48, marginBottom: 0, justifyContent: 'center', width: '100%' }}>
             {/* Claimed/Unclaimed Filter */}
             <div style={filterGroup}>
               <label style={labelStyle}>Claimed Status</label>
@@ -293,60 +354,144 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
                 <option value="international" disabled>International (coming soon)</option>
               </select>
             </div>
-            {/* Transfer Filters */}
-            {type === 'transfer' && <>
-              <div style={filterGroup}>
-                <label style={labelStyle} htmlFor="position">Position</label>
-                <select
-                  style={getSelectStyle('position')}
-                  id="position"
-                  value={selectedPosition}
-                  onChange={e => setSelectedPosition(e.target.value)}
-                  onFocus={()=>setActiveSelect('position')}
-                  onBlur={()=>setActiveSelect('')}
-                  onMouseEnter={()=>setHoveredSelect('position')}
-                  onMouseLeave={()=>setHoveredSelect('')}
-                  required
-                >
-                  {positions.map(pos => (
-                    <option key={pos} value={pos}>{pos}</option>
-                  ))}
-                </select>
-              </div>
-              <div style={filterGroup}>
-                <label style={labelStyle}>League</label>
-                <select
-                  style={getSelectStyle('league')}
-                  value={selectedLeague}
-                  onChange={e => setSelectedLeague(e.target.value)}
-                  onFocus={() => setActiveSelect('league')}
-                  onBlur={() => setActiveSelect('')}
-                  onMouseEnter={() => setHoveredSelect('league')}
-                  onMouseLeave={() => setHoveredSelect('')}
-                >
-                  {collegeLeagues.map(l => (
-                    <option key={l} value={l}>{l}</option>
-                  ))}
-                </select>
-              </div>
-              <div style={filterGroup}>
-                <label style={labelStyle} htmlFor="academicLevel">Academic Year</label>
-                <select
-                  style={getSelectStyle('academicLevel')}
-                  id="academicLevel"
-                  value={academicLevel}
-                  onChange={e => setAcademicLevel(e.target.value)}
-                  onFocus={()=>setActiveSelect('academicLevel')}
-                  onBlur={()=>setActiveSelect('')}
-                  onMouseEnter={()=>setHoveredSelect('academicLevel')}
-                  onMouseLeave={()=>setHoveredSelect('')}
-                >
-                  {academicLevels.map(level => (
-                    <option key={level} value={level}>{level}</option>
-                  ))}
-                </select>
-              </div>
-            </>}
+            {/* Claimed-specific filters */}
+            {claimedFilter === 'claimed' && type === 'transfer' && (
+              <>
+                <div style={filterGroup}>
+                  <label style={labelStyle}>Position</label>
+                  <select
+                    style={getSelectStyle('position')}
+                    value={selectedPosition}
+                    onChange={e => setSelectedPosition(e.target.value)}
+                    onFocus={()=>setActiveSelect('position')}
+                    onBlur={()=>setActiveSelect('')}
+                    onMouseEnter={()=>setHoveredSelect('position')}
+                    onMouseLeave={()=>setHoveredSelect('')}
+                  >
+                    {claimedPositions.map(pos => (
+                      <option key={pos} value={pos}>{pos}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={filterGroup}>
+                  <label style={labelStyle}>League</label>
+                  <select
+                    style={getSelectStyle('league')}
+                    value={selectedLeague}
+                    onChange={e => setSelectedLeague(e.target.value)}
+                    onFocus={() => setActiveSelect('league')}
+                    onBlur={() => setActiveSelect('')}
+                    onMouseEnter={() => setHoveredSelect('league')}
+                    onMouseLeave={() => setHoveredSelect('')}
+                  >
+                    {claimedLeagues.map(l => (
+                      <option key={l} value={l}>{l}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={filterGroup}>
+                  <label style={labelStyle}>Eligibility</label>
+                  <select
+                    style={getSelectStyle('eligibility')}
+                    value={selectedEligibility}
+                    onChange={e => setSelectedEligibility(e.target.value)}
+                    onFocus={() => setActiveSelect('eligibility')}
+                    onBlur={() => setActiveSelect('')}
+                    onMouseEnter={() => setHoveredSelect('eligibility')}
+                    onMouseLeave={() => setHoveredSelect('')}
+                  >
+                    {claimedEligibilities.map(el => (
+                      <option key={el} value={el}>{el}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={filterGroup}>
+                  <label style={labelStyle}>Awards</label>
+                  <select
+                    style={getSelectStyle('awards')}
+                    value={selectedAwards}
+                    onChange={e => setSelectedAwards(e.target.value)}
+                    onFocus={() => setActiveSelect('awards')}
+                    onBlur={() => setActiveSelect('')}
+                    onMouseEnter={() => setHoveredSelect('awards')}
+                    onMouseLeave={() => setHoveredSelect('')}
+                  >
+                    {claimedAwardsList.map(aw => (
+                      <option key={aw} value={aw}>{aw}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={filterGroup}>
+                  <label style={labelStyle}>Minimum GPA</label>
+                  <select
+                    style={getSelectStyle('minGpa')}
+                    value={minGpa}
+                    onChange={e => setMinGpa(e.target.value)}
+                    onFocus={() => setActiveSelect('minGpa')}
+                    onBlur={() => setActiveSelect('')}
+                    onMouseEnter={() => setHoveredSelect('minGpa')}
+                    onMouseLeave={() => setHoveredSelect('')}
+                  >
+                    {['All', '2.0', '2.5', '3.0', '3.5', '4.0'].map(gpa => (
+                      <option key={gpa} value={gpa}>{gpa}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+            {/* Unclaimed-specific filters */}
+            {(claimedFilter === 'unclaimed' || claimedFilter === 'all') && type === 'transfer' && (
+              <>
+                <div style={filterGroup}>
+                  <label style={labelStyle}>Position</label>
+                  <select
+                    style={getSelectStyle('position')}
+                    value={selectedPosition}
+                    onChange={e => setSelectedPosition(e.target.value)}
+                    onFocus={()=>setActiveSelect('position')}
+                    onBlur={()=>setActiveSelect('')}
+                    onMouseEnter={()=>setHoveredSelect('position')}
+                    onMouseLeave={()=>setHoveredSelect('')}
+                  >
+                    {positions.map(pos => (
+                      <option key={pos} value={pos}>{pos}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={filterGroup}>
+                  <label style={labelStyle}>League</label>
+                  <select
+                    style={getSelectStyle('league')}
+                    value={selectedLeague}
+                    onChange={e => setSelectedLeague(e.target.value)}
+                    onFocus={() => setActiveSelect('league')}
+                    onBlur={() => setActiveSelect('')}
+                    onMouseEnter={() => setHoveredSelect('league')}
+                    onMouseLeave={() => setHoveredSelect('')}
+                  >
+                    {collegeLeagues.map(l => (
+                      <option key={l} value={l}>{l}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={filterGroup}>
+                  <label style={labelStyle}>Academic Year</label>
+                  <select
+                    style={getSelectStyle('academicLevel')}
+                    value={academicLevel}
+                    onChange={e => setAcademicLevel(e.target.value)}
+                    onFocus={()=>setActiveSelect('academicLevel')}
+                    onBlur={()=>setActiveSelect('')}
+                    onMouseEnter={()=>setHoveredSelect('academicLevel')}
+                    onMouseLeave={()=>setHoveredSelect('')}
+                  >
+                    {academicLevels.map(level => (
+                      <option key={level} value={level}>{level}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
             {/* High School Filters */}
             {type === 'highschool' && <>
               <div style={filterGroup}>

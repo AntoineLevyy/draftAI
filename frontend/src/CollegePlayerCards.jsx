@@ -313,6 +313,121 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
 
       </div>
     );
+  } else if (player.claimed) {
+    // --- Claimed Player Card ---
+    const [showFootage, setShowFootage] = useState(false);
+    const raw = player.raw || {};
+    const playerName = raw['Name'] || player.name || 'Unknown Player';
+    const email = raw['Email Address'] || player.email || '';
+    const currentSchool = raw['Current School'] || '';
+    const division = raw['Division Transferring From'] || player.league || '';
+    const yearOfBirth = raw['Year of Birth'] || '';
+    const eligibility = raw['Years of Eligibility Left'] || '';
+    const gpa = raw['GPA'] || '';
+    const finances = raw['Finances'] || '';
+    const awards = raw['Individual Awards'] || '';
+    const accolades = raw['College Accolades'] || '';
+    const highlights = raw['Highlights'] || '';
+    const fullGame = raw['Full 90 min Game Link'] || '';
+    const height = raw['Height'] || '';
+    const weight = raw['Weight (lbs)'] || '';
+    const creditHours = raw['Credit Hours Taken when you will transfer'] || '';
+    const available = raw['Available'] || '';
+    const nationality = raw['Nationality'] || '';
+    const position = raw['Position'] || player.position || '';
+    const photoUrl = player.photo_url || '';
+
+    // Grouped sections
+    return (
+      <div className="player-card claimed-player-card">
+        <div className="card-header">
+          <div className="player-image-container">
+            {photoUrl ? (
+              <img src={photoUrl} alt={playerName} className="player-image" />
+            ) : (
+              <div className="player-image" style={{ backgroundColor: '#eee', border: '3px solid white', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }} />
+            )}
+          </div>
+          {/* Remove club-badge for claimed cards */}
+          <button
+            className={`save-button ${isSaved ? 'saved' : ''} ${isSaving ? 'saving' : ''}`}
+            onClick={handleSaveToggle}
+            disabled={isSaving}
+            style={{
+              position: 'absolute',
+              top: '10px',
+              left: '10px',
+              background: isSaved ? '#10b981' : 'rgba(255,255,255,0.9)',
+              color: isSaved ? 'white' : '#374151',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              fontSize: '12px',
+              fontWeight: '600',
+              cursor: isSaving ? 'default' : 'pointer',
+              transition: 'all 0.2s ease',
+              zIndex: 10,
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              opacity: isSaved ? 0.8 : 1
+            }}
+          >
+            {isSaving ? (isSaved ? 'Unsaving...' : 'Saving...') : isSaved ? 'Saved ✓' : 'Save'}
+          </button>
+        </div>
+        <div className="card-body">
+          <h3 className="player-name">{playerName}</h3>
+          {currentSchool && <div className="club-name">{currentSchool}</div>}
+          {division && (
+            <div className="league-badge">{division}</div>
+          )}
+          <div className="claimed-section-group">
+            <div className="claimed-section">
+              <h4 className="claimed-section-title">Personal</h4>
+              <div><span className="info-label">Nationality:</span><span className="info-value">{nationality}</span></div>
+              <div><span className="info-label">Year of Birth:</span><span className="info-value">{yearOfBirth}</span></div>
+              <div><span className="info-label">Height:</span><span className="info-value">{height}</span></div>
+              <div><span className="info-label">Weight:</span><span className="info-value">{weight}</span></div>
+              <div><span className="info-label">Position:</span><span className="info-value">{position}</span></div>
+            </div>
+            <div className="claimed-section">
+              <h4 className="claimed-section-title">Academic</h4>
+              <div><span className="info-label">GPA:</span><span className="info-value">{gpa}</span></div>
+              <div><span className="info-label">Credit Hours:</span><span className="info-value">{creditHours}</span></div>
+              <div><span className="info-label">Finances:</span><span className="info-value">{finances}</span></div>
+              <div><span className="info-label">Available:</span><span className="info-value">{available}</span></div>
+            </div>
+            <div className="claimed-section">
+              <h4 className="claimed-section-title">Athletic</h4>
+              <div><span className="info-label">Current School:</span><span className="info-value">{currentSchool}</span></div>
+              <div><span className="info-label">Division Transferring From:</span><span className="info-value">{division}</span></div>
+              <div><span className="info-label">Years of Eligibility Left:</span><span className="info-value">{eligibility}</span></div>
+              <div><span className="info-label">Individual Awards:</span><span className="info-value">{awards}</span></div>
+              <div><span className="info-label">College Accolades:</span><span className="info-value">{accolades}</span></div>
+            </div>
+            <div className="claimed-section">
+              <h4 className="claimed-section-title">Contact</h4>
+              <div><span className="info-label">Email:</span><span className="info-value">{email}</span></div>
+            </div>
+            <div className="claimed-section claimed-footage-section">
+              <button
+                className="claimed-view-footage-button"
+                onClick={() => setShowFootage((v) => !v)}
+              >
+                {showFootage ? 'Hide Highlights' : 'View Highlights'}
+              </button>
+              {showFootage && (
+                <div style={{ marginTop: 8 }}>
+                  {highlights && <div><span className="info-label">Highlights:</span> <a href={highlights} target="_blank" rel="noopener noreferrer" className="info-value">Watch</a></div>}
+                  {fullGame && <div><span className="info-label">Full Game:</span> <a href={fullGame} target="_blank" rel="noopener noreferrer" className="info-value">Watch</a></div>}
+                  {!highlights && !fullGame && <div className="info-value">No video links available.</div>}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   } else {
     // Transfer player fields (existing logic)
     const playerName = player.name || 'Unknown Player';
@@ -500,6 +615,11 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
   }
 });
 
+// Define filter arrays
+const positions = ['All', 'Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
+const academicLevels = ['All', 'Freshman', 'Sophomore', 'Junior', 'Senior', 'Graduate Student'];
+const leagues = ['All', 'NJCAA D1', 'NJCAA D2', 'NJCAA D3'];
+
 const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
   const { user } = useAuth();
   console.log('CollegePlayerCards received filters:', filters);
@@ -543,6 +663,8 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
   const [claimedPosition, setClaimedPosition] = useState('All');
   const [claimedEligibility, setClaimedEligibility] = useState('All');
   const [claimedAwards, setClaimedAwards] = useState('All');
+  const [claimedLeague, setClaimedLeague] = useState('All');
+  const [minGpa, setMinGpa] = useState('All');
 
   // Compute unique states and grad years from players
   const highSchoolStates = useMemo(() => {
@@ -580,6 +702,11 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
     const setA = new Set();
     players.forEach(p => { if (p.claimed && p.awards) setA.add(p.awards); });
     return ['All', ...Array.from(setA).sort()];
+  }, [players]);
+  const claimedLeagues = useMemo(() => {
+    const setL = new Set();
+    players.forEach(p => { if (p.claimed && p.league) setL.add(p.league); });
+    return ['All', ...Array.from(setL).sort()];
   }, [players]);
 
   // Use filters passed from landing page, with local state for adjustments
@@ -832,6 +959,11 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
       if (claimedPosition !== 'All') filtered = filtered.filter(p => p.position === claimedPosition);
       if (claimedEligibility !== 'All') filtered = filtered.filter(p => p.eligibility === claimedEligibility);
       if (claimedAwards !== 'All') filtered = filtered.filter(p => p.awards === claimedAwards);
+      if (claimedLeague !== 'All') filtered = filtered.filter(p => p.league === claimedLeague);
+      if (minGpa !== 'All') filtered = filtered.filter(p => {
+        const gpa = parseFloat(p.gpa || (p.raw && p.raw['GPA']) || 0);
+        return !isNaN(gpa) && gpa >= parseFloat(minGpa);
+      });
     }
 
     let filteredPlayers = filtered.filter(player => {
@@ -911,7 +1043,7 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
           return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
         }
       });
-  }, [players, searchTerm, sortBy, sortOrder, currentFilters, expandYear, getMainPositionCategory, type, stateFilter, gradYearFilter, claimedFilter, claimedPosition, claimedEligibility, claimedAwards]);
+  }, [players, searchTerm, sortBy, sortOrder, currentFilters, expandYear, getMainPositionCategory, type, stateFilter, gradYearFilter, claimedFilter, claimedPosition, claimedEligibility, claimedAwards, claimedLeague, minGpa]);
 
   const formatMinutes = useCallback((minutes) => {
     if (!minutes) return '0';
@@ -1085,8 +1217,9 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
             <option value="international" disabled>International (coming soon)</option>
           </select>
         </div>
-        {claimedFilter === 'claimed' && (
+        {claimedFilter === 'claimed' ? (
           <>
+            {/* Only show claimed filters */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
               <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
                 Position
@@ -1123,57 +1256,96 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
                 {claimedAwardsList.map(aw => <option key={aw} value={aw}>{aw}</option>)}
               </select>
             </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+                Minimum GPA
+              </label>
+              <select
+                value={minGpa}
+                onChange={e => setMinGpa(e.target.value)}
+                className="filter-select"
+              >
+                {['All', '2.0', '2.5', '3.0', '3.5', '4.0'].map(gpa => <option key={gpa} value={gpa}>{gpa}</option>)}
+              </select>
+            </div>
+          </>
+        ) : (claimedFilter === 'unclaimed' || claimedFilter === 'all') && (
+          <>
+            {/* Only show unclaimed filters here (existing logic) */}
+            {type === 'transfer' && (
+              <>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+                  <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+                    League
+                  </label>
+                  <select
+                    value={currentFilters.league}
+                    onChange={e => setLocalFilters(f => ({ ...f, league: e.target.value }))}
+                    className="filter-select"
+                  >
+                    {leagues.map(lg => <option key={lg} value={lg}>{lg}</option>)}
+                  </select>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+                  <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+                    Position
+                  </label>
+                  <select
+                    value={currentFilters.position}
+                    onChange={e => setLocalFilters(f => ({ ...f, position: e.target.value }))}
+                    className="filter-select"
+                  >
+                    {positions.map(pos => <option key={pos} value={pos}>{pos}</option>)}
+                  </select>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+                  <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+                    Academic Year
+                  </label>
+                  <select
+                    value={currentFilters.academicLevel}
+                    onChange={e => setLocalFilters(f => ({ ...f, academicLevel: e.target.value }))}
+                    className="filter-select"
+                  >
+                    {academicLevels.map(ay => <option key={ay} value={ay}>{ay}</option>)}
+                  </select>
+                </div>
+              </>
+            )}
+            {/* Add other unclaimed filters as needed */}
           </>
         )}
-        {/* Add other regular filters here as needed, after Claimed Status */}
-        {type === 'transfer' && (
+        {/* Common filters for both claimed and unclaimed */}
+        {claimedFilter === 'claimed' && (
           <>
+            {/* League filter for claimed players (shows "Division Transferring From" data as "League") */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
+              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+                League
+              </label>
+              <select
+                value={claimedLeague}
+                onChange={e => setClaimedLeague(e.target.value)}
+                className="filter-select"
+              >
+                {claimedLeagues.map(lg => <option key={lg} value={lg}>{lg}</option>)}
+              </select>
+            </div>
+          </>
+        )}
+        {(claimedFilter === 'unclaimed' || claimedFilter === 'all') && type === 'transfer' && (
+          <>
+            {/* League filter for unclaimed transfer players */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
               <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
                 League
               </label>
               <select
                 value={currentFilters.league}
-                onChange={e => setLocalFilters(prev => ({ ...prev, league: e.target.value }))}
+                onChange={e => setLocalFilters(f => ({ ...f, league: e.target.value }))}
                 className="filter-select"
               >
-                <option value="All">All</option>
-                <option value="NJCAA D1">NJCAA D1</option>
-                <option value="NJCAA D2">NJCAA D2</option>
-                <option value="NJCAA D3">NJCAA D3</option>
-              </select>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
-                Position
-              </label>
-              <select
-                value={currentFilters.position}
-                onChange={e => setLocalFilters(prev => ({ ...prev, position: e.target.value }))}
-                className="filter-select"
-              >
-                <option value="All">All</option>
-                <option value="Goalkeeper">Goalkeeper</option>
-                <option value="Defender">Defender</option>
-                <option value="Midfielder">Midfielder</option>
-                <option value="Forward">Forward</option>
-              </select>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-              <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
-                Academic Year
-              </label>
-              <select
-                value={currentFilters.academicLevel}
-                onChange={e => setLocalFilters(prev => ({ ...prev, academicLevel: e.target.value }))}
-                className="filter-select"
-              >
-                <option value="All">All</option>
-                <option value="Freshman">Freshman</option>
-                <option value="Sophomore">Sophomore</option>
-                <option value="Junior">Junior</option>
-                <option value="Senior">Senior</option>
-                <option value="Graduate Student">Graduate Student</option>
+                {leagues.map(lg => <option key={lg} value={lg}>{lg}</option>)}
               </select>
             </div>
           </>
@@ -1446,7 +1618,7 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
         </div>
       ) : viewMode === 'grid' ? (
         <div className="player-cards-grid">
-          {filteredAndSortedPlayers.slice(0, 10).map((player, visibleIdx) => (
+                      {filteredAndSortedPlayers.slice(0, 9).map((player, visibleIdx) => (
             <div key={String(player.playerId) + '-' + savedPlayerIds.includes(String(player.playerId)) + '-' + refreshKey} style={{ position: 'relative' }}>
               <CollegePlayerCard
                 player={player}
@@ -1482,10 +1654,43 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
               )}
             </div>
           ))}
-          {!user && filteredAndSortedPlayers.length > 10 && (
-            <div className="unlock-more-message">
-              <button className="unlock-more-btn" onClick={onShowSignupModal}>
-                Sign in to unlock more
+                      {!user && filteredAndSortedPlayers.length > 9 && (
+            <div className="unlock-more-message" style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '40px 20px',
+              background: 'rgba(24, 24, 27, 0.8)',
+              borderRadius: '16px',
+              border: '2px dashed rgba(239, 68, 68, 0.3)',
+              margin: '40px auto',
+              maxWidth: '400px',
+              textAlign: 'center',
+              width: '100%',
+              gridColumn: '1 / -1'
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '16px', opacity: 0.7 }}>🔒</div>
+              <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#fff', marginBottom: '8px' }}>
+                Sign in to unlock more players
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#9ca3af', marginBottom: '20px' }}>
+                {filteredAndSortedPlayers.length - 9} more players available
+              </div>
+              <div style={{ fontSize: '2rem', marginBottom: '16px', opacity: 0.5, animation: 'bounce 2s infinite' }}>⬇️</div>
+              <button className="unlock-more-btn" onClick={onShowSignupModal} style={{
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '12px 24px',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 16px rgba(239, 68, 68, 0.3)'
+              }}>
+                Sign In Now
               </button>
             </div>
           )}
@@ -1497,41 +1702,76 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
               <tr>
                 <th>Image</th>
                 <th>Name</th>
-                <th>Club</th>
-                <th>League</th>
-                <th>Position</th>
-                <th>Goals</th>
-                <th>Assists</th>
-                <th>Matches</th>
+                {claimedFilter === 'claimed' ? (
+                  <>
+                    <th>Nationality</th>
+                    <th>Club</th>
+                    <th>League</th>
+                    <th>Position</th>
+                    <th>Eligibility</th>
+                    <th>GPA</th>
+                  </>
+                ) : (
+                  <>
+                    <th>Club</th>
+                    <th>League</th>
+                    <th>Position</th>
+                    <th>Goals</th>
+                    <th>Assists</th>
+                    <th>Matches</th>
+                  </>
+                )}
                 <th>Save</th>
               </tr>
             </thead>
             <tbody>
-              {filteredAndSortedPlayers.slice(0, 10).map((player, visibleIdx) => {
+              {filteredAndSortedPlayers.slice(0, 9).map((player, visibleIdx) => {
                 const playerName = player.name || 'Unknown Player';
-                const club = player.team || 'Unknown Club';
-                const league = player.league || 'Unknown League';
-                const position = player.position || 'Unknown';
-                const goals = player.goals || 0;
-                const assists = player.assists || 0;
-                const matches = player.games || 0;
                 const playerId = player.playerId;
                 const isSaved = user && savedPlayerIds.map(id => String(id)).includes(String(playerId));
                 const isSaving = !!savingMap[playerId];
+                
+                // Data for claimed players
+                const nationality = player.claimed ? (player.raw && player.raw['Nationality']) || 'N/A' : '';
+                const club = player.team || 'Unknown Club';
+                const league = player.league || 'Unknown League';
+                const position = player.position || 'Unknown';
+                const eligibility = player.claimed ? (player.raw && player.raw['Years of Eligibility Left']) || 'N/A' : '';
+                const gpa = player.claimed ? (player.raw && player.raw['GPA']) || 'N/A' : '';
+                
+                // Data for unclaimed players
+                const goals = !player.claimed ? (player.goals || 0) : '';
+                const assists = !player.claimed ? (player.assists || 0) : '';
+                const matches = !player.claimed ? (player.games || 0) : '';
+                
                 return (
                   <tr key={String(player.playerId) + '-' + playerName} onClick={() => { setSelectedPlayerForModal(player); setShowPlayerModal(true); }} style={{ cursor: 'pointer', background: 'transparent', border: 'none' }}>
                     <td><img src={getPlayerImage(player)} alt={playerName} className="player-list-img" /></td>
                     <td style={{ color: 'white' }}>{playerName}</td>
-                    <td style={{ color: 'white' }}>{club}</td>
-                    <td style={{ color: 'white' }}>{league}</td>
-                    <td style={{ color: 'white' }}>{position}</td>
-                    <td style={{ color: 'white' }}>{goals}</td>
-                    <td style={{ color: 'white' }}>{assists}</td>
-                    <td style={{ color: 'white' }}>{matches}</td>
+                    {claimedFilter === 'claimed' ? (
+                      <>
+                        <td style={{ color: 'white' }}>{nationality}</td>
+                        <td style={{ color: 'white' }}>{club}</td>
+                        <td style={{ color: 'white' }}>{league}</td>
+                        <td style={{ color: 'white' }}>{position}</td>
+                        <td style={{ color: 'white' }}>{eligibility}</td>
+                        <td style={{ color: 'white' }}>{gpa}</td>
+                      </>
+                    ) : (
+                      <>
+                        <td style={{ color: 'white' }}>{club}</td>
+                        <td style={{ color: 'white' }}>{league}</td>
+                        <td style={{ color: 'white' }}>{position}</td>
+                        <td style={{ color: 'white' }}>{goals}</td>
+                        <td style={{ color: 'white' }}>{assists}</td>
+                        <td style={{ color: 'white' }}>{matches}</td>
+                      </>
+                    )}
                     <td>
                       <button
                         className={isSaved ? 'save-btn saved' : 'save-btn'}
-                        onClick={async () => {
+                        onClick={async (e) => {
+                          e.stopPropagation();
                           if (isSaved || isSaving) return;
                           await handleOptimisticSave(player, playerId);
                         }}
@@ -1544,12 +1784,39 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
                   </tr>
                 );
               })}
-              {!user && filteredAndSortedPlayers.length > 10 && (
+              {!user && filteredAndSortedPlayers.length > 9 && (
                 <tr>
-                  <td colSpan={9} style={{ textAlign: 'center', background: '#f8fafc', color: '#4f8cff', fontWeight: 700, fontSize: '1.1rem', borderRadius: 12, height: 60 }}>
-                    <button className="unlock-more-btn" onClick={onShowSignupModal}>
-                      Sign in to unlock more
-                    </button>
+                  <td colSpan={claimedFilter === 'claimed' ? 8 : 9} style={{ 
+                    textAlign: 'center', 
+                    background: 'rgba(24, 24, 27, 0.8)', 
+                    borderRadius: 12, 
+                    padding: '30px 20px',
+                    border: '2px dashed rgba(239, 68, 68, 0.3)'
+                  }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ fontSize: '2rem', opacity: 0.7 }}>🔒</div>
+                      <div style={{ fontSize: '1.1rem', fontWeight: '600', color: '#fff' }}>
+                        Sign in to unlock more players
+                      </div>
+                      <div style={{ fontSize: '0.9rem', color: '#9ca3af' }}>
+                        {filteredAndSortedPlayers.length - 9} more players available
+                      </div>
+                      <div style={{ fontSize: '1.5rem', opacity: 0.5, animation: 'bounce 2s infinite' }}>⬇️</div>
+                      <button className="unlock-more-btn" onClick={onShowSignupModal} style={{
+                        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '10px 20px',
+                        fontSize: '0.9rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 4px 16px rgba(239, 68, 68, 0.3)'
+                      }}>
+                        Sign In Now
+                      </button>
+                    </div>
                   </td>
                 </tr>
               )}
@@ -1671,16 +1938,6 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
               onSaveToggle={refreshSavedPlayers}
               onShowSignupModal={onShowSignupModal}
             />
-            {selectedPlayerForModal.claimed && (
-              <div style={{ marginTop: 16, background: '#fffbe6', borderRadius: 8, padding: 12, color: '#333', fontSize: 13 }}>
-                <h4 style={{ margin: 0, marginBottom: 8, color: '#bfa100' }}>Claimed Player Details</h4>
-                <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                  {Object.entries(selectedPlayerForModal.raw).map(([key, value]) => (
-                    <li key={key}><b>{key}:</b> {String(value)}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
         </div>
       )}
