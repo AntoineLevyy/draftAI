@@ -20,12 +20,18 @@ import { useAuth } from './AuthContext';
  * // ...all other possible fields
  */
 
-function normalizePlayer(rawPlayer) {
-  // Heuristic: if it has 'Email Address' or 'Why Player is Transferring', it's claimed
-  const isClaimed = !!rawPlayer['Email Address'] || !!rawPlayer['Why Player is Transferring'];
+function normalizePlayer(rawPlayer, idx) {
+  const isClaimed = rawPlayer.claimed || !!rawPlayer['Email Address'] || !!rawPlayer['Why Player is Transferring'];
   if (isClaimed) {
+    // Generate a unique ID for claimed players
+    const playerId =
+      rawPlayer['Email Address'] ||
+      (rawPlayer['Name'] && rawPlayer['Current School']
+        ? `${rawPlayer['Name']}_${rawPlayer['Current School']}`.replace(/\s+/g, '_')
+        : `claimed_${idx}`);
     return {
       claimed: true,
+      playerId, // <-- add this line
       name: rawPlayer['Name'] || '',
       position: rawPlayer['Position'] || '',
       awards: rawPlayer['Individual Awards'] || '',
@@ -40,6 +46,7 @@ function normalizePlayer(rawPlayer) {
   } else {
     return {
       claimed: false,
+      playerId: rawPlayer.playerId || rawPlayer.id || '',
       name: rawPlayer.name || '',
       position: rawPlayer.position || '',
       awards: '',
@@ -714,8 +721,11 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
       console.log('Players from API:', data.players?.length || 0);
       console.log('Type filter applied:', data.filters_applied?.type);
       
+      // Print the first 5 players from the API response for debugging
+      console.log('First 5 players from API:', (data.players || data || []).slice(0, 5));
       // Normalize all players
-      const normalized = (data.players || []).map(normalizePlayer);
+      const normalized = (data.players || data || []).map(normalizePlayer);
+      console.log('Claimed players after normalization:', normalized.filter(p => p.claimed));
       setPlayers(normalized);
       setLoading(false);
       console.log('=== FETCH PLAYERS COMPLETED ===');

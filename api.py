@@ -390,12 +390,12 @@ def fetch_player_data():
         print("Loading claimed players from JSON...")
         with open(CLEAN_CLAIMED_PLAYERS_JSON, 'r', encoding='utf-8') as f:
             claimed_players = json.load(f)
+        print(f"Loaded {len(claimed_players)} claimed players from clean_claimed_players.json")
         for p in claimed_players:
             p['claimed'] = True
             p['type'] = 'transfer'
-        print(f"Loaded {len(claimed_players)} claimed players from JSON")
-        # Place claimed players at the top for visibility
         players = claimed_players + players
+        print(f"Total players after merging claimed: {len(players)}")
     except Exception as e:
         print(f"Error loading claimed players: {e}")
     # Set type='transfer' for NJCAA/college players if not already set
