@@ -4,6 +4,8 @@ import { supabase } from './supabase';
 import { getClaimedProfileByUserId } from './services/claimService';
 import PlayerDetailModalCard from './PlayerDetailModalCard';
 import { apiBaseUrl } from './config';
+import Chat from './Chat';
+import { getUnreadCount } from './services/chatService';
 
 const PlayerProfile = ({ onBack }) => {
   const { user, signOut } = useAuth();
@@ -14,12 +16,28 @@ const PlayerProfile = ({ onBack }) => {
   const [saving, setSaving] = useState(false);
   const [showPlayerModal, setShowPlayerModal] = useState(false);
   const [selectedPlayerForModal, setSelectedPlayerForModal] = useState(null);
+  const [tab, setTab] = useState('profile'); // 'profile' or 'messages'
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    if (user) {
-      loadPlayerProfile();
+    loadPlayerProfile();
+    loadUnreadCount();
+  }, []);
+
+  // Load unread count periodically
+  useEffect(() => {
+    const interval = setInterval(loadUnreadCount, 30000); // Check every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadUnreadCount = async () => {
+    try {
+      const count = await getUnreadCount();
+      setUnreadCount(count);
+    } catch (error) {
+      console.error('Error loading unread count:', error);
     }
-  }, [user]);
+  };
 
   const loadPlayerProfile = async () => {
     try {
@@ -197,66 +215,67 @@ const PlayerProfile = ({ onBack }) => {
 
   const headerStyle = {
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    marginTop: '40px',
-    marginBottom: '40px',
+    marginTop: '20px',
+    marginBottom: '35px',
     paddingBottom: '20px',
     borderBottom: '1px solid #333'
   };
 
   const titleStyle = {
-    fontSize: '2.5rem',
+    fontSize: '1.8rem',
     fontWeight: '700',
     background: 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
     margin: 0,
-    textAlign: 'center'
+    textAlign: 'left'
   };
 
   const cardStyle = {
     background: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: '16px',
-    padding: '30px',
+    borderRadius: '12px',
+    padding: '15px',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     backdropFilter: 'blur(20px)',
-    marginBottom: '30px'
+    marginBottom: '15px'
   };
 
   const sectionTitleStyle = {
-    fontSize: '1.5rem',
+    fontSize: '1.2rem',
     fontWeight: '600',
-    marginBottom: '20px',
+    marginBottom: '12px',
     color: '#ef4444'
   };
 
   const fieldStyle = {
-    marginBottom: '20px'
+    marginBottom: '12px'
   };
 
   const labelStyle = {
     display: 'block',
-    fontSize: '14px',
+    fontSize: '12px',
     fontWeight: '500',
     color: '#9ca3af',
-    marginBottom: '8px'
+    marginBottom: '4px'
   };
 
   const inputStyle = {
     width: '100%',
-    padding: '12px 16px',
+    padding: '8px 12px',
     background: 'rgba(255, 255, 255, 0.1)',
     border: '1px solid rgba(255, 255, 255, 0.2)',
-    borderRadius: '8px',
+    borderRadius: '6px',
     color: 'white',
-    fontSize: '16px',
+    fontSize: '14px',
     transition: 'all 0.2s ease'
   };
 
   const textareaStyle = {
     ...inputStyle,
-    minHeight: '100px',
+    minHeight: '60px',
     resize: 'vertical'
   };
 
@@ -264,13 +283,13 @@ const PlayerProfile = ({ onBack }) => {
     background: 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%)',
     color: 'white',
     border: 'none',
-    padding: '12px 24px',
-    borderRadius: '8px',
-    fontSize: '16px',
+    padding: '10px 20px',
+    borderRadius: '6px',
+    fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    marginRight: '12px'
+    marginRight: '10px'
   };
 
   const secondaryButtonStyle = {
@@ -280,19 +299,19 @@ const PlayerProfile = ({ onBack }) => {
   };
 
   const valueStyle = {
-    fontSize: '16px',
+    fontSize: '14px',
     color: 'white',
-    padding: '12px 16px',
+    padding: '8px 12px',
     background: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: '8px',
+    borderRadius: '6px',
     border: '1px solid rgba(255, 255, 255, 0.1)'
   };
 
   const actionButtonsStyle = {
     display: 'flex',
-    gap: '12px',
-    marginTop: '20px',
-    justifyContent: 'center'
+    gap: '10px',
+    marginTop: '12px',
+    justifyContent: 'flex-end'
   };
 
   const modalStyle = {
@@ -313,22 +332,118 @@ const PlayerProfile = ({ onBack }) => {
     background: 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)',
     color: 'white',
     border: 'none',
-    padding: '12px 24px',
-    borderRadius: '8px',
-    fontSize: '16px',
+    padding: '8px 16px',
+    borderRadius: '6px',
+    fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    marginTop: '20px',
+    marginTop: '12px',
     width: '100%'
+  };
+
+  const tabButtonStyle = (active) => ({
+    padding: '12px 24px',
+    margin: '0 8px',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    fontWeight: '600',
+    transition: 'all 0.3s ease',
+    background: active ? 'linear-gradient(90deg, #b91c1c 0%, #ef4444 100%)' : 'rgba(0,0,0,0.7)',
+    color: active ? 'white' : '#fff',
+    position: 'relative'
+  });
+
+  const unreadBadgeStyle = {
+    position: 'absolute',
+    top: '-5px',
+    right: '-5px',
+    backgroundColor: '#dc3545',
+    color: '#fff',
+    borderRadius: '50%',
+    padding: '2px 6px',
+    fontSize: '10px',
+    minWidth: '16px',
+    textAlign: 'center',
+    fontWeight: 'bold'
+  };
+
+  const tabContainerStyle = {
+    marginBottom: '1.5rem',
+    display: 'flex',
+    justifyContent: 'center'
+  };
+
+  const profileSectionStyle = {
+    ...cardStyle,
+    marginBottom: '15px'
+  };
+
+  const sectionStyle = {
+    marginBottom: '15px'
+  };
+
+  const subsectionTitleStyle = {
+    fontSize: '1rem',
+    fontWeight: '600',
+    marginBottom: '10px',
+    color: '#ef4444'
+  };
+
+  const fieldGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gap: '12px'
+  };
+
+  const saveButtonStyle = {
+    ...buttonStyle,
+    background: 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)'
+  };
+
+  const cancelButtonStyle = {
+    ...secondaryButtonStyle,
+    background: 'rgba(255, 255, 255, 0.1)',
+    border: '1px solid rgba(255, 255, 255, 0.2)'
+  };
+
+  const editButtonStyle = {
+    ...buttonStyle,
+    background: 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%)'
+  };
+
+  const viewButtonStyle = {
+    ...secondaryButtonStyle,
+    background: 'rgba(255, 255, 255, 0.1)',
+    border: '1px solid rgba(255, 255, 255, 0.2)'
+  };
+
+  const unclaimSectionStyle = {
+    marginTop: '15px',
+    textAlign: 'center'
+  };
+
+  const loadingStyle = {
+    textAlign: 'center',
+    padding: '100px 20px'
+  };
+
+  const errorStyle = {
+    textAlign: 'center',
+    padding: '100px 20px'
+  };
+
+  const backButtonStyle = {
+    ...buttonStyle,
+    background: 'linear-gradient(90deg, #6b7280 0%, #4b5563 100%)'
   };
 
   if (loading) {
     return (
       <div style={containerStyle}>
-        <div style={{ textAlign: 'center', padding: '100px 20px' }}>
-          <div style={{ fontSize: '18px', color: '#9ca3af' }}>Loading your profile...</div>
-        </div>
+        <div style={loadingStyle}>Loading your profile...</div>
       </div>
     );
   }
@@ -359,347 +474,357 @@ const PlayerProfile = ({ onBack }) => {
     );
   }
 
+  // Remove the early return for messages - we'll render it within the main layout
+
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
         <h1 style={titleStyle}>Player Profile</h1>
       </div>
 
-      <div style={cardStyle}>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '30px' }}>
-          <div style={actionButtonsStyle}>
-            {!editMode ? (
-              <>
-                <button style={buttonStyle} onClick={() => setEditMode(true)}>
-                  Edit Profile
-                </button>
-                <button style={secondaryButtonStyle} onClick={handleViewProfile}>
-                  View Profile Card
-                </button>
-              </>
-            ) : (
-              <>
-                <button style={buttonStyle} onClick={handleSave} disabled={saving}>
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </button>
-                <button style={secondaryButtonStyle} onClick={handleCancel}>
-                  Cancel
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-          {/* Personal Information */}
-          <div>
-            <h3 style={{ ...sectionTitleStyle, fontSize: '1.2rem', marginBottom: '15px' }}>Personal</h3>
-            
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Name</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.name}
-                  onChange={(e) => setEditData({...editData, name: e.target.value})}
-                  placeholder="Your full name"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.name || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Position</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.position}
-                  onChange={(e) => setEditData({...editData, position: e.target.value})}
-                  placeholder="e.g., Forward, Midfielder"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.position || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Nationality</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.nationality}
-                  onChange={(e) => setEditData({...editData, nationality: e.target.value})}
-                  placeholder="e.g., American"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.nationality || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Year of Birth</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.year_of_birth}
-                  onChange={(e) => setEditData({...editData, year_of_birth: e.target.value})}
-                  placeholder="e.g., 2003"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.year_of_birth || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Height</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.height}
-                  onChange={(e) => setEditData({...editData, height: e.target.value})}
-                  placeholder="e.g., 6'2&quot;"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.height || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Weight (lbs)</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.weight}
-                  onChange={(e) => setEditData({...editData, weight: e.target.value})}
-                  placeholder="e.g., 180"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.weight || 'Not provided'}</div>
-              )}
-            </div>
-          </div>
-
-          {/* Academic Information */}
-          <div>
-            <h3 style={{ ...sectionTitleStyle, fontSize: '1.2rem', marginBottom: '15px' }}>Academic</h3>
-            
-            <div style={fieldStyle}>
-              <label style={labelStyle}>GPA</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.gpa}
-                  onChange={(e) => setEditData({...editData, gpa: e.target.value})}
-                  placeholder="e.g., 3.5"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  max="4"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.gpa || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Credit Hours Taken</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.credit_hours_taken}
-                  onChange={(e) => setEditData({...editData, credit_hours_taken: e.target.value})}
-                  placeholder="e.g., 45"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.credit_hours_taken || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Years of Eligibility Left</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.years_of_eligibility_left}
-                  onChange={(e) => setEditData({...editData, years_of_eligibility_left: e.target.value})}
-                  placeholder="e.g., 2"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.years_of_eligibility_left || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Finances</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.finances}
-                  onChange={(e) => setEditData({...editData, finances: e.target.value})}
-                  placeholder="Financial requirements or preferences"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.finances || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Available</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.available}
-                  onChange={(e) => setEditData({...editData, available: e.target.value})}
-                  placeholder="e.g., Immediately"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.available || 'Not provided'}</div>
-              )}
-            </div>
-          </div>
-
-          {/* Athletic Information */}
-          <div>
-            <h3 style={{ ...sectionTitleStyle, fontSize: '1.2rem', marginBottom: '15px' }}>Athletic</h3>
-            
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Current School</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.current_school}
-                  onChange={(e) => setEditData({...editData, current_school: e.target.value})}
-                  placeholder="Your current school"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.current_school || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Division Transferring From</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.division_transferring_from}
-                  onChange={(e) => setEditData({...editData, division_transferring_from: e.target.value})}
-                  placeholder="e.g., NJCAA D1"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.division_transferring_from || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Individual Awards</label>
-              {editMode ? (
-                <textarea
-                  style={textareaStyle}
-                  value={editData.individual_awards}
-                  onChange={(e) => setEditData({...editData, individual_awards: e.target.value})}
-                  placeholder="List your individual awards and achievements"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.individual_awards || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>College Accolades</label>
-              {editMode ? (
-                <textarea
-                  style={textareaStyle}
-                  value={editData.college_accolades}
-                  onChange={(e) => setEditData({...editData, college_accolades: e.target.value})}
-                  placeholder="List your college accolades"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.college_accolades || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Why Player is Transferring</label>
-              {editMode ? (
-                <textarea
-                  style={textareaStyle}
-                  value={editData.why_player_is_transferring}
-                  onChange={(e) => setEditData({...editData, why_player_is_transferring: e.target.value})}
-                  placeholder="Explain why you are transferring"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.why_player_is_transferring || 'Not provided'}</div>
-              )}
-            </div>
-          </div>
-
-          {/* Contact Information */}
-          <div>
-            <h3 style={{ ...sectionTitleStyle, fontSize: '1.2rem', marginBottom: '15px' }}>Contact</h3>
-            
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Email Address</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.email_address}
-                  onChange={(e) => setEditData({...editData, email_address: e.target.value})}
-                  placeholder="Your email address"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.email_address || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Highlights</label>
-              {editMode ? (
-                <textarea
-                  style={textareaStyle}
-                  value={editData.highlights}
-                  onChange={(e) => setEditData({...editData, highlights: e.target.value})}
-                  placeholder="Describe your highlights and achievements"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.highlights || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Full Game Link</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.full_game_link}
-                  onChange={(e) => setEditData({...editData, full_game_link: e.target.value})}
-                  placeholder="URL to your full game footage"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.full_game_link || 'Not provided'}</div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Unclaim Profile Button */}
-      <div style={cardStyle}>
+      {/* Tab Navigation */}
+      <div style={tabContainerStyle}>
         <button 
-          style={unclaimButtonStyle}
-          onClick={handleUnclaimProfile}
-          onMouseEnter={(e) => {
-            e.target.style.transform = 'translateY(-2px)';
-            e.target.style.boxShadow = '0 8px 25px rgba(239, 68, 68, 0.3)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = 'none';
-          }}
+          style={tabButtonStyle(tab === 'profile')} 
+          onClick={() => setTab('profile')}
         >
-          Unclaim Profile
+          Profile Details
+        </button>
+        <button 
+          style={tabButtonStyle(tab === 'messages')} 
+          onClick={() => setTab('messages')}
+        >
+          Messages
+          {unreadCount > 0 && (
+            <span style={unreadBadgeStyle}>
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
         </button>
       </div>
+
+      {/* Profile Details Section */}
+      {tab === 'profile' && (
+        <div style={profileSectionStyle}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '15px' }}>
+            <div style={actionButtonsStyle}>
+              {editMode ? (
+                <>
+                  <button style={saveButtonStyle} onClick={handleSave} disabled={saving}>
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                  <button style={cancelButtonStyle} onClick={() => setEditMode(false)}>
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button style={editButtonStyle} onClick={() => setEditMode(true)}>
+                    Edit Profile
+                  </button>
+                  <button style={viewButtonStyle} onClick={handleViewProfile}>
+                    View Profile Card
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Personal and Academic Information - Side by Side */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px', marginBottom: '20px' }}>
+            {/* Personal Information */}
+            <div style={sectionStyle}>
+              <h3 style={subsectionTitleStyle}>Personal</h3>
+              <div style={fieldGridStyle}>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Name</label>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      value={editData.name}
+                      onChange={(e) => setEditData({...editData, name: e.target.value})}
+                      style={inputStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.name}</div>
+                  )}
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Nationality</label>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      value={editData.nationality}
+                      onChange={(e) => setEditData({...editData, nationality: e.target.value})}
+                      style={inputStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.nationality || 'Not specified'}</div>
+                  )}
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Year of Birth</label>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      value={editData.year_of_birth}
+                      onChange={(e) => setEditData({...editData, year_of_birth: e.target.value})}
+                      style={inputStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.year_of_birth || 'Not specified'}</div>
+                  )}
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Height</label>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      value={editData.height}
+                      onChange={(e) => setEditData({...editData, height: e.target.value})}
+                      style={inputStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.height || 'Not specified'}</div>
+                  )}
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Weight</label>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      value={editData.weight}
+                      onChange={(e) => setEditData({...editData, weight: e.target.value})}
+                      style={inputStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.weight || 'Not specified'}</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Academic Information */}
+            <div style={sectionStyle}>
+              <h3 style={subsectionTitleStyle}>Academic</h3>
+              <div style={fieldGridStyle}>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Position</label>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      value={editData.position}
+                      onChange={(e) => setEditData({...editData, position: e.target.value})}
+                      style={inputStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.position}</div>
+                  )}
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>GPA</label>
+                  {editMode ? (
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="4"
+                      value={editData.gpa}
+                      onChange={(e) => setEditData({...editData, gpa: e.target.value})}
+                      style={inputStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.gpa || 'Not specified'}</div>
+                  )}
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Credit Hours</label>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      value={editData.credit_hours_taken}
+                      onChange={(e) => setEditData({...editData, credit_hours_taken: e.target.value})}
+                      style={inputStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.credit_hours_taken || 'Not specified'}</div>
+                  )}
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Years of Eligibility Left</label>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      value={editData.years_of_eligibility_left}
+                      onChange={(e) => setEditData({...editData, years_of_eligibility_left: e.target.value})}
+                      style={inputStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.years_of_eligibility_left || 'Not specified'}</div>
+                  )}
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Finances</label>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      value={editData.finances}
+                      onChange={(e) => setEditData({...editData, finances: e.target.value})}
+                      style={inputStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.finances || 'Not specified'}</div>
+                  )}
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Available</label>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      value={editData.available}
+                      onChange={(e) => setEditData({...editData, available: e.target.value})}
+                      style={inputStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.available || 'Not specified'}</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Athletic and Contact Information - Side by Side */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px', marginBottom: '20px' }}>
+            {/* Athletic Information */}
+            <div style={sectionStyle}>
+              <h3 style={subsectionTitleStyle}>Athletic</h3>
+              <div style={fieldGridStyle}>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Current School</label>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      value={editData.current_school}
+                      onChange={(e) => setEditData({...editData, current_school: e.target.value})}
+                      style={inputStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.current_school}</div>
+                  )}
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Division Transferring From</label>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      value={editData.division_transferring_from}
+                      onChange={(e) => setEditData({...editData, division_transferring_from: e.target.value})}
+                      style={inputStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.division_transferring_from}</div>
+                  )}
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Individual Awards</label>
+                  {editMode ? (
+                    <textarea
+                      value={editData.individual_awards}
+                      onChange={(e) => setEditData({...editData, individual_awards: e.target.value})}
+                      style={textareaStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.individual_awards || 'Not specified'}</div>
+                  )}
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>College Accolades</label>
+                  {editMode ? (
+                    <textarea
+                      value={editData.college_accolades}
+                      onChange={(e) => setEditData({...editData, college_accolades: e.target.value})}
+                      style={textareaStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.college_accolades || 'Not specified'}</div>
+                  )}
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Why Player is Transferring</label>
+                  {editMode ? (
+                    <textarea
+                      value={editData.why_player_is_transferring}
+                      onChange={(e) => setEditData({...editData, why_player_is_transferring: e.target.value})}
+                      style={textareaStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.why_player_is_transferring || 'Not specified'}</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Information */}
+            <div style={sectionStyle}>
+              <h3 style={subsectionTitleStyle}>Contact</h3>
+              <div style={fieldGridStyle}>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Email Address</label>
+                  {editMode ? (
+                    <input
+                      type="email"
+                      value={editData.email_address}
+                      onChange={(e) => setEditData({...editData, email_address: e.target.value})}
+                      style={inputStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.email_address}</div>
+                  )}
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Highlights</label>
+                  {editMode ? (
+                    <textarea
+                      value={editData.highlights}
+                      onChange={(e) => setEditData({...editData, highlights: e.target.value})}
+                      style={textareaStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.highlights || 'Not specified'}</div>
+                  )}
+                </div>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Full Game Link</label>
+                  {editMode ? (
+                    <input
+                      type="url"
+                      value={editData.full_game_link}
+                      onChange={(e) => setEditData({...editData, full_game_link: e.target.value})}
+                      style={inputStyle}
+                    />
+                  ) : (
+                    <div style={valueStyle}>{profile.full_game_link || 'Not specified'}</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Unclaim Profile Button */}
+          <div style={unclaimSectionStyle}>
+            <button style={unclaimButtonStyle} onClick={handleUnclaimProfile}>
+              Unclaim Profile
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Messages Section */}
+      {tab === 'messages' && (
+        <div style={profileSectionStyle}>
+          <Chat embedded={true} />
+        </div>
+      )}
 
       {/* Player Modal */}
       {showPlayerModal && selectedPlayerForModal && (

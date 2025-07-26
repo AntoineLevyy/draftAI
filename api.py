@@ -7,6 +7,7 @@ import stripe
 import csv
 import pandas as pd
 from dotenv import load_dotenv
+import jwt
 
 # Load environment variables from .env file
 load_dotenv()
@@ -94,6 +95,24 @@ CLEAN_CLAIMED_PLAYERS_JSON = 'backend/college/njcaa/clean_claimed_players.json'
 
 # Cache for loaded data
 _player_cache = {}
+
+def verify_jwt_token(token):
+    """Verify JWT token and return user ID"""
+    try:
+        # Decode the JWT token without verification (since we don't have the secret)
+        # This is a simplified approach - in production you'd want proper verification
+        decoded = jwt.decode(token, options={"verify_signature": False})
+        print(f"JWT decoded successfully: {decoded}")
+        
+        # Try different possible user ID fields
+        user_id = decoded.get('sub') or decoded.get('user_id') or decoded.get('id')
+        print(f"Extracted user_id: {user_id}")
+        
+        return user_id
+    except Exception as e:
+        print(f"Error decoding JWT: {e}")
+        print(f"Token (first 50 chars): {token[:50]}...")
+        return None
 
 def clear_player_cache():
     """Clear the player cache to force fresh data loading"""
@@ -197,6 +216,7 @@ def get_all_players():
     for p in load_json('backend/college/highschool/highschool_players.json'):
         p['claimed'] = False
         p['type'] = 'highschool'
+        p['source'] = 'json'
         players.append(p)
     print('DEBUG: Total players loaded:', len(players))
     print('DEBUG: Claimed players loaded:', sum(1 for p in players if p.get('claimed')))
@@ -237,7 +257,9 @@ for p in load_json('backend/college/highschool/highschool_players.json'):
 def fetch_player_data():
     """Fetch player data from local college files and database claimed profiles"""
     global _player_cache
-    if _player_cache:
+    # Force cache clear for debugging
+    _player_cache = {}
+    if _player_cache and len(_player_cache) > 0:
         return _player_cache
 
     players = []
@@ -284,11 +306,15 @@ def fetch_player_data():
         else:
             print(f"DEBUG: Skipping unclaimed player {player_id} because it has a claimed version")
     
-    # Optionally, add high school players if needed in the future
-    # for p in load_json('backend/college/highschool/highschool_players.json'):
-    #     p['claimed'] = False
-    #     p['type'] = 'highschool'
-    #     players.append(p)
+    # High School - Unclaimed
+    highschool_players = load_json('backend/college/highschool/highschool_players.json')
+    print(f"DEBUG: Loaded {len(highschool_players)} high school players from JSON")
+    for p in highschool_players:
+        p['claimed'] = False
+        p['type'] = 'highschool'
+        p['source'] = 'json'
+        players.append(p)
+    print(f"DEBUG: Added {len(highschool_players)} high school players to total players")
 
     print('DEBUG: Total college players loaded:', len(players))
     print('DEBUG: Claimed players loaded:', sum(1 for p in players if p.get('claimed')))
@@ -530,7 +556,26 @@ def save_claimed_profile():
             'why_player_is_transferring': data.get('why_player_is_transferring')
         }
 
-        # For now, always save to pending_claims since the user is not confirmed yet
+        # Check if user exists and is confirmed
+        headers = {
+            'apikey': supabase_key,
+            'Authorization': f'Bearer {supabase_key}',
+            'Content-Type': 'application/json'
+        }
+        
+        # Try to get user from auth.users (this will fail if user doesn't exist)
+        user_response = requests.get(
+            f'{supabase_url}/rest/v1/auth/users?id=eq.{user_id}',
+            headers=headers
+        )
+        
+        if user_response.status_code == 200:
+            users = user_response.json()
+            if users and users[0].get('email_confirmed_at'):
+                print(f"User {user_id} is confirmed - saving directly to claimed_profiles and user_profiles")
+                return save_confirmed_claim(data, user_id, email)
+        
+        # User not confirmed yet - save to pending claims
         print(f"User {user_id} not yet confirmed - saving to pending claims")
         return save_to_pending_claims(data, email)
 
@@ -588,6 +633,78 @@ def save_to_pending_claims(data, email):
 
     except Exception as e:
         print(f"Error saving pending claim: {e}")
+        return jsonify({'error': str(e)}), 500
+
+def save_confirmed_claim(data, user_id, email):
+    """Save claim directly to claimed_profiles and user_profiles when user is confirmed"""
+    try:
+        # Prepare claimed profile data
+        profile_data = {
+            'original_player_id': data.get('original_player_id'),
+            'claimed_by_user_id': user_id,
+            'name': data.get('name'),
+            'nationality': data.get('nationality'),
+            'year_of_birth': data.get('year_of_birth'),
+            'height': data.get('height'),
+            'weight': data.get('weight'),
+            'position': data.get('position'),
+            'gpa': data.get('gpa'),
+            'credit_hours_taken': data.get('credit_hours_taken'),
+            'finances': data.get('finances'),
+            'available': data.get('available'),
+            'current_school': data.get('current_school'),
+            'division_transferring_from': data.get('division_transferring_from'),
+            'years_of_eligibility_left': data.get('years_of_eligibility_left'),
+            'individual_awards': data.get('individual_awards'),
+            'college_accolades': data.get('college_accolades'),
+            'email_address': email,
+            'highlights': data.get('highlights'),
+            'full_game_link': data.get('full_game_link'),
+            'why_player_is_transferring': data.get('why_player_is_transferring')
+        }
+
+        headers = {
+            'apikey': supabase_key,
+            'Authorization': f'Bearer {supabase_key}',
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+        }
+        
+        # Insert into claimed_profiles
+        profile_response = requests.post(
+            f'{supabase_url}/rest/v1/claimed_profiles',
+            headers=headers,
+            json=profile_data
+        )
+        
+        if profile_response.status_code == 201:
+            # Create user_profiles entry for the player
+            user_profile_data = {
+                'user_id': user_id,
+                'user_type': 'Player',
+                'name': data.get('name'),
+                'email': email
+            }
+            
+            user_profile_response = requests.post(
+                f'{supabase_url}/rest/v1/user_profiles',
+                headers=headers,
+                json=user_profile_data
+            )
+            
+            if user_profile_response.status_code == 201:
+                print(f"Created user profile for confirmed player {user_id}")
+            else:
+                print(f"Failed to create user profile for confirmed player {user_id}: {user_profile_response.status_code} - {user_profile_response.text}")
+            
+            print(f"Successfully saved confirmed claim for user {user_id}")
+            return jsonify({'success': True, 'message': 'Profile claimed successfully'})
+        else:
+            print(f"Failed to save confirmed claim: {profile_response.status_code} - {profile_response.text}")
+            return jsonify({'error': f'Failed to save confirmed claim: {profile_response.text}'}), 500
+
+    except Exception as e:
+        print(f"Error saving confirmed claim: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/get-claimed-profile/<user_id>', methods=['GET', 'OPTIONS'])
@@ -715,6 +832,25 @@ def migrate_pending_claims():
             )
             
             if profile_response.status_code == 201:
+                # Create user_profiles entry for the player
+                user_profile_data = {
+                    'user_id': user_id,
+                    'user_type': 'Player',
+                    'name': claim['name'],
+                    'email': claim['email_address']
+                }
+                
+                user_profile_response = requests.post(
+                    f'{supabase_url}/rest/v1/user_profiles',
+                    headers=headers,
+                    json=user_profile_data
+                )
+                
+                if user_profile_response.status_code == 201:
+                    print(f"Created user profile for player {user_id}")
+                else:
+                    print(f"Failed to create user profile for player {user_id}: {user_profile_response.status_code} - {user_profile_response.text}")
+                
                 # Delete from pending_claims
                 delete_response = requests.delete(
                     f'{supabase_url}/rest/v1/pending_claims?id=eq.{claim["id"]}',
@@ -822,6 +958,507 @@ def update_claimed_profile():
 
     except Exception as e:
         print(f"Error updating claimed profile: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# Chat System API Endpoints
+
+@app.route('/api/chat/conversations', methods=['GET', 'OPTIONS'])
+def get_conversations():
+    """Get all conversations for the current user"""
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        return response
+
+    if not SUPABASE_AVAILABLE:
+        return jsonify({'error': 'Database not available'}), 500
+
+    try:
+        # Get user ID from Authorization header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'Authorization header required'}), 401
+
+        token = auth_header.split(' ')[1]
+        
+        # Verify token and get user ID
+        user_id = verify_jwt_token(token)
+        if not user_id:
+            return jsonify({'error': 'Invalid token'}), 401
+
+        # Get conversations where user is either coach or player
+        response = requests.get(
+            f'{supabase_url}/rest/v1/conversations?or=(coach_id.eq.{user_id},player_id.eq.{user_id})&order=updated_at.desc',
+            headers={
+                'apikey': supabase_key,
+                'Authorization': f'Bearer {supabase_key}',
+                'Content-Type': 'application/json'
+            }
+        )
+        
+        if response.status_code == 200:
+            conversations = response.json()
+            
+            # For each conversation, get the other user's details and latest message
+            enriched_conversations = []
+            for conv in conversations:
+                other_user_id = conv['player_id'] if conv['coach_id'] == user_id else conv['coach_id']
+                
+                # Get other user's profile
+                user_profile_response = requests.get(
+                    f'{supabase_url}/rest/v1/user_profiles?user_id=eq.{other_user_id}',
+                    headers={
+                        'apikey': supabase_key,
+                        'Authorization': f'Bearer {supabase_key}',
+                        'Content-Type': 'application/json'
+                    }
+                )
+                
+                other_user_profile = None
+                if user_profile_response.status_code == 200:
+                    profiles = user_profile_response.json()
+                    if profiles:
+                        other_user_profile = profiles[0]
+                
+                # Get latest message
+                latest_message_response = requests.get(
+                    f'{supabase_url}/rest/v1/messages?conversation_id=eq.{conv["id"]}&order=created_at.desc&limit=1',
+                    headers={
+                        'apikey': supabase_key,
+                        'Authorization': f'Bearer {supabase_key}',
+                        'Content-Type': 'application/json'
+                    }
+                )
+                
+                latest_message = None
+                if latest_message_response.status_code == 200:
+                    messages = latest_message_response.json()
+                    if messages:
+                        latest_message = messages[0]
+                
+                # Get unread count
+                unread_response = requests.get(
+                    f'{supabase_url}/rest/v1/unread_messages?user_id=eq.{user_id}&conversation_id=eq.{conv["id"]}',
+                    headers={
+                        'apikey': supabase_key,
+                        'Authorization': f'Bearer {supabase_key}',
+                        'Content-Type': 'application/json'
+                    }
+                )
+                
+                unread_count = 0
+                if unread_response.status_code == 200:
+                    unread_records = unread_response.json()
+                    if unread_records:
+                        unread_count = unread_records[0]['unread_count']
+                
+                enriched_conversations.append({
+                    'id': conv['id'],
+                    'other_user': {
+                        'id': other_user_id,
+                        'name': other_user_profile['name'] if other_user_profile else 'Unknown',
+                        'user_type': other_user_profile['user_type'] if other_user_profile else 'Unknown'
+                    },
+                    'latest_message': latest_message,
+                    'unread_count': unread_count,
+                    'updated_at': conv['updated_at']
+                })
+            
+            return jsonify(enriched_conversations)
+        else:
+            print(f"Failed to fetch conversations: {response.status_code} - {response.text}")
+            return jsonify({'error': 'Failed to fetch conversations'}), 500
+
+    except Exception as e:
+        print(f"Error fetching conversations: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/chat/conversations', methods=['POST', 'OPTIONS'])
+def create_conversation():
+    """Create a new conversation between coach and player"""
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        return response
+
+    if not SUPABASE_AVAILABLE:
+        return jsonify({'error': 'Database not available'}), 500
+
+    try:
+        data = request.get_json()
+        player_id = data.get('player_id')
+        
+        if not player_id:
+            return jsonify({'error': 'Player ID is required'}), 400
+
+        # Get user ID from Authorization header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'Authorization header required'}), 401
+
+        token = auth_header.split(' ')[1]
+        
+        # Verify token and get user ID
+        coach_id = verify_jwt_token(token)
+        if not coach_id:
+            return jsonify({'error': 'Invalid token'}), 401
+
+        # Check if user is a coach
+        user_profile_response = requests.get(
+            f'{supabase_url}/rest/v1/user_profiles?user_id=eq.{coach_id}',
+            headers={
+                'apikey': supabase_key,
+                'Authorization': f'Bearer {supabase_key}',
+                'Content-Type': 'application/json'
+            }
+        )
+        
+        if user_profile_response.status_code != 200:
+            return jsonify({'error': 'Failed to verify user type'}), 500
+
+        profiles = user_profile_response.json()
+        if not profiles or profiles[0]['user_type'] != 'Coach':
+            return jsonify({'error': 'Only coaches can create conversations'}), 403
+
+        # Check if player has a user profile
+        player_profile_response = requests.get(
+            f'{supabase_url}/rest/v1/user_profiles?user_id=eq.{player_id}',
+            headers={
+                'apikey': supabase_key,
+                'Authorization': f'Bearer {supabase_key}',
+                'Content-Type': 'application/json'
+            }
+        )
+        
+        if player_profile_response.status_code == 200:
+            player_profiles = player_profile_response.json()
+            if not player_profiles:
+                return jsonify({'error': 'Player profile not found. Player must have claimed their profile.'}), 404
+        else:
+            return jsonify({'error': 'Failed to verify player profile'}), 500
+
+        # Check if conversation already exists
+        existing_response = requests.get(
+            f'{supabase_url}/rest/v1/conversations?coach_id=eq.{coach_id}&player_id=eq.{player_id}',
+            headers={
+                'apikey': supabase_key,
+                'Authorization': f'Bearer {supabase_key}',
+                'Content-Type': 'application/json'
+            }
+        )
+        
+        if existing_response.status_code == 200:
+            existing_conversations = existing_response.json()
+            if existing_conversations:
+                return jsonify({'conversation_id': existing_conversations[0]['id']})
+
+        # Create new conversation
+        conversation_data = {
+            'coach_id': coach_id,
+            'player_id': player_id
+        }
+        
+        response = requests.post(
+            f'{supabase_url}/rest/v1/conversations',
+            headers={
+                'apikey': supabase_key,
+                'Authorization': f'Bearer {supabase_key}',
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            json=conversation_data
+        )
+        
+        if response.status_code == 201:
+            conversation = response.json()
+            return jsonify({'conversation_id': conversation[0]['id']})
+        else:
+            print(f"Failed to create conversation: {response.status_code} - {response.text}")
+            return jsonify({'error': 'Failed to create conversation'}), 500
+
+    except Exception as e:
+        print(f"Error creating conversation: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/chat/conversations/<int:conversation_id>/messages', methods=['GET', 'OPTIONS'])
+def get_messages(conversation_id):
+    """Get all messages in a conversation"""
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        return response
+
+    if not SUPABASE_AVAILABLE:
+        return jsonify({'error': 'Database not available'}), 500
+
+    try:
+        # Get user ID from Authorization header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'Authorization header required'}), 401
+
+        token = auth_header.split(' ')[1]
+        
+        # Verify token and get user ID
+        user_id = verify_jwt_token(token)
+        if not user_id:
+            return jsonify({'error': 'Invalid token'}), 401
+
+        # Verify user is part of the conversation
+        conversation_response = requests.get(
+            f'{supabase_url}/rest/v1/conversations?id=eq.{conversation_id}',
+            headers={
+                'apikey': supabase_key,
+                'Authorization': f'Bearer {supabase_key}',
+                'Content-Type': 'application/json'
+            }
+        )
+        
+        if conversation_response.status_code != 200:
+            return jsonify({'error': 'Conversation not found'}), 404
+
+        conversations = conversation_response.json()
+        if not conversations:
+            return jsonify({'error': 'Conversation not found'}), 404
+
+        conversation = conversations[0]
+        if conversation['coach_id'] != user_id and conversation['player_id'] != user_id:
+            return jsonify({'error': 'Access denied'}), 403
+
+        # Get messages
+        response = requests.get(
+            f'{supabase_url}/rest/v1/messages?conversation_id=eq.{conversation_id}&order=created_at.asc',
+            headers={
+                'apikey': supabase_key,
+                'Authorization': f'Bearer {supabase_key}',
+                'Content-Type': 'application/json'
+            }
+        )
+        
+        if response.status_code == 200:
+            messages = response.json()
+            
+            # Mark messages as read for this user
+            requests.post(
+                f'{supabase_url}/rest/v1/rpc/mark_conversation_as_read',
+                headers={
+                    'apikey': supabase_key,
+                    'Authorization': f'Bearer {supabase_key}',
+                    'Content-Type': 'application/json'
+                },
+                json={'conv_id': conversation_id, 'user_uuid': user_id}
+            )
+            
+            return jsonify(messages)
+        else:
+            print(f"Failed to fetch messages: {response.status_code} - {response.text}")
+            return jsonify({'error': 'Failed to fetch messages'}), 500
+
+    except Exception as e:
+        print(f"Error fetching messages: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/chat/conversations/<int:conversation_id>', methods=['DELETE', 'OPTIONS'])
+def delete_conversation(conversation_id):
+    """Delete a conversation"""
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'DELETE, OPTIONS')
+        return response
+
+    if not SUPABASE_AVAILABLE:
+        return jsonify({'error': 'Database not available'}), 500
+
+    try:
+        # Get user ID from Authorization header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'Authorization header required'}), 401
+
+        token = auth_header.split(' ')[1]
+        
+        # Verify token and get user ID
+        user_id = verify_jwt_token(token)
+        if not user_id:
+            return jsonify({'error': 'Invalid token'}), 401
+
+        # Check if user is part of this conversation
+        conversation_response = requests.get(
+            f'{supabase_url}/rest/v1/conversations?id=eq.{conversation_id}',
+            headers={
+                'apikey': supabase_key,
+                'Authorization': f'Bearer {supabase_key}',
+                'Content-Type': 'application/json'
+            }
+        )
+        
+        if conversation_response.status_code != 200:
+            return jsonify({'error': 'Failed to fetch conversation'}), 500
+
+        conversations = conversation_response.json()
+        if not conversations:
+            return jsonify({'error': 'Conversation not found'}), 404
+
+        conversation = conversations[0]
+        if conversation['coach_id'] != user_id and conversation['player_id'] != user_id:
+            return jsonify({'error': 'Not authorized to delete this conversation'}), 403
+
+        # Delete the conversation (this will cascade delete messages and unread_messages)
+        delete_response = requests.delete(
+            f'{supabase_url}/rest/v1/conversations?id=eq.{conversation_id}',
+            headers={
+                'apikey': supabase_key,
+                'Authorization': f'Bearer {supabase_key}',
+                'Content-Type': 'application/json'
+            }
+        )
+        
+        if delete_response.status_code == 204:
+            return jsonify({'message': 'Conversation deleted successfully'})
+        else:
+            print(f"Failed to delete conversation: {delete_response.status_code} - {delete_response.text}")
+            return jsonify({'error': 'Failed to delete conversation'}), 500
+
+    except Exception as e:
+        print(f"Error deleting conversation: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/chat/conversations/<int:conversation_id>/messages', methods=['POST', 'OPTIONS'])
+def send_message(conversation_id):
+    """Send a message in a conversation"""
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        return response
+
+    if not SUPABASE_AVAILABLE:
+        return jsonify({'error': 'Database not available'}), 500
+
+    try:
+        data = request.get_json()
+        content = data.get('content')
+        
+        if not content or not content.strip():
+            return jsonify({'error': 'Message content is required'}), 400
+
+        # Get user ID from Authorization header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'Authorization header required'}), 401
+
+        token = auth_header.split(' ')[1]
+        
+        # Verify token and get user ID
+        sender_id = verify_jwt_token(token)
+        if not sender_id:
+            return jsonify({'error': 'Invalid token'}), 401
+
+        # Verify user is part of the conversation
+        conversation_response = requests.get(
+            f'{supabase_url}/rest/v1/conversations?id=eq.{conversation_id}',
+            headers={
+                'apikey': supabase_key,
+                'Authorization': f'Bearer {supabase_key}',
+                'Content-Type': 'application/json'
+            }
+        )
+        
+        if conversation_response.status_code != 200:
+            return jsonify({'error': 'Conversation not found'}), 404
+
+        conversations = conversation_response.json()
+        if not conversations:
+            return jsonify({'error': 'Conversation not found'}), 404
+
+        conversation = conversations[0]
+        if conversation['coach_id'] != sender_id and conversation['player_id'] != sender_id:
+            return jsonify({'error': 'Access denied'}), 403
+
+        # Send message
+        message_data = {
+            'conversation_id': conversation_id,
+            'sender_id': sender_id,
+            'content': content.strip()
+        }
+        
+        response = requests.post(
+            f'{supabase_url}/rest/v1/messages',
+            headers={
+                'apikey': supabase_key,
+                'Authorization': f'Bearer {supabase_key}',
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            json=message_data
+        )
+        
+        if response.status_code == 201:
+            message = response.json()
+            return jsonify(message[0])
+        else:
+            print(f"Failed to send message: {response.status_code} - {response.text}")
+            return jsonify({'error': 'Failed to send message'}), 500
+
+    except Exception as e:
+        print(f"Error sending message: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/chat/unread-count', methods=['GET', 'OPTIONS'])
+def get_unread_count():
+    """Get total unread message count for the current user"""
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        return response
+
+    if not SUPABASE_AVAILABLE:
+        return jsonify({'error': 'Database not available'}), 500
+
+    try:
+        # Get user ID from Authorization header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'Authorization header required'}), 401
+
+        token = auth_header.split(' ')[1]
+        
+        # Verify token and get user ID
+        user_id = verify_jwt_token(token)
+        if not user_id:
+            return jsonify({'error': 'Invalid token'}), 401
+
+        # Get total unread count
+        response = requests.post(
+            f'{supabase_url}/rest/v1/rpc/get_total_unread_count',
+            headers={
+                'apikey': supabase_key,
+                'Authorization': f'Bearer {supabase_key}',
+                'Content-Type': 'application/json'
+            },
+            json={'user_uuid': user_id}
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            return jsonify({'unread_count': result})
+        else:
+            print(f"Failed to get unread count: {response.status_code} - {response.text}")
+            return jsonify({'error': 'Failed to get unread count'}), 500
+
+    except Exception as e:
+        print(f"Error getting unread count: {e}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':

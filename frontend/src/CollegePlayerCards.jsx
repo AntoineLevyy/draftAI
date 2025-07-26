@@ -25,6 +25,8 @@ import PlayerSignupModal from './PlayerSignupModal';
 
 function normalizePlayer(rawPlayer, idx) {
   const isClaimed = rawPlayer.claimed || !!rawPlayer['Email Address'] || !!rawPlayer['Why Player is Transferring'];
+  const isHighSchool = rawPlayer.type === 'highschool' || rawPlayer.club || rawPlayer.grad_year;
+  
   if (isClaimed) {
     // Generate a unique ID for claimed players
     const playerId =
@@ -44,9 +46,33 @@ function normalizePlayer(rawPlayer, idx) {
       league: rawPlayer['Division Transferring From'] || '',
       year: rawPlayer['Year of Birth'] || '',
       photo_url: rawPlayer['photo_url'] || '',
+      claimed_by_user_id: rawPlayer.claimed_by_user_id || null,
       raw: rawPlayer // keep all original fields for full display
     };
+  } else if (isHighSchool) {
+    // Handle high school players
+    return {
+      claimed: false,
+      playerId: rawPlayer.playerId || rawPlayer.id || '',
+      name: rawPlayer.name || '',
+      position: rawPlayer.position || '',
+      awards: '',
+      eligibility: '',
+      email: '',
+      team: rawPlayer.club || '', // high school uses 'club' instead of 'team'
+      league: '', // high school doesn't have league
+      year: rawPlayer.grad_year || '', // high school uses 'grad_year' instead of 'year'
+      photo_url: rawPlayer.picture_url || '', // high school uses 'picture_url' instead of 'photo_url'
+      goals: '',
+      state: rawPlayer.state || '', // high school specific field
+      commitment: rawPlayer.commitment || '', // high school specific field
+      coach_info: rawPlayer.coach_info || '', // high school specific field
+      claimed_by_user_id: rawPlayer.claimed_by_user_id || null,
+      raw: rawPlayer,
+      type: 'highschool'
+    };
   } else {
+    // Handle transfer players (existing logic)
     return {
       claimed: false,
       playerId: rawPlayer.playerId || rawPlayer.id || '',
@@ -60,7 +86,9 @@ function normalizePlayer(rawPlayer, idx) {
       year: rawPlayer.year || '',
       photo_url: rawPlayer.photo_url || '',
       goals: rawPlayer.goals || '',
-      raw: rawPlayer
+      claimed_by_user_id: rawPlayer.claimed_by_user_id || null,
+      raw: rawPlayer,
+      type: 'transfer'
     };
   }
 }
@@ -949,6 +977,9 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal, isClaimMode = 
       const normalized = (data.players || data || []).map(normalizePlayer);
       console.log('Claimed players after normalization:', normalized.filter(p => p.claimed));
       setPlayers(normalized);
+      
+      // Store the normalized data globally for other components to access
+      window.currentPlayerData = normalized;
       setLoading(false);
       console.log('=== FETCH PLAYERS COMPLETED ===');
     } catch (error) {
@@ -1583,7 +1614,7 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal, isClaimMode = 
 
       <div className="headline-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '2rem', marginBottom: '2rem' }}>
         <div className="gradient-headline college">
-          {isClaimMode ? `Found ${filteredAndSortedPlayers.length} unclaimed profiles` : `We found ${filteredAndSortedPlayers.length} college players for you`}
+          {isClaimMode ? `Found ${filteredAndSortedPlayers.length} unclaimed profiles` : `We found ${filteredAndSortedPlayers.length} ${type === 'highschool' ? 'high school' : 'college'} players for you`}
         </div>
         {!isClaimMode && (
           <div className="sort-controls">
@@ -1978,7 +2009,7 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal, isClaimMode = 
       
       {filteredAndSortedPlayers.length === 0 && (
         <div className="no-results">
-          <p>No college players found matching your search criteria.</p>
+          <p>No {type === 'highschool' ? 'high school' : 'college'} players found matching your search criteria.</p>
           <p style={{ fontSize: '0.9rem', color: '#666', marginTop: '10px' }}>
             College player data will be available once we complete the scraping process.
           </p>

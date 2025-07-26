@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MainLandingPage from './MainLandingPage';
 import CollegeLandingPage from './CollegeLandingPage';
 import CollegePlayerCards from './CollegePlayerCards';
@@ -8,6 +8,7 @@ import ForPlayersLanding from './ForPlayersLanding';
 import draftmeLogo from '../assets/images/cst_logo.png';
 import { AuthProvider, useAuth } from './AuthContext';
 import LoginModal from './LoginModal';
+import { getUnreadCount } from './services/chatService';
 
 const headerStyle = {
   width: '100%',
@@ -140,6 +141,24 @@ const appContainerStyle = {
   overflow: 'hidden',
 };
 
+const unreadBadgeStyle = {
+  position: 'absolute',
+  top: '-5px',
+  right: '-5px',
+  backgroundColor: '#dc3545',
+  color: '#fff',
+  borderRadius: '50%',
+  padding: '2px 6px',
+  fontSize: '10px',
+  minWidth: '16px',
+  textAlign: 'center',
+  fontWeight: 'bold'
+};
+
+const profileButtonContainerStyle = {
+  position: 'relative'
+};
+
 function AppContent() {
   const [currentView, setCurrentView] = useState(() => {
     // Check URL on initial load
@@ -152,8 +171,28 @@ function AppContent() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginMode, setLoginMode] = useState('signin');
   const { user, signOut } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Load unread count periodically
+  useEffect(() => {
+    if (user) {
+      loadUnreadCount();
+      const interval = setInterval(loadUnreadCount, 30000); // Check every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
+  const loadUnreadCount = async () => {
+    try {
+      const count = await getUnreadCount();
+      setUnreadCount(count);
+    } catch (error) {
+      console.error('Error loading unread count:', error);
+    }
+  };
 
   // Check if user is a player
+  // Default to Coach if userType is undefined (for existing users)
   const isPlayer = user?.user_metadata?.userType === 'Player';
 
   // Redirect players to appropriate pages if they try to access restricted areas
@@ -235,7 +274,14 @@ function AppContent() {
   };
 
   const handleSignOut = async () => {
-    await signOut();
+    try {
+      await signOut();
+      // After successful sign out, navigate to main landing page
+      setCurrentView('main');
+      window.history.pushState({}, '', '/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   const handleForPlayersClick = () => {
@@ -299,10 +345,12 @@ function AppContent() {
     mainContent = <CollegeLandingPage onApplyFilters={handleApplyFilters} onBack={handleBack} />;
   } else if (currentView === 'profile') {
     // Check if user is a player or coach
+    // Default to Coach if userType is undefined (for existing users)
     const userType = user?.user_metadata?.userType;
     if (userType === 'Player') {
       mainContent = <PlayerProfile onBack={handleBack} />;
     } else {
+      // Default to Coach profile for undefined userType or Coach
       mainContent = <Profile onBack={handleBack} />;
     }
   } else if (currentView === 'forplayers') {
@@ -334,20 +382,27 @@ function AppContent() {
           <div style={headerButtonsStyle}>
             {user ? (
               <>
-                <button 
-                  style={signInButtonStyle}
-                  onClick={handleProfileClick}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = 'translateY(-1px)';
-                    e.target.style.boxShadow = '0 4px 12px rgba(79,140,255,0.2)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 2px 8px rgba(79,140,255,0.1)';
-                  }}
-                >
-                  Profile
-                </button>
+                <div style={profileButtonContainerStyle}>
+                  <button 
+                    style={signInButtonStyle}
+                    onClick={handleProfileClick}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'translateY(-1px)';
+                      e.target.style.boxShadow = '0 4px 12px rgba(79,140,255,0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = '0 2px 8px rgba(79,140,255,0.1)';
+                    }}
+                  >
+                    Profile
+                  </button>
+                  {unreadCount > 0 && (
+                    <span style={unreadBadgeStyle}>
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </div>
                 <button 
                   style={signInButtonStyle}
                   onClick={handleSignOut}
