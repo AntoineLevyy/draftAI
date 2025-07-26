@@ -1270,20 +1270,15 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal, isClaimMode = 
 
       // Save the claimed profile to database
       const savedProfile = await saveClaimedProfile(formData, selectedPlayerForClaim, user.id);
-      
       console.log('Claimed profile saved:', savedProfile);
-      
       // Show success message
       alert('Profile claimed successfully! You can now manage your profile from your account.');
-      
       // Close the signup modal
       setShowPlayerSignup(false);
       setClaimFormData(null);
       setSelectedPlayerForClaim(null);
-      
       // Force a complete page refresh to update the user session and data
       window.location.reload();
-      
     } catch (error) {
       console.error('Error completing claim process:', error);
       alert('Error completing claim process. Please try again.');

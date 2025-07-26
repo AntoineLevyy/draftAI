@@ -106,6 +106,7 @@ const PlayerDetailModalCard = ({ player }) => {
               <h4 className="claimed-section-title">Academic</h4>
               <div><span className="info-label">GPA:</span><span className="info-value">{gpa}</span></div>
               <div><span className="info-label">Credit Hours:</span><span className="info-value">{creditHours}</span></div>
+              <div><span className="info-label">Years of Eligibility Left:</span><span className="info-value">{eligibility}</span></div>
               <div><span className="info-label">Finances:</span><span className="info-value">{finances}</span></div>
               <div><span className="info-label">Available:</span><span className="info-value">{available}</span></div>
             </div>
@@ -113,9 +114,9 @@ const PlayerDetailModalCard = ({ player }) => {
               <h4 className="claimed-section-title">Athletic</h4>
               <div><span className="info-label">Current School:</span><span className="info-value">{currentSchool}</span></div>
               <div><span className="info-label">Division Transferring From:</span><span className="info-value">{division}</span></div>
-              <div><span className="info-label">Years of Eligibility Left:</span><span className="info-value">{eligibility}</span></div>
               <div><span className="info-label">Individual Awards:</span><span className="info-value">{awards}</span></div>
               <div><span className="info-label">College Accolades:</span><span className="info-value">{accolades}</span></div>
+              <div><span className="info-label">Why Player is Transferring:</span><span className="info-value">{raw['Why Player is Transferring'] || ''}</span></div>
             </div>
             <div className="claimed-section">
               <h4 className="claimed-section-title">Contact</h4>

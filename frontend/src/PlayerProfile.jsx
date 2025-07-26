@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 import { supabase } from './supabase';
-import { getClaimedProfileByUserId, updateClaimedProfile } from './services/claimService';
+import { getClaimedProfileByUserId } from './services/claimService';
 import PlayerDetailModalCard from './PlayerDetailModalCard';
+import { apiBaseUrl } from './config';
 
 const PlayerProfile = ({ onBack }) => {
   const { user, signOut } = useAuth();
@@ -61,7 +62,23 @@ const PlayerProfile = ({ onBack }) => {
     try {
       setSaving(true);
       
-      await updateClaimedProfile(profile.id, editData);
+      // Use backend API to update the profile
+      const response = await fetch(`${apiBaseUrl}/api/update-claimed-profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          profile_id: profile.id,
+          updates: editData
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update profile');
+      }
+
       await loadPlayerProfile(); // Reload to get updated data
       setEditMode(false);
       
@@ -104,31 +121,70 @@ const PlayerProfile = ({ onBack }) => {
       playerId: profile.original_player_id,
       claimed: true,
       type: 'transfer',
-      Name: profile.name,
-      Position: profile.position,
-      'Current School': profile.current_school,
-      'Division Transferring From': profile.division_transferring_from,
-      'Email Address': profile.email_address,
-      'Years of Eligibility Left': profile.years_of_eligibility_left,
-      'GPA': profile.gpa ? String(profile.gpa) : '',
-      'Individual Awards': profile.individual_awards || '',
-      'College Accolades': profile.college_accolades || '',
-      'Highlights': profile.highlights || '',
-      'Full 90 min Game Link': profile.full_game_link || '',
-      'Height': profile.height || '',
-      'Weight (lbs)': profile.weight || '',
-      'Credit Hours Taken when you will transfer': profile.credit_hours_taken || '',
-      'Available': profile.available || '',
-      'Nationality': profile.nationality || '',
-      'Year of Birth': profile.year_of_birth || '',
-      'Finances': profile.finances || '',
-      'Why Player is Transferring': profile.why_player_is_transferring || '',
+      name: profile.name,
+      position: profile.position,
       photo_url: '',
-      source: 'database'
+      source: 'database',
+      // Put all the detailed data in the 'raw' object as expected by PlayerDetailModalCard
+      raw: {
+        'Name': profile.name,
+        'Position': profile.position,
+        'Current School': profile.current_school,
+        'Division Transferring From': profile.division_transferring_from,
+        'Email Address': profile.email_address,
+        'Years of Eligibility Left': profile.years_of_eligibility_left,
+        'GPA': profile.gpa ? String(profile.gpa) : '',
+        'Individual Awards': profile.individual_awards || '',
+        'College Accolades': profile.college_accolades || '',
+        'Highlights': profile.highlights || '',
+        'Full 90 min Game Link': profile.full_game_link || '',
+        'Height': profile.height || '',
+        'Weight (lbs)': profile.weight || '',
+        'Credit Hours Taken when you will transfer': profile.credit_hours_taken || '',
+        'Available': profile.available || '',
+        'Nationality': profile.nationality || '',
+        'Year of Birth': profile.year_of_birth || '',
+        'Finances': profile.finances || '',
+        'Why Player is Transferring': profile.why_player_is_transferring || ''
+      }
     };
     
     setSelectedPlayerForModal(playerCardData);
     setShowPlayerModal(true);
+  };
+
+  const handleUnclaimProfile = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to unclaim your profile? This will remove your profile from the claimed players list and make it available for other players to claim. This action cannot be undone.'
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/unclaim-profile`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          profile_id: profile.id,
+          user_id: user.id
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to unclaim profile');
+      }
+
+      // Sign out the user and redirect to forplayers page
+      await supabase.auth.signOut();
+      window.location.href = '/forplayers';
+      
+    } catch (error) {
+      console.error('Error unclaiming profile:', error);
+      alert('Failed to unclaim profile. Please try again.');
+    }
   };
 
   const containerStyle = {
@@ -141,22 +197,12 @@ const PlayerProfile = ({ onBack }) => {
 
   const headerStyle = {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
+    marginTop: '40px',
     marginBottom: '40px',
     paddingBottom: '20px',
     borderBottom: '1px solid #333'
-  };
-
-  const backButtonStyle = {
-    background: 'rgba(255, 255, 255, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    color: 'white',
-    padding: '10px 20px',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    transition: 'all 0.2s ease'
   };
 
   const titleStyle = {
@@ -165,7 +211,8 @@ const PlayerProfile = ({ onBack }) => {
     background: 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
-    margin: 0
+    margin: 0,
+    textAlign: 'center'
   };
 
   const cardStyle = {
@@ -244,7 +291,8 @@ const PlayerProfile = ({ onBack }) => {
   const actionButtonsStyle = {
     display: 'flex',
     gap: '12px',
-    marginTop: '20px'
+    marginTop: '20px',
+    justifyContent: 'center'
   };
 
   const modalStyle = {
@@ -261,6 +309,20 @@ const PlayerProfile = ({ onBack }) => {
     padding: '20px'
   };
 
+  const unclaimButtonStyle = {
+    background: 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)',
+    color: 'white',
+    border: 'none',
+    padding: '12px 24px',
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    marginTop: '20px',
+    width: '100%'
+  };
+
   if (loading) {
     return (
       <div style={containerStyle}>
@@ -275,9 +337,7 @@ const PlayerProfile = ({ onBack }) => {
     return (
       <div style={containerStyle}>
         <div style={headerStyle}>
-          <button style={backButtonStyle} onClick={onBack}>← Back</button>
           <h1 style={titleStyle}>Player Profile</h1>
-          <div></div>
         </div>
         <div style={cardStyle}>
           <div style={{ textAlign: 'center', padding: '40px 20px' }}>
@@ -302,16 +362,11 @@ const PlayerProfile = ({ onBack }) => {
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
-        <button style={backButtonStyle} onClick={onBack}>← Back</button>
         <h1 style={titleStyle}>Player Profile</h1>
-        <button style={secondaryButtonStyle} onClick={signOut}>
-          Log Out
-        </button>
       </div>
 
       <div style={cardStyle}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-          <h2 style={sectionTitleStyle}>Profile Details</h2>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '30px' }}>
           <div style={actionButtonsStyle}>
             {!editMode ? (
               <>
@@ -369,44 +424,58 @@ const PlayerProfile = ({ onBack }) => {
             </div>
 
             <div style={fieldStyle}>
-              <label style={labelStyle}>Current School</label>
+              <label style={labelStyle}>Nationality</label>
               {editMode ? (
                 <input
                   style={inputStyle}
-                  value={editData.current_school}
-                  onChange={(e) => setEditData({...editData, current_school: e.target.value})}
-                  placeholder="Your current school"
+                  value={editData.nationality}
+                  onChange={(e) => setEditData({...editData, nationality: e.target.value})}
+                  placeholder="e.g., American"
                 />
               ) : (
-                <div style={valueStyle}>{profile.current_school || 'Not provided'}</div>
+                <div style={valueStyle}>{profile.nationality || 'Not provided'}</div>
               )}
             </div>
 
             <div style={fieldStyle}>
-              <label style={labelStyle}>Division Transferring From</label>
+              <label style={labelStyle}>Year of Birth</label>
               {editMode ? (
                 <input
                   style={inputStyle}
-                  value={editData.division_transferring_from}
-                  onChange={(e) => setEditData({...editData, division_transferring_from: e.target.value})}
-                  placeholder="e.g., NJCAA D1"
+                  value={editData.year_of_birth}
+                  onChange={(e) => setEditData({...editData, year_of_birth: e.target.value})}
+                  placeholder="e.g., 2003"
                 />
               ) : (
-                <div style={valueStyle}>{profile.division_transferring_from || 'Not provided'}</div>
+                <div style={valueStyle}>{profile.year_of_birth || 'Not provided'}</div>
               )}
             </div>
 
             <div style={fieldStyle}>
-              <label style={labelStyle}>Email Address</label>
+              <label style={labelStyle}>Height</label>
               {editMode ? (
                 <input
                   style={inputStyle}
-                  value={editData.email_address}
-                  onChange={(e) => setEditData({...editData, email_address: e.target.value})}
-                  placeholder="Your email address"
+                  value={editData.height}
+                  onChange={(e) => setEditData({...editData, height: e.target.value})}
+                  placeholder="e.g., 6'2&quot;"
                 />
               ) : (
-                <div style={valueStyle}>{profile.email_address || 'Not provided'}</div>
+                <div style={valueStyle}>{profile.height || 'Not provided'}</div>
+              )}
+            </div>
+
+            <div style={fieldStyle}>
+              <label style={labelStyle}>Weight (lbs)</label>
+              {editMode ? (
+                <input
+                  style={inputStyle}
+                  value={editData.weight}
+                  onChange={(e) => setEditData({...editData, weight: e.target.value})}
+                  placeholder="e.g., 180"
+                />
+              ) : (
+                <div style={valueStyle}>{profile.weight || 'Not provided'}</div>
               )}
             </div>
           </div>
@@ -415,20 +484,6 @@ const PlayerProfile = ({ onBack }) => {
           <div>
             <h3 style={{ ...sectionTitleStyle, fontSize: '1.2rem', marginBottom: '15px' }}>Academic</h3>
             
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Years of Eligibility Left</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.years_of_eligibility_left}
-                  onChange={(e) => setEditData({...editData, years_of_eligibility_left: e.target.value})}
-                  placeholder="e.g., 2"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.years_of_eligibility_left || 'Not provided'}</div>
-              )}
-            </div>
-
             <div style={fieldStyle}>
               <label style={labelStyle}>GPA</label>
               {editMode ? (
@@ -462,63 +517,30 @@ const PlayerProfile = ({ onBack }) => {
             </div>
 
             <div style={fieldStyle}>
-              <label style={labelStyle}>Year of Birth</label>
+              <label style={labelStyle}>Years of Eligibility Left</label>
               {editMode ? (
                 <input
                   style={inputStyle}
-                  value={editData.year_of_birth}
-                  onChange={(e) => setEditData({...editData, year_of_birth: e.target.value})}
-                  placeholder="e.g., 2003"
+                  value={editData.years_of_eligibility_left}
+                  onChange={(e) => setEditData({...editData, years_of_eligibility_left: e.target.value})}
+                  placeholder="e.g., 2"
                 />
               ) : (
-                <div style={valueStyle}>{profile.year_of_birth || 'Not provided'}</div>
-              )}
-            </div>
-          </div>
-
-          {/* Athletic Information */}
-          <div>
-            <h3 style={{ ...sectionTitleStyle, fontSize: '1.2rem', marginBottom: '15px' }}>Athletic</h3>
-            
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Height</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.height}
-                  onChange={(e) => setEditData({...editData, height: e.target.value})}
-                  placeholder="e.g., 6'2&quot;"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.height || 'Not provided'}</div>
+                <div style={valueStyle}>{profile.years_of_eligibility_left || 'Not provided'}</div>
               )}
             </div>
 
             <div style={fieldStyle}>
-              <label style={labelStyle}>Weight (lbs)</label>
+              <label style={labelStyle}>Finances</label>
               {editMode ? (
                 <input
                   style={inputStyle}
-                  value={editData.weight}
-                  onChange={(e) => setEditData({...editData, weight: e.target.value})}
-                  placeholder="e.g., 180"
+                  value={editData.finances}
+                  onChange={(e) => setEditData({...editData, finances: e.target.value})}
+                  placeholder="Financial requirements or preferences"
                 />
               ) : (
-                <div style={valueStyle}>{profile.weight || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Nationality</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.nationality}
-                  onChange={(e) => setEditData({...editData, nationality: e.target.value})}
-                  placeholder="e.g., American"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.nationality || 'Not provided'}</div>
+                <div style={valueStyle}>{profile.finances || 'Not provided'}</div>
               )}
             </div>
 
@@ -537,10 +559,38 @@ const PlayerProfile = ({ onBack }) => {
             </div>
           </div>
 
-          {/* Additional Information */}
+          {/* Athletic Information */}
           <div>
-            <h3 style={{ ...sectionTitleStyle, fontSize: '1.2rem', marginBottom: '15px' }}>Additional</h3>
+            <h3 style={{ ...sectionTitleStyle, fontSize: '1.2rem', marginBottom: '15px' }}>Athletic</h3>
             
+            <div style={fieldStyle}>
+              <label style={labelStyle}>Current School</label>
+              {editMode ? (
+                <input
+                  style={inputStyle}
+                  value={editData.current_school}
+                  onChange={(e) => setEditData({...editData, current_school: e.target.value})}
+                  placeholder="Your current school"
+                />
+              ) : (
+                <div style={valueStyle}>{profile.current_school || 'Not provided'}</div>
+              )}
+            </div>
+
+            <div style={fieldStyle}>
+              <label style={labelStyle}>Division Transferring From</label>
+              {editMode ? (
+                <input
+                  style={inputStyle}
+                  value={editData.division_transferring_from}
+                  onChange={(e) => setEditData({...editData, division_transferring_from: e.target.value})}
+                  placeholder="e.g., NJCAA D1"
+                />
+              ) : (
+                <div style={valueStyle}>{profile.division_transferring_from || 'Not provided'}</div>
+              )}
+            </div>
+
             <div style={fieldStyle}>
               <label style={labelStyle}>Individual Awards</label>
               {editMode ? (
@@ -566,6 +616,39 @@ const PlayerProfile = ({ onBack }) => {
                 />
               ) : (
                 <div style={valueStyle}>{profile.college_accolades || 'Not provided'}</div>
+              )}
+            </div>
+
+            <div style={fieldStyle}>
+              <label style={labelStyle}>Why Player is Transferring</label>
+              {editMode ? (
+                <textarea
+                  style={textareaStyle}
+                  value={editData.why_player_is_transferring}
+                  onChange={(e) => setEditData({...editData, why_player_is_transferring: e.target.value})}
+                  placeholder="Explain why you are transferring"
+                />
+              ) : (
+                <div style={valueStyle}>{profile.why_player_is_transferring || 'Not provided'}</div>
+              )}
+            </div>
+          </div>
+
+          {/* Contact Information */}
+          <div>
+            <h3 style={{ ...sectionTitleStyle, fontSize: '1.2rem', marginBottom: '15px' }}>Contact</h3>
+            
+            <div style={fieldStyle}>
+              <label style={labelStyle}>Email Address</label>
+              {editMode ? (
+                <input
+                  style={inputStyle}
+                  value={editData.email_address}
+                  onChange={(e) => setEditData({...editData, email_address: e.target.value})}
+                  placeholder="Your email address"
+                />
+              ) : (
+                <div style={valueStyle}>{profile.email_address || 'Not provided'}</div>
               )}
             </div>
 
@@ -596,36 +679,26 @@ const PlayerProfile = ({ onBack }) => {
                 <div style={valueStyle}>{profile.full_game_link || 'Not provided'}</div>
               )}
             </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Finances</label>
-              {editMode ? (
-                <input
-                  style={inputStyle}
-                  value={editData.finances}
-                  onChange={(e) => setEditData({...editData, finances: e.target.value})}
-                  placeholder="Financial requirements or preferences"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.finances || 'Not provided'}</div>
-              )}
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Why Player is Transferring</label>
-              {editMode ? (
-                <textarea
-                  style={textareaStyle}
-                  value={editData.why_player_is_transferring}
-                  onChange={(e) => setEditData({...editData, why_player_is_transferring: e.target.value})}
-                  placeholder="Explain why you are transferring"
-                />
-              ) : (
-                <div style={valueStyle}>{profile.why_player_is_transferring || 'Not provided'}</div>
-              )}
-            </div>
           </div>
         </div>
+      </div>
+
+      {/* Unclaim Profile Button */}
+      <div style={cardStyle}>
+        <button 
+          style={unclaimButtonStyle}
+          onClick={handleUnclaimProfile}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-2px)';
+            e.target.style.boxShadow = '0 8px 25px rgba(239, 68, 68, 0.3)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)';
+            e.target.style.boxShadow = 'none';
+          }}
+        >
+          Unclaim Profile
+        </button>
       </div>
 
       {/* Player Modal */}

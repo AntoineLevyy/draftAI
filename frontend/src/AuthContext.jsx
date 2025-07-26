@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from './supabase'
+import { migratePendingClaims } from './services/claimService'
 
 const AuthContext = createContext({})
 
@@ -19,9 +20,21 @@ export const AuthProvider = ({ children }) => {
     })
 
     // Listen for changes on auth state (sign in, sign out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null)
       setLoading(false)
+      
+      // If user is signed in and email is confirmed, migrate any pending claims
+      if (session?.user && session.user.email_confirmed_at) {
+        try {
+          console.log('User confirmed, attempting to migrate pending claims...');
+          await migratePendingClaims(session.user.id, session.user.email);
+          console.log('Successfully migrated pending claims');
+        } catch (error) {
+          console.warn('Failed to migrate pending claims:', error);
+          // Don't fail the auth process if migration fails
+        }
+      }
     })
 
     return () => subscription.unsubscribe()

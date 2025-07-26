@@ -1,7 +1,8 @@
+import { apiBaseUrl } from '../config';
 import { supabase } from '../supabase';
 
 /**
- * Save a claimed profile to the database
+ * Save a claimed profile to the database via backend API
  * @param {Object} claimData - The form data from the claim form
  * @param {Object} originalPlayer - The original unclaimed player data
  * @param {string} userId - The user ID who claimed the profile
@@ -9,9 +10,12 @@ import { supabase } from '../supabase';
  */
 export const saveClaimedProfile = async (claimData, originalPlayer, userId) => {
   try {
-    const { data, error } = await supabase
-      .from('claimed_profiles')
-      .insert({
+    const response = await fetch(`${apiBaseUrl}/api/save-claimed-profile`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         original_player_id: originalPlayer.playerId || originalPlayer.id,
         claimed_by_user_id: userId,
         
@@ -41,16 +45,23 @@ export const saveClaimedProfile = async (claimData, originalPlayer, userId) => {
         highlights: claimData.highlights,
         full_game_link: claimData.fullGameLink,
         why_player_is_transferring: claimData.whyPlayerIsTransferring,
-      })
-      .select()
-      .single();
+      }),
+    });
 
-    if (error) {
-      console.error('Error saving claimed profile:', error);
-      throw error;
+    if (!response.ok) {
+      const errorData = await response.json();
+      const errorMessage = errorData.error || 'Failed to save claimed profile';
+      
+      // If it's a 409 (conflict), it might be a timing issue with user creation
+      if (response.status === 409) {
+        throw new Error(errorMessage);
+      }
+      
+      throw new Error(errorMessage);
     }
 
-    return data;
+    const result = await response.json();
+    return result;
   } catch (error) {
     console.error('Error in saveClaimedProfile:', error);
     throw error;
@@ -87,17 +98,18 @@ export const getClaimedProfiles = async () => {
  */
 export const getClaimedProfileByUserId = async (userId) => {
   try {
-    const { data, error } = await supabase
-      .from('claimed_profiles')
-      .select('*')
-      .eq('claimed_by_user_id', userId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching claimed profile:', error);
-      throw error;
+    const response = await fetch(`${apiBaseUrl}/api/get-claimed-profile/${userId}`);
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null; // No profile found
+      }
+      const errorData = await response.json();
+      const errorMessage = errorData.error || 'Failed to fetch claimed profile';
+      throw new Error(errorMessage);
     }
 
+    const data = await response.json();
     return data;
   } catch (error) {
     console.error('Error in getClaimedProfileByUserId:', error);
@@ -139,20 +151,52 @@ export const updateClaimedProfile = async (profileId, updates) => {
  */
 export const isProfileAlreadyClaimed = async (originalPlayerId) => {
   try {
-    const { data, error } = await supabase
-      .from('claimed_profiles')
-      .select('id')
-      .eq('original_player_id', originalPlayerId)
-      .single();
-
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-      console.error('Error checking if profile is claimed:', error);
-      throw error;
+    // For now, we'll check against the players API to see if the player is marked as claimed
+    const response = await fetch(`${apiBaseUrl}/api/players?type=transfer`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch players');
     }
 
-    return !!data; // Returns true if profile exists, false otherwise
+    const data = await response.json();
+    const player = data.players.find(p => (p.playerId || p.id) === originalPlayerId);
+    
+    return player ? player.claimed : false;
   } catch (error) {
     console.error('Error in isProfileAlreadyClaimed:', error);
+    throw error;
+  }
+};
+
+/**
+ * Migrate pending claims to claimed_profiles after email confirmation
+ * @param {string} userId - The confirmed user ID
+ * @param {string} email - The user's email address
+ * @returns {Promise<Object>} Migration result
+ */
+export const migratePendingClaims = async (userId, email) => {
+  try {
+    const response = await fetch(`${apiBaseUrl}/api/migrate-pending-claims`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        email: email,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      const errorMessage = errorData.error || 'Failed to migrate pending claims';
+      throw new Error(errorMessage);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Error in migratePendingClaims:', error);
     throw error;
   }
 }; 

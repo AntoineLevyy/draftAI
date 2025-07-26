@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from './supabase';
+import { migratePendingClaims } from './services/claimService';
 
 const modalOverlayStyle = {
   position: 'fixed',
@@ -124,7 +125,8 @@ const PlayerSignupModal = ({ isOpen, onClose, onSuccess, claimData }) => {
             userType: 'Player',
             name: claimData?.name || '',
             team: claimData?.currentSchool || '',
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       });
 
@@ -132,11 +134,28 @@ const PlayerSignupModal = ({ isOpen, onClose, onSuccess, claimData }) => {
         throw authError;
       }
 
-      setSuccess('Account created successfully! Please check your email to verify your account.');
+      console.log('Auth data:', authData);
+      console.log('User email confirmed:', authData.user?.email_confirmed_at);
+      console.log('Session:', authData.session);
+
+      // Always call onSuccess, even if email is not confirmed
+      // The backend will handle saving to pending_claims if user is not confirmed
+      setSuccess('Account created successfully!');
       
       // Call onSuccess with the user data
       if (onSuccess) {
         onSuccess(authData.user, claimData);
+      }
+      
+      // If email is confirmed, migrate any pending claims
+      if (authData.user && authData.user.email_confirmed_at) {
+        try {
+          await migratePendingClaims(authData.user.id, email);
+          console.log('Successfully migrated pending claims');
+        } catch (migrationError) {
+          console.warn('Failed to migrate pending claims:', migrationError);
+          // Don't fail the signup if migration fails
+        }
       }
 
       // Close modal after a delay

@@ -153,10 +153,33 @@ function AppContent() {
   const [loginMode, setLoginMode] = useState('signin');
   const { user, signOut } = useAuth();
 
+  // Check if user is a player
+  const isPlayer = user?.user_metadata?.userType === 'Player';
+
+  // Redirect players to appropriate pages if they try to access restricted areas
+  React.useEffect(() => {
+    if (isPlayer && currentView !== 'forplayers' && currentView !== 'profile' && currentView !== 'claim') {
+      // Players should only access forplayers, profile, and claim pages
+      setCurrentView('forplayers');
+      window.history.pushState({}, '', '/forplayers');
+    }
+  }, [isPlayer, currentView]);
+
+  // Handle authentication state changes
+  React.useEffect(() => {
+    if (user && currentView === 'claim') {
+      // If user logs in while on claim page, redirect them to their profile
+      const userType = user?.user_metadata?.userType;
+      if (userType === 'Player') {
+        setCurrentView('profile');
+        window.history.pushState({}, '', '/profile');
+      }
+    }
+  }, [user, currentView]);
+
   const handleApplyFilters = (selectedFilters) => {
     // Only coaches should be able to access the college section
-    const userType = user?.user_metadata?.userType;
-    if (userType === 'Player') {
+    if (isPlayer) {
       alert('Players cannot access the coach portal. Please use the "For Players" section to claim your profile.');
       return;
     }
@@ -166,9 +189,19 @@ function AppContent() {
 
   const handleBack = () => {
     if (currentView === 'profile') {
-      setCurrentView('main');
-      window.history.pushState({}, '', '/');
+      // For players, go back to forplayers page
+      if (isPlayer) {
+        setCurrentView('forplayers');
+        window.history.pushState({}, '', '/forplayers');
+      } else {
+        setCurrentView('main');
+        window.history.pushState({}, '', '/');
+      }
     } else if (currentView === 'forplayers') {
+      // For players, stay on forplayers page
+      if (isPlayer) {
+        return;
+      }
       setCurrentView('main');
       window.history.pushState({}, '', '/');
     } else if (currentView === 'claim') {
@@ -211,6 +244,16 @@ function AppContent() {
   };
 
   const handleClaimClick = () => {
+    // Only allow claim flow for logged-out users
+    if (user) {
+      if (isPlayer) {
+        alert('You already have a profile. You cannot claim another profile.');
+        return;
+      } else {
+        alert('Coaches cannot claim player profiles. Please use the coach portal to view players.');
+        return;
+      }
+    }
     setCurrentView('claim');
     window.history.pushState({}, '', '/claim');
   };
@@ -228,29 +271,40 @@ function AppContent() {
       } else if (path === '/claim') {
         setCurrentView('claim');
       } else {
-        setCurrentView('main');
+        // For players, redirect to forplayers if they try to access main page
+        if (isPlayer) {
+          setCurrentView('forplayers');
+          window.history.pushState({}, '', '/forplayers');
+        } else {
+          setCurrentView('main');
+        }
       }
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [isPlayer]);
 
   let mainContent = null;
   if (currentView === 'main') {
-    mainContent = <MainLandingPage onApplyFilters={handleApplyFilters} />;
+    // Players should not see the main landing page
+    if (isPlayer) {
+      mainContent = <ForPlayersLanding onClaimClick={handleClaimClick} />;
+    } else {
+      mainContent = <MainLandingPage onApplyFilters={handleApplyFilters} />;
+    }
   } else if (currentView === 'college' && filters) {
     mainContent = <CollegePlayerCards filters={filters} onBack={handleBack} onShowSignupModal={handleSignInClick} />;
   } else if (currentView === 'college') {
     mainContent = <CollegeLandingPage onApplyFilters={handleApplyFilters} onBack={handleBack} />;
-          } else if (currentView === 'profile') {
-          // Check if user is a player or coach
-          const userType = user?.user_metadata?.userType;
-          if (userType === 'Player') {
-            mainContent = <PlayerProfile onBack={handleBack} />;
-          } else {
-            mainContent = <Profile onBack={handleBack} />;
-          }
+  } else if (currentView === 'profile') {
+    // Check if user is a player or coach
+    const userType = user?.user_metadata?.userType;
+    if (userType === 'Player') {
+      mainContent = <PlayerProfile onBack={handleBack} />;
+    } else {
+      mainContent = <Profile onBack={handleBack} />;
+    }
   } else if (currentView === 'forplayers') {
     mainContent = <ForPlayersLanding onClaimClick={handleClaimClick} />;
   } else if (currentView === 'claim') {
@@ -361,22 +415,25 @@ function AppContent() {
               Contact: antoine@draftme.app
             </a>
             <br />
-            <button 
-              onClick={handleForPlayersClick}
-              style={{
-                ...footerLink,
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: '0.95rem',
-                padding: '0.25rem 0',
-                marginTop: '0.5rem'
-              }}
-              onMouseEnter={(e) => e.target.style.opacity = '0.8'}
-              onMouseLeave={(e) => e.target.style.opacity = '1'}
-            >
-              For Players
-            </button>
+            {/* Only show "For Players" button for logged-out users and coaches */}
+            {!user || !isPlayer ? (
+              <button 
+                onClick={handleForPlayersClick}
+                style={{
+                  ...footerLink,
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                  padding: '0.25rem 0',
+                  marginTop: '0.5rem'
+                }}
+                onMouseEnter={(e) => e.target.style.opacity = '0.8'}
+                onMouseLeave={(e) => e.target.style.opacity = '1'}
+              >
+                For Players
+              </button>
+            ) : null}
           </p>
         </div>
       </footer>

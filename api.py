@@ -11,35 +11,18 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Try to import Supabase, but make it optional
-try:
-    from supabase import create_client, Client
-    SUPABASE_AVAILABLE = True
-except ImportError:
-    print("WARNING: Supabase not available, database features will be disabled")
+# Initialize Supabase using direct HTTP requests
+SUPABASE_AVAILABLE = True
+supabase_url = os.getenv('SUPABASE_URL')
+supabase_key = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
+
+if supabase_url and supabase_key:
+    print("SUPABASE: Using direct HTTP requests")
+else:
+    print("SUPABASE: Missing environment variables")
     SUPABASE_AVAILABLE = False
-    Client = None
-    create_client = None
 
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
-
-# Initialize Supabase client
-supabase = None
-if SUPABASE_AVAILABLE:
-    supabase_url = os.getenv('SUPABASE_URL')
-    # Use service role key for backend operations
-    supabase_key = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
-    if supabase_url and supabase_key:
-        try:
-            supabase = create_client(supabase_url, supabase_key)
-            print("SUPABASE: Client initialized successfully")
-        except Exception as e:
-            print(f"SUPABASE: Failed to initialize client: {e}")
-            supabase = None
-    else:
-        print("SUPABASE: Missing environment variables")
-else:
-    print("SUPABASE: Not available - database features disabled")
 
 # Membership price IDs (replace with your actual Stripe price IDs)
 MEMBERSHIP_PRICES = {
@@ -112,24 +95,46 @@ CLEAN_CLAIMED_PLAYERS_JSON = 'backend/college/njcaa/clean_claimed_players.json'
 # Cache for loaded data
 _player_cache = {}
 
+def clear_player_cache():
+    """Clear the player cache to force fresh data loading"""
+    global _player_cache
+    _player_cache = {}
+
 def load_json(path):
     import json
     with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
+def check_user_exists(user_id):
+    """Check if a user exists in the auth.users table"""
+    # Note: Supabase auth.users table is not accessible via REST API
+    # We'll rely on the foreign key constraint to handle this
+    return True  # Assume user exists and let the constraint handle it
+
 def fetch_claimed_profiles_from_db():
-    """Fetch claimed profiles from the database"""
-    if not supabase:
+    """Fetch claimed profiles from the database using direct HTTP requests"""
+    if not SUPABASE_AVAILABLE:
         print("WARNING: Supabase not configured, skipping database claimed profiles")
         return []
     
     try:
-        response = supabase.table('claimed_profiles').select('*').execute()
-        claimed_profiles = response.data if response.data else []
+        # Make direct HTTP request to Supabase
+        headers = {
+            'apikey': supabase_key,
+            'Authorization': f'Bearer {supabase_key}',
+            'Content-Type': 'application/json'
+        }
+        
+        response = requests.get(f'{supabase_url}/rest/v1/claimed_profiles', headers=headers)
+        response.raise_for_status()
+        claimed_profiles = response.json() if response.json() else []
         
         # Convert database format to match JSON format
         converted_profiles = []
         for profile in claimed_profiles:
+            print(f"DEBUG: Raw database profile: {profile}")
+            print(f"DEBUG: original_player_id value: {profile.get('original_player_id')}")
+            print(f"DEBUG: All profile keys: {list(profile.keys())}")
             converted_profile = {
                 'playerId': profile['original_player_id'],
                 'claimed': True,
@@ -244,13 +249,8 @@ def fetch_player_data():
         p['source'] = 'json'
         players.append(p)
     
-    # Transfer - Claimed from database (new claims)
-    db_claimed_profiles = fetch_claimed_profiles_from_db()
-    for p in db_claimed_profiles:
-        p['source'] = 'database'
-        players.append(p)
-    
-    # Transfer - Unclaimed
+    # Transfer - Unclaimed (we'll replace these with claimed versions if they exist)
+    unclaimed_players = []
     for fname in [
         'backend/college/njcaa/njcaa_d1_players.json',
         'backend/college/njcaa/njcaa_d2_players.json',
@@ -260,7 +260,29 @@ def fetch_player_data():
             p['claimed'] = False
             p['type'] = 'transfer'
             p['source'] = 'json'
+            unclaimed_players.append(p)
+    
+    # Transfer - Claimed from database (new claims)
+    db_claimed_profiles = fetch_claimed_profiles_from_db()
+    
+    # Create a set of claimed player IDs for quick lookup
+    claimed_player_ids = set()
+    for p in db_claimed_profiles:
+        # Use the playerId from the converted profile (which was set from original_player_id)
+        player_id = p.get('playerId')
+        claimed_player_ids.add(player_id)
+        p['source'] = 'database'
+        players.append(p)
+    
+    print(f"DEBUG: Claimed player IDs from database: {claimed_player_ids}")
+    
+    # Add unclaimed players that don't have a claimed version
+    for p in unclaimed_players:
+        player_id = p.get('playerId') or p.get('id')
+        if player_id not in claimed_player_ids:
             players.append(p)
+        else:
+            print(f"DEBUG: Skipping unclaimed player {player_id} because it has a claimed version")
     
     # Optionally, add high school players if needed in the future
     # for p in load_json('backend/college/highschool/highschool_players.json'):
@@ -453,6 +475,273 @@ def health_check():
     """Health check endpoint"""
     return jsonify({'status': 'healthy', 'message': 'API is running'})
 
+@app.route('/api/save-claimed-profile', methods=['POST', 'OPTIONS'])
+def save_claimed_profile():
+    """Save a claimed profile to the database"""
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        return response
+
+    if not SUPABASE_AVAILABLE:
+        return jsonify({'error': 'Database not available'}), 500
+
+    try:
+        data = request.get_json()
+        user_id = data.get('claimed_by_user_id')
+        email = data.get('email_address')
+        
+        # Debug: Print the received data
+        print(f"DEBUG: Received claim data for user {user_id}")
+        print(f"DEBUG: Required fields - name: '{data.get('name')}', position: '{data.get('position')}', current_school: '{data.get('current_school')}', division_transferring_from: '{data.get('division_transferring_from')}', email_address: '{email}'")
+        
+        # Validate required fields
+        required_fields = ['name', 'position', 'current_school', 'division_transferring_from', 'email_address']
+        missing_fields = [field for field in required_fields if not data.get(field) or data.get(field).strip() == '']
+        
+        if missing_fields:
+            print(f"ERROR: Missing required fields: {missing_fields}")
+            return jsonify({'error': f'Missing required fields: {", ".join(missing_fields)}'}), 400
+        
+        # Prepare the profile data for database insertion
+        profile_data = {
+            'original_player_id': data.get('original_player_id'),
+            'claimed_by_user_id': user_id,
+            'name': data.get('name'),
+            'nationality': data.get('nationality'),
+            'year_of_birth': data.get('year_of_birth'),
+            'height': data.get('height'),
+            'weight': data.get('weight'),
+            'position': data.get('position'),
+            'gpa': data.get('gpa'),
+            'credit_hours_taken': data.get('credit_hours_taken'),
+            'finances': data.get('finances'),
+            'available': data.get('available'),
+            'current_school': data.get('current_school'),
+            'division_transferring_from': data.get('division_transferring_from'),
+            'years_of_eligibility_left': data.get('years_of_eligibility_left'),
+            'individual_awards': data.get('individual_awards'),
+            'college_accolades': data.get('college_accolades'),
+            'email_address': email,
+            'highlights': data.get('highlights'),
+            'full_game_link': data.get('full_game_link'),
+            'why_player_is_transferring': data.get('why_player_is_transferring')
+        }
+
+        # For now, always save to pending_claims since the user is not confirmed yet
+        print(f"User {user_id} not yet confirmed - saving to pending claims")
+        return save_to_pending_claims(data, email)
+
+    except Exception as e:
+        print(f"Error saving claimed profile: {e}")
+        return jsonify({'error': str(e)}), 500
+
+def save_to_pending_claims(data, email):
+    """Save claim to pending_claims table when user is not yet confirmed"""
+    try:
+        # Prepare pending claim data
+        pending_data = {
+            'original_player_id': data.get('original_player_id'),
+            'pending_user_email': email,
+            'name': data.get('name'),
+            'nationality': data.get('nationality'),
+            'year_of_birth': data.get('year_of_birth'),
+            'height': data.get('height'),
+            'weight': data.get('weight'),
+            'position': data.get('position'),
+            'gpa': data.get('gpa'),
+            'credit_hours_taken': data.get('credit_hours_taken'),
+            'finances': data.get('finances'),
+            'available': data.get('available'),
+            'current_school': data.get('current_school'),
+            'division_transferring_from': data.get('division_transferring_from'),
+            'years_of_eligibility_left': data.get('years_of_eligibility_left'),
+            'individual_awards': data.get('individual_awards'),
+            'college_accolades': data.get('college_accolades'),
+            'email_address': email,
+            'highlights': data.get('highlights'),
+            'full_game_link': data.get('full_game_link'),
+            'why_player_is_transferring': data.get('why_player_is_transferring')
+        }
+
+        headers = {
+            'apikey': supabase_key,
+            'Authorization': f'Bearer {supabase_key}',
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+        }
+        
+        response = requests.post(
+            f'{supabase_url}/rest/v1/pending_claims',
+            headers=headers,
+            json=pending_data
+        )
+        
+        if response.status_code == 201:
+            print(f"Successfully saved pending claim for email {email}")
+            return jsonify({'success': True, 'message': 'Profile claimed successfully (pending email confirmation)'})
+        else:
+            print(f"Failed to save pending claim: {response.status_code} - {response.text}")
+            return jsonify({'error': f'Failed to save pending claim: {response.text}'}), 500
+
+    except Exception as e:
+        print(f"Error saving pending claim: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/get-claimed-profile/<user_id>', methods=['GET', 'OPTIONS'])
+def get_claimed_profile(user_id):
+    """Get a claimed profile by user ID"""
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        return response
+
+    if not SUPABASE_AVAILABLE:
+        return jsonify({'error': 'Database not available'}), 500
+
+    try:
+        headers = {
+            'apikey': supabase_key,
+            'Authorization': f'Bearer {supabase_key}',
+            'Content-Type': 'application/json'
+        }
+        
+        response = requests.get(
+            f'{supabase_url}/rest/v1/claimed_profiles?claimed_by_user_id=eq.{user_id}',
+            headers=headers
+        )
+        
+        if response.status_code == 200:
+            profiles = response.json()
+            if profiles:
+                return jsonify(profiles[0])  # Return the first (and should be only) profile
+            else:
+                return jsonify({'error': 'No claimed profile found'}), 404
+        else:
+            print(f"Failed to fetch claimed profile: {response.status_code} - {response.text}")
+            return jsonify({'error': 'Failed to fetch claimed profile'}), 500
+
+    except Exception as e:
+        print(f"Error fetching claimed profile: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/migrate-pending-claims', methods=['POST', 'OPTIONS'])
+def migrate_pending_claims():
+    """Migrate pending claims to claimed_profiles after email confirmation"""
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        return response
+
+    if not SUPABASE_AVAILABLE:
+        return jsonify({'error': 'Database not available'}), 500
+
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        email = data.get('email')
+        
+        print(f"DEBUG: Migration request - user_id: {user_id}, email: {email}")
+        
+        if not user_id or not email:
+            return jsonify({'error': 'Missing user_id or email'}), 400
+
+        # Get pending claims for this email
+        headers = {
+            'apikey': supabase_key,
+            'Authorization': f'Bearer {supabase_key}',
+            'Content-Type': 'application/json'
+        }
+        
+        print(f"DEBUG: Fetching pending claims for email: {email}")
+        response = requests.get(
+            f'{supabase_url}/rest/v1/pending_claims?pending_user_email=eq.{email}',
+            headers=headers
+        )
+        
+        if response.status_code != 200:
+            print(f"Failed to fetch pending claims: {response.status_code} - {response.text}")
+            return jsonify({'error': 'Failed to fetch pending claims'}), 500
+
+        pending_claims = response.json()
+        
+        print(f"DEBUG: Found {len(pending_claims)} pending claims for email {email}")
+        if pending_claims:
+            print(f"DEBUG: Pending claims: {pending_claims}")
+        
+        if not pending_claims:
+            print(f"No pending claims found for email {email}")
+            return jsonify({'success': True, 'message': 'No pending claims to migrate'})
+
+        migrated_count = 0
+        
+        for claim in pending_claims:
+            # Prepare claimed profile data
+            profile_data = {
+                'original_player_id': claim['original_player_id'],
+                'claimed_by_user_id': user_id,
+                'name': claim['name'],
+                'nationality': claim['nationality'],
+                'year_of_birth': claim['year_of_birth'],
+                'height': claim['height'],
+                'weight': claim['weight'],
+                'position': claim['position'],
+                'gpa': claim['gpa'],
+                'credit_hours_taken': claim['credit_hours_taken'],
+                'finances': claim['finances'],
+                'available': claim['available'],
+                'current_school': claim['current_school'],
+                'division_transferring_from': claim['division_transferring_from'],
+                'years_of_eligibility_left': claim['years_of_eligibility_left'],
+                'individual_awards': claim['individual_awards'],
+                'college_accolades': claim['college_accolades'],
+                'email_address': claim['email_address'],
+                'highlights': claim['highlights'],
+                'full_game_link': claim['full_game_link'],
+                'why_player_is_transferring': claim['why_player_is_transferring']
+            }
+
+            # Insert into claimed_profiles
+            profile_response = requests.post(
+                f'{supabase_url}/rest/v1/claimed_profiles',
+                headers=headers,
+                json=profile_data
+            )
+            
+            if profile_response.status_code == 201:
+                # Delete from pending_claims
+                delete_response = requests.delete(
+                    f'{supabase_url}/rest/v1/pending_claims?id=eq.{claim["id"]}',
+                    headers=headers
+                )
+                
+                if delete_response.status_code == 204:
+                    migrated_count += 1
+                    print(f"Successfully migrated pending claim {claim['id']} for user {user_id}")
+                else:
+                    print(f"Failed to delete pending claim {claim['id']}: {delete_response.status_code}")
+            else:
+                print(f"Failed to migrate pending claim {claim['id']}: {profile_response.status_code} - {profile_response.text}")
+
+        print(f"Migrated {migrated_count} pending claims for user {user_id}")
+        
+        # Clear the player cache to ensure fresh data is loaded
+        if migrated_count > 0:
+            clear_player_cache()
+            print("Cleared player cache after successful migration")
+        
+        return jsonify({'success': True, 'message': f'Migrated {migrated_count} pending claims'})
+
+    except Exception as e:
+        print(f"Error migrating pending claims: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/create-checkout-session', methods=['POST', 'OPTIONS'])
 def create_checkout_session():
     if request.method == 'OPTIONS':
@@ -482,6 +771,57 @@ def create_checkout_session():
         return jsonify({'url': session.url})
     except Exception as e:
         print(f"Stripe error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/update-claimed-profile', methods=['PUT', 'OPTIONS'])
+def update_claimed_profile():
+    """Update a claimed profile"""
+    if request.method == 'OPTIONS':
+        response = jsonify({})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'PUT, OPTIONS')
+        return response
+
+    if not SUPABASE_AVAILABLE:
+        return jsonify({'error': 'Database not available'}), 500
+
+    try:
+        data = request.get_json()
+        profile_id = data.get('profile_id')
+        updates = data.get('updates', {})
+
+        if not profile_id:
+            return jsonify({'error': 'Profile ID is required'}), 400
+
+        # Use service role key to update the profile
+        headers = {
+            'apikey': supabase_key,
+            'Authorization': f'Bearer {supabase_key}',
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+        }
+        
+        response = requests.patch(
+            f'{supabase_url}/rest/v1/claimed_profiles?id=eq.{profile_id}',
+            headers=headers,
+            json=updates
+        )
+        
+        if response.status_code == 200:
+            updated_profile = response.json()
+            if updated_profile:
+                # Clear the player cache to ensure fresh data is loaded
+                clear_player_cache()
+                return jsonify(updated_profile[0])
+            else:
+                return jsonify({'error': 'Profile not found'}), 404
+        else:
+            print(f"Failed to update claimed profile: {response.status_code} - {response.text}")
+            return jsonify({'error': 'Failed to update claimed profile'}), 500
+
+    except Exception as e:
+        print(f"Error updating claimed profile: {e}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
