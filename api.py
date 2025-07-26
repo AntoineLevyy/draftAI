@@ -6,8 +6,40 @@ from flask_cors import CORS
 import stripe
 import csv
 import pandas as pd
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Try to import Supabase, but make it optional
+try:
+    from supabase import create_client, Client
+    SUPABASE_AVAILABLE = True
+except ImportError:
+    print("WARNING: Supabase not available, database features will be disabled")
+    SUPABASE_AVAILABLE = False
+    Client = None
+    create_client = None
 
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+
+# Initialize Supabase client
+supabase = None
+if SUPABASE_AVAILABLE:
+    supabase_url = os.getenv('SUPABASE_URL')
+    # Use service role key for backend operations
+    supabase_key = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
+    if supabase_url and supabase_key:
+        try:
+            supabase = create_client(supabase_url, supabase_key)
+            print("SUPABASE: Client initialized successfully")
+        except Exception as e:
+            print(f"SUPABASE: Failed to initialize client: {e}")
+            supabase = None
+    else:
+        print("SUPABASE: Missing environment variables")
+else:
+    print("SUPABASE: Not available - database features disabled")
 
 # Membership price IDs (replace with your actual Stripe price IDs)
 MEMBERSHIP_PRICES = {
@@ -85,6 +117,55 @@ def load_json(path):
     with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
+def fetch_claimed_profiles_from_db():
+    """Fetch claimed profiles from the database"""
+    if not supabase:
+        print("WARNING: Supabase not configured, skipping database claimed profiles")
+        return []
+    
+    try:
+        response = supabase.table('claimed_profiles').select('*').execute()
+        claimed_profiles = response.data if response.data else []
+        
+        # Convert database format to match JSON format
+        converted_profiles = []
+        for profile in claimed_profiles:
+            converted_profile = {
+                'playerId': profile['original_player_id'],
+                'claimed': True,
+                'type': 'transfer',
+                'Name': profile['name'],
+                'Position': profile['position'],
+                'Current School': profile['current_school'],
+                'Division Transferring From': profile['division_transferring_from'],
+                'Email Address': profile['email_address'],
+                'Years of Eligibility Left': profile['years_of_eligibility_left'],
+                'GPA': str(profile['gpa']) if profile['gpa'] else '',
+                'Individual Awards': profile['individual_awards'] or '',
+                'College Accolades': profile['college_accolades'] or '',
+                'Highlights': profile['highlights'] or '',
+                'Full 90 min Game Link': profile['full_game_link'] or '',
+                'Height': profile['height'] or '',
+                'Weight (lbs)': profile['weight'] or '',
+                'Credit Hours Taken when you will transfer': profile['credit_hours_taken'] or '',
+                'Available': profile['available'] or '',
+                'Nationality': profile['nationality'] or '',
+                'Year of Birth': profile['year_of_birth'] or '',
+                'Finances': profile['finances'] or '',
+                'Why Player is Transferring': profile['why_player_is_transferring'] or '',
+                'photo_url': '',  # No photo URL in database for now
+                'claimed_at': profile['claimed_at'],
+                'claimed_by_user_id': profile['claimed_by_user_id']
+            }
+            converted_profiles.append(converted_profile)
+        
+        print(f"DEBUG: Loaded {len(converted_profiles)} claimed profiles from database")
+        return converted_profiles
+        
+    except Exception as e:
+        print(f"ERROR: Failed to fetch claimed profiles from database: {e}")
+        return []
+
 def get_all_players():
     players = []
     # Transfer - Claimed
@@ -149,18 +230,26 @@ for p in load_json('backend/college/highschool/highschool_players.json'):
     players.append(p)
 
 def fetch_player_data():
-    """Fetch player data from local college files only (for local development)"""
+    """Fetch player data from local college files and database claimed profiles"""
     global _player_cache
     if _player_cache:
         return _player_cache
 
     players = []
 
-    # Transfer - Claimed
+    # Transfer - Claimed from JSON (legacy)
     for p in load_json('backend/college/njcaa/clean_claimed_players.json'):
         p['claimed'] = True
         p['type'] = 'transfer'
+        p['source'] = 'json'
         players.append(p)
+    
+    # Transfer - Claimed from database (new claims)
+    db_claimed_profiles = fetch_claimed_profiles_from_db()
+    for p in db_claimed_profiles:
+        p['source'] = 'database'
+        players.append(p)
+    
     # Transfer - Unclaimed
     for fname in [
         'backend/college/njcaa/njcaa_d1_players.json',
@@ -170,7 +259,9 @@ def fetch_player_data():
         for p in load_json(fname):
             p['claimed'] = False
             p['type'] = 'transfer'
+            p['source'] = 'json'
             players.append(p)
+    
     # Optionally, add high school players if needed in the future
     # for p in load_json('backend/college/highschool/highschool_players.json'):
     #     p['claimed'] = False
@@ -180,6 +271,7 @@ def fetch_player_data():
     print('DEBUG: Total college players loaded:', len(players))
     print('DEBUG: Claimed players loaded:', sum(1 for p in players if p.get('claimed')))
     print('DEBUG: Unclaimed players loaded:', sum(1 for p in players if not p.get('claimed')))
+    print('DEBUG: Database claimed profiles:', len(db_claimed_profiles))
     _player_cache = players
     return players
 

@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import MainLandingPage from './MainLandingPage';
 import CollegeLandingPage from './CollegeLandingPage';
 import CollegePlayerCards from './CollegePlayerCards';
+import Profile from './Profile';
+import PlayerProfile from './PlayerProfile';
+import ForPlayersLanding from './ForPlayersLanding';
 import draftmeLogo from '../assets/images/cst_logo.png';
 import { AuthProvider, useAuth } from './AuthContext';
 import LoginModal from './LoginModal';
@@ -138,24 +141,54 @@ const appContainerStyle = {
 };
 
 function AppContent() {
-  const [currentView, setCurrentView] = useState('main'); // 'main', 'college'
+  const [currentView, setCurrentView] = useState(() => {
+    // Check URL on initial load
+    const path = window.location.pathname;
+    if (path === '/forplayers') return 'forplayers';
+    if (path === '/claim') return 'claim';
+    return 'main';
+  });
   const [filters, setFilters] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginMode, setLoginMode] = useState('signin');
   const { user, signOut } = useAuth();
 
   const handleApplyFilters = (selectedFilters) => {
+    // Only coaches should be able to access the college section
+    const userType = user?.user_metadata?.userType;
+    if (userType === 'Player') {
+      alert('Players cannot access the coach portal. Please use the "For Players" section to claim your profile.');
+      return;
+    }
     setFilters(selectedFilters);
     setCurrentView('college');
   };
 
   const handleBack = () => {
-    if (filters) {
+    if (currentView === 'profile') {
+      setCurrentView('main');
+      window.history.pushState({}, '', '/');
+    } else if (currentView === 'forplayers') {
+      setCurrentView('main');
+      window.history.pushState({}, '', '/');
+    } else if (currentView === 'claim') {
+      setCurrentView('forplayers');
+      window.history.pushState({}, '', '/forplayers');
+    } else if (filters) {
       setFilters(null);
       setCurrentView('main');
+      window.history.pushState({}, '', '/');
     } else {
       setCurrentView('main');
+      window.history.pushState({}, '', '/');
     }
+  };
+
+  const handleProfileClick = () => {
+    console.log('User data:', user);
+    console.log('User metadata:', user?.user_metadata);
+    console.log('User type:', user?.user_metadata?.userType);
+    setCurrentView('profile');
   };
 
   const handleSignInClick = () => {
@@ -172,6 +205,37 @@ function AppContent() {
     await signOut();
   };
 
+  const handleForPlayersClick = () => {
+    setCurrentView('forplayers');
+    window.history.pushState({}, '', '/forplayers');
+  };
+
+  const handleClaimClick = () => {
+    setCurrentView('claim');
+    window.history.pushState({}, '', '/claim');
+  };
+
+  const handleProfileRedirect = () => {
+    setCurrentView('profile');
+  };
+
+  // Handle browser back/forward buttons
+  React.useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      if (path === '/forplayers') {
+        setCurrentView('forplayers');
+      } else if (path === '/claim') {
+        setCurrentView('claim');
+      } else {
+        setCurrentView('main');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   let mainContent = null;
   if (currentView === 'main') {
     mainContent = <MainLandingPage onApplyFilters={handleApplyFilters} />;
@@ -179,6 +243,18 @@ function AppContent() {
     mainContent = <CollegePlayerCards filters={filters} onBack={handleBack} onShowSignupModal={handleSignInClick} />;
   } else if (currentView === 'college') {
     mainContent = <CollegeLandingPage onApplyFilters={handleApplyFilters} onBack={handleBack} />;
+          } else if (currentView === 'profile') {
+          // Check if user is a player or coach
+          const userType = user?.user_metadata?.userType;
+          if (userType === 'Player') {
+            mainContent = <PlayerProfile onBack={handleBack} />;
+          } else {
+            mainContent = <Profile onBack={handleBack} />;
+          }
+  } else if (currentView === 'forplayers') {
+    mainContent = <ForPlayersLanding onClaimClick={handleClaimClick} />;
+  } else if (currentView === 'claim') {
+    mainContent = <CollegePlayerCards filters={{ type: 'transfer', claimed: false }} onBack={handleBack} onShowSignupModal={handleSignInClick} isClaimMode={true} />;
   }
 
   return (
@@ -203,20 +279,36 @@ function AppContent() {
           </a>
           <div style={headerButtonsStyle}>
             {user ? (
-              <button 
-                style={signInButtonStyle}
-                onClick={handleSignOut}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-1px)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(79,140,255,0.2)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 2px 8px rgba(79,140,255,0.1)';
-                }}
-              >
-                Sign Out
-              </button>
+              <>
+                <button 
+                  style={signInButtonStyle}
+                  onClick={handleProfileClick}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-1px)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(79,140,255,0.2)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 2px 8px rgba(79,140,255,0.1)';
+                  }}
+                >
+                  Profile
+                </button>
+                <button 
+                  style={signInButtonStyle}
+                  onClick={handleSignOut}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-1px)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(79,140,255,0.2)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 2px 8px rgba(79,140,255,0.1)';
+                  }}
+                >
+                  Sign Out
+                </button>
+              </>
             ) : (
               <>
                 <button 
@@ -268,6 +360,23 @@ function AppContent() {
             >
               Contact: antoine@draftme.app
             </a>
+            <br />
+            <button 
+              onClick={handleForPlayersClick}
+              style={{
+                ...footerLink,
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '0.95rem',
+                padding: '0.25rem 0',
+                marginTop: '0.5rem'
+              }}
+              onMouseEnter={(e) => e.target.style.opacity = '0.8'}
+              onMouseLeave={(e) => e.target.style.opacity = '1'}
+            >
+              For Players
+            </button>
           </p>
         </div>
       </footer>

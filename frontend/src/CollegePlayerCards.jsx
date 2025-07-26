@@ -2,7 +2,10 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import './USLPlayerCards.css';
 import { apiBaseUrl } from './config';
 import { savePlayer, unsavePlayer, getSavedPlayersBatch } from './services/saveService';
+import { saveClaimedProfile, isProfileAlreadyClaimed } from './services/claimService';
 import { useAuth } from './AuthContext';
+import ClaimProfileForm from './ClaimProfileForm';
+import PlayerSignupModal from './PlayerSignupModal';
 
 /**
  * @typedef {Object} Player
@@ -115,7 +118,7 @@ const expandYear = (year) => {
   return yearTranslations[year] || year;
 };
 
-const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, translatePosition, formatMinutes, isValidPlayer, handleViewFootage, selectedLeague, loadingVideos, savedPlayerIds, onSaveToggle, onShowSignupModal }) => {
+const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, translatePosition, formatMinutes, isValidPlayer, handleViewFootage, selectedLeague, loadingVideos, savedPlayerIds, onSaveToggle, onShowSignupModal, isClaimMode = false, onClaimProfile }) => {
   const { user } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -153,6 +156,13 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
       console.error('Error saving/unsaving player:', error);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleClaimClick = () => {
+    // This will be handled by the parent component
+    if (onClaimProfile) {
+      onClaimProfile(player);
     }
   };
 
@@ -227,31 +237,58 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
           <div className="club-badge">
             <span>{clubName}</span>
           </div>
-          <button
-            className={`save-button ${isSaved ? 'saved' : ''} ${isSaving ? 'saving' : ''}`}
-            onClick={handleSaveToggle}
-            disabled={isSaving}
-            style={{
-              position: 'absolute',
-              top: '10px',
-              left: '10px',
-              background: isSaved ? '#10b981' : 'rgba(255, 255, 255, 0.9)',
-              color: isSaved ? 'white' : '#374151',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '8px 12px',
-              fontSize: '12px',
-              fontWeight: '600',
-              cursor: isSaving ? 'default' : 'pointer',
-              transition: 'all 0.2s ease',
-              zIndex: 10,
-              backdropFilter: 'blur(10px)',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              opacity: isSaved ? 0.8 : 1
-            }}
-          >
-            {isSaving ? (isSaved ? 'Unsaving...' : 'Saving...') : isSaved ? 'Saved ✓' : 'Save'}
-          </button>
+          {isClaimMode ? (
+            <button
+              className="claim-button"
+              onClick={handleClaimClick}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'linear-gradient(90deg, #c0c0c0 0%, #a0a0a0 100%)',
+                color: '#333',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                zIndex: 10,
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              }}
+            >
+              Claim Profile
+            </button>
+          ) : (
+            <button
+              className={`save-button ${isSaved ? 'saved' : ''} ${isSaving ? 'saving' : ''}`}
+              onClick={handleSaveToggle}
+              disabled={isSaving}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                left: '10px',
+                background: isSaved ? '#10b981' : 'rgba(255, 255, 255, 0.9)',
+                color: isSaved ? 'white' : '#374151',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: isSaving ? 'default' : 'pointer',
+                transition: 'all 0.2s ease',
+                zIndex: 10,
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                opacity: isSaved ? 0.8 : 1
+              }}
+            >
+              {isSaving ? (isSaved ? 'Unsaving...' : 'Saving...') : isSaved ? 'Saved ✓' : 'Save'}
+            </button>
+          )}
         </div>
         
         <div className="card-body">
@@ -349,31 +386,58 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
             )}
           </div>
           {/* Remove club-badge for claimed cards */}
-          <button
-            className={`save-button ${isSaved ? 'saved' : ''} ${isSaving ? 'saving' : ''}`}
-            onClick={handleSaveToggle}
-            disabled={isSaving}
-            style={{
-              position: 'absolute',
-              top: '10px',
-              left: '10px',
-              background: isSaved ? '#10b981' : 'rgba(255,255,255,0.9)',
-              color: isSaved ? 'white' : '#374151',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '8px 12px',
-              fontSize: '12px',
-              fontWeight: '600',
-              cursor: isSaving ? 'default' : 'pointer',
-              transition: 'all 0.2s ease',
-              zIndex: 10,
-              backdropFilter: 'blur(10px)',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              opacity: isSaved ? 0.8 : 1
-            }}
-          >
-            {isSaving ? (isSaved ? 'Unsaving...' : 'Saving...') : isSaved ? 'Saved ✓' : 'Save'}
-          </button>
+          {isClaimMode ? (
+            <button
+              className="claim-button"
+              onClick={handleClaimClick}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'linear-gradient(90deg, #c0c0c0 0%, #a0a0a0 100%)',
+                color: '#333',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                zIndex: 10,
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              }}
+            >
+              Claim Profile
+            </button>
+          ) : (
+            <button
+              className={`save-button ${isSaved ? 'saved' : ''} ${isSaving ? 'saving' : ''}`}
+              onClick={handleSaveToggle}
+              disabled={isSaving}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                left: '10px',
+                background: isSaved ? '#10b981' : 'rgba(255,255,255,0.9)',
+                color: isSaved ? 'white' : '#374151',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: isSaving ? 'default' : 'pointer',
+                transition: 'all 0.2s ease',
+                zIndex: 10,
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                opacity: isSaved ? 0.8 : 1
+              }}
+            >
+              {isSaving ? (isSaved ? 'Unsaving...' : 'Saving...') : isSaved ? 'Saved ✓' : 'Save'}
+            </button>
+          )}
         </div>
         <div className="card-body">
           <h3 className="player-name">{playerName}</h3>
@@ -508,31 +572,58 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
               }}
             />
           </div>
-          <button
-            className={`save-button ${isSaved ? 'saved' : ''} ${isSaving ? 'saving' : ''}`}
-            onClick={handleSaveToggle}
-            disabled={isSaving}
-            style={{
-              position: 'absolute',
-              top: '10px',
-              left: '10px',
-              background: isSaved ? '#10b981' : 'rgba(255, 255, 255, 0.9)',
-              color: isSaved ? 'white' : '#374151',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '8px 12px',
-              fontSize: '12px',
-              fontWeight: '600',
-              cursor: isSaving ? 'default' : 'pointer',
-              transition: 'all 0.2s ease',
-              zIndex: 10,
-              backdropFilter: 'blur(10px)',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              opacity: isSaved ? 0.8 : 1
-            }}
-          >
-            {isSaving ? (isSaved ? 'Unsaving...' : 'Saving...') : isSaved ? 'Saved ✓' : 'Save'}
-          </button>
+          {isClaimMode ? (
+            <button
+              className="claim-button"
+              onClick={handleClaimClick}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'linear-gradient(90deg, #c0c0c0 0%, #a0a0a0 100%)',
+                color: '#333',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                zIndex: 10,
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              }}
+            >
+              Claim Profile
+            </button>
+          ) : (
+            <button
+              className={`save-button ${isSaved ? 'saved' : ''} ${isSaving ? 'saving' : ''}`}
+              onClick={handleSaveToggle}
+              disabled={isSaving}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                left: '10px',
+                background: isSaved ? '#10b981' : 'rgba(255, 255, 255, 0.9)',
+                color: isSaved ? 'white' : '#374151',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: isSaving ? 'default' : 'pointer',
+                transition: 'all 0.2s ease',
+                zIndex: 10,
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                opacity: isSaved ? 0.8 : 1
+              }}
+            >
+              {isSaving ? (isSaved ? 'Unsaving...' : 'Saving...') : isSaved ? 'Saved ✓' : 'Save'}
+            </button>
+          )}
         </div>
         
         <div className="card-body">
@@ -620,8 +711,12 @@ const positions = ['All', 'Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
 const academicLevels = ['All', 'Freshman', 'Sophomore', 'Junior', 'Senior', 'Graduate Student'];
 const leagues = ['All', 'NJCAA D1', 'NJCAA D2', 'NJCAA D3'];
 
-const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
+const CollegePlayerCards = ({ filters, onBack, onShowSignupModal, isClaimMode = false }) => {
   const { user } = useAuth();
+  const [showClaimForm, setShowClaimForm] = useState(false);
+  const [selectedPlayerForClaim, setSelectedPlayerForClaim] = useState(null);
+  const [showPlayerSignup, setShowPlayerSignup] = useState(false);
+  const [claimFormData, setClaimFormData] = useState(null);
   console.log('CollegePlayerCards received filters:', filters);
   
   const [players, setPlayers] = useState([]);
@@ -1144,6 +1239,57 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
     }
   };
 
+  const handleClaimProfile = (player) => {
+    setSelectedPlayerForClaim(player);
+    setShowClaimForm(true);
+  };
+
+  const handleClaimFormComplete = async (formData) => {
+    console.log('Claim form completed:', formData);
+    console.log('Player being claimed:', selectedPlayerForClaim);
+    
+    // Store the form data and show the signup modal
+    setClaimFormData(formData);
+    setShowClaimForm(false);
+    setShowPlayerSignup(true);
+  };
+
+  const handlePlayerSignupSuccess = async (user, formData) => {
+    try {
+      console.log('Player account created:', user);
+      console.log('Claim form data:', formData);
+      console.log('Original player:', selectedPlayerForClaim);
+
+      // Check if profile is already claimed
+      const isAlreadyClaimed = await isProfileAlreadyClaimed(selectedPlayerForClaim.playerId || selectedPlayerForClaim.id);
+      
+      if (isAlreadyClaimed) {
+        alert('This profile has already been claimed by another user.');
+        return;
+      }
+
+      // Save the claimed profile to database
+      const savedProfile = await saveClaimedProfile(formData, selectedPlayerForClaim, user.id);
+      
+      console.log('Claimed profile saved:', savedProfile);
+      
+      // Show success message
+      alert('Profile claimed successfully! You can now manage your profile from your account.');
+      
+      // Close the signup modal
+      setShowPlayerSignup(false);
+      setClaimFormData(null);
+      setSelectedPlayerForClaim(null);
+      
+      // Force a complete page refresh to update the user session and data
+      window.location.reload();
+      
+    } catch (error) {
+      console.error('Error completing claim process:', error);
+      alert('Error completing claim process. Please try again.');
+    }
+  };
+
 
   if (loading) {
     return (
@@ -1168,25 +1314,26 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
       {/* Filter Controls - move above search/sort */}
       {/* In the main filter row, move Claimed Status to the far left and make the filter row responsive */}
       {/* Add a container for the filters with flex-wrap and overflow for responsiveness */}
-      <div
-        className="filtersRow"
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 24,
-          marginTop: 24,
-          marginBottom: 16,
-          justifyContent: 'flex-start',
-          alignItems: 'flex-end',
-          width: '100%',
-          background: '#18181b',
-          borderRadius: 12,
-          padding: '16px 24px',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
-          overflowX: 'auto',
-          minHeight: 0,
-        }}
-      >
+      {!isClaimMode && (
+        <div
+          className="filtersRow"
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 24,
+            marginTop: 24,
+            marginBottom: 16,
+            justifyContent: 'flex-start',
+            alignItems: 'flex-end',
+            width: '100%',
+            background: '#18181b',
+            borderRadius: 12,
+            padding: '16px 24px',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+            overflowX: 'auto',
+            minHeight: 0,
+          }}
+        >
         {/* Claimed/Unclaimed Filter - always first */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
           <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
@@ -1405,55 +1552,60 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
           </div>
         )}
       </div>
+      )}
       {/* Search/Sort/Toggle Controls */}
       <div className="controls-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '2rem', marginBottom: '1.5rem' }}>
         <input
           type="text"
-          placeholder="Search by player or club..."
+          placeholder={isClaimMode ? "Search for your profile..." : "Search by player or club..."}
           value={searchTerm}
           onChange={handleSearchChange}
           className="search-input"
         />
-        <div>
-          <button
-            className={viewMode === 'grid' ? 'toggle-text-btn active' : 'toggle-text-btn'}
-            onClick={() => setViewMode('grid')}
-          >
-            Grid View
-          </button>
-          <button
-            className={viewMode === 'list' ? 'toggle-text-btn active' : 'toggle-text-btn'}
-            onClick={() => setViewMode('list')}
-          >
-            List View
-          </button>
-          <button
-            className={viewMode === 'tinder' ? 'toggle-text-btn active' : 'toggle-text-btn'}
-            onClick={() => setViewMode('tinder')}
-          >
-            Tinder Mode
-          </button>
-        </div>
+        {!isClaimMode && (
+          <div>
+            <button
+              className={viewMode === 'grid' ? 'toggle-text-btn active' : 'toggle-text-btn'}
+              onClick={() => setViewMode('grid')}
+            >
+              Grid View
+            </button>
+            <button
+              className={viewMode === 'list' ? 'toggle-text-btn active' : 'toggle-text-btn'}
+              onClick={() => setViewMode('list')}
+            >
+              List View
+            </button>
+            <button
+              className={viewMode === 'tinder' ? 'toggle-text-btn active' : 'toggle-text-btn'}
+              onClick={() => setViewMode('tinder')}
+            >
+              Tinder Mode
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="headline-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '2rem', marginBottom: '2rem' }}>
         <div className="gradient-headline college">
-          We found {filteredAndSortedPlayers.length} college players for you
+          {isClaimMode ? `Found ${filteredAndSortedPlayers.length} unclaimed profiles` : `We found ${filteredAndSortedPlayers.length} college players for you`}
         </div>
-        <div className="sort-controls">
-          <label>Sort by:</label>
-          <select value={sortBy} onChange={handleSortChange} className="sort-select">
-            <option value="goals">Goals</option>
-            <option value="assists">Assists</option>
-            <option value="matches">Matches</option>
-            <option value="minutes">Minutes</option>
-            <option value="name">Name</option>
-            <option value="gpa">GPA</option>
-          </select>
-          <button onClick={handleSortOrderChange} className="sort-order-btn">
-            {sortOrder === 'desc' ? '↓' : '↑'}
-          </button>
-        </div>
+        {!isClaimMode && (
+          <div className="sort-controls">
+            <label>Sort by:</label>
+            <select value={sortBy} onChange={handleSortChange} className="sort-select">
+              <option value="goals">Goals</option>
+              <option value="assists">Assists</option>
+              <option value="matches">Matches</option>
+              <option value="minutes">Minutes</option>
+              <option value="name">Name</option>
+              <option value="gpa">GPA</option>
+            </select>
+            <button onClick={handleSortOrderChange} className="sort-order-btn">
+              {sortOrder === 'desc' ? '↓' : '↑'}
+            </button>
+          </div>
+        )}
       </div>
       
       {/* 5. Add filter UI for claimed/unclaimed and claimed-specific filters */}
@@ -1591,6 +1743,8 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
                     savedPlayerIds={savedPlayerIds}
                     onSaveToggle={refreshSavedPlayers}
                     onShowSignupModal={onShowSignupModal}
+                    isClaimMode={isClaimMode}
+                    onClaimProfile={handleClaimProfile}
                   />
                   {tinderAnimating && (
                     <div className={`tinder-overlay ${tinderDecision}`}>{tinderDecision === 'save' ? 'Saved' : 'Skipped'}</div>
@@ -1633,6 +1787,8 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
                 savedPlayerIds={savedPlayerIds}
                 onSaveToggle={refreshSavedPlayers}
                 onShowSignupModal={onShowSignupModal}
+                isClaimMode={isClaimMode}
+                onClaimProfile={handleClaimProfile}
               />
               {player.claimed && (
                 <span style={{
@@ -1937,9 +2093,35 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal }) => {
               savedPlayerIds={savedPlayerIds}
               onSaveToggle={refreshSavedPlayers}
               onShowSignupModal={onShowSignupModal}
+              isClaimMode={isClaimMode}
+              onClaimProfile={handleClaimProfile}
             />
           </div>
         </div>
+      )}
+      
+      {showClaimForm && selectedPlayerForClaim && (
+        <ClaimProfileForm
+          player={selectedPlayerForClaim}
+          onClose={() => {
+            setShowClaimForm(false);
+            setSelectedPlayerForClaim(null);
+          }}
+          onComplete={handleClaimFormComplete}
+        />
+      )}
+      
+      {showPlayerSignup && claimFormData && (
+        <PlayerSignupModal
+          isOpen={showPlayerSignup}
+          onClose={() => {
+            setShowPlayerSignup(false);
+            setClaimFormData(null);
+            setSelectedPlayerForClaim(null);
+          }}
+          onSuccess={handlePlayerSignupSuccess}
+          claimData={claimFormData}
+        />
       )}
     </div>
   );

@@ -102,3 +102,6 @@ frontend/public/*.json
 !backend/pro/spain_segunda_g3_players_api.json
 !backend/pro/spain_segunda_g4_players_api.json
 !backend/pro/spain_segunda_g5_players_api.json
+# Environment variables
+.env
+frontend/.env

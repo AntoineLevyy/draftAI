@@ -1,5 +1,6 @@
 import React from 'react';
 import { apiBaseUrl } from './config';
+import { useAuth } from './AuthContext';
 
 const bgStyle = {
   width: '100%',
@@ -230,7 +231,15 @@ const pricingButton = {
 };
 
 function MainLandingPage({ onApplyFilters }) {
+  const { user } = useAuth();
+  
   const handleCtaClick = () => {
+    // Check if user is a player and restrict access
+    const userType = user?.user_metadata?.userType;
+    if (userType === 'Player') {
+      alert('Players cannot access the coach portal. Please use the "For Players" section to claim your profile.');
+      return;
+    }
     // Go directly to college landing page
     if (onApplyFilters) onApplyFilters(null);
   };
