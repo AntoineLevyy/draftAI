@@ -548,7 +548,7 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
             )}
           </div>
           <div style={{ height: 96 }} />
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
             <button type="submit" style={buttonStyle}>
               Find Players
             </button>

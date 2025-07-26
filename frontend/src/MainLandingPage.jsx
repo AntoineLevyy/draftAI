@@ -165,25 +165,23 @@ const pricingSection = {
   width: '100%',
   maxWidth: 520,
   margin: '4.5rem auto 0 auto',
-  background: 'rgba(24,24,27,0.95)', // dark background
-  borderRadius: 18,
-  boxShadow: '0 2px 24px rgba(0,0,0,0.18)',
   padding: '2.7rem 2.5rem',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  border: 'none',
   marginBottom: '5rem', // more space before footer
 };
 
 const pricingTitle = {
-  fontWeight: 800,
-  fontSize: '2rem',
-  marginBottom: '2.5rem',
+  fontWeight: 900,
+  fontSize: '3rem',
+  textAlign: 'center',
+  marginBottom: '1rem',
+  letterSpacing: '-0.5px',
   background: 'linear-gradient(90deg, #b91c1c 0%, #ef4444 100%)',
   WebkitBackgroundClip: 'text',
   color: 'transparent',
-  textAlign: 'center',
+  display: 'inline-block',
 };
 
 const pricingCard = {
@@ -279,36 +277,11 @@ function MainLandingPage({ onApplyFilters }) {
           <span style={heroHighlight}>in seconds</span>
         </h1>
         <div style={heroSubheader}>
-          For college coaches and scouts to easily identify and reach out to the players that fit their needs
+          The only complete portal with all user information for NJCAA, NCAA and NAIA leagues.
         </div>
         <button style={ctaButton} onClick={handleCtaClick}>
           Try for free
         </button>
-        {/* Embedded Vimeo Video */}
-        <div style={{
-          width: '100%',
-          maxWidth: 900,
-          aspectRatio: '16/9',
-          margin: '2.5rem auto 0 auto',
-          background: 'rgba(79,140,255,0.07)',
-          borderRadius: '18px',
-          boxShadow: '0 4px 24px rgba(79,140,255,0.08)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-        }}>
-          <iframe
-            src="https://player.vimeo.com/video/1103822422?h=433d483fd4"
-            width="100%"
-            height="100%"
-            style={{ border: 0, borderRadius: '18px', width: '100%', height: '100%' }}
-            allow="autoplay; fullscreen; picture-in-picture"
-            allowFullScreen
-            title="DraftMe Demo"
-          ></iframe>
-        </div>
       </section>
       {/* Features Section - horizontal on desktop, vertical on mobile, always centered */}
       <section style={{
@@ -321,7 +294,7 @@ function MainLandingPage({ onApplyFilters }) {
         minHeight: undefined,
         paddingTop: 0,
       }}>
-        <div style={featuresTitle}>Why draftme?</div>
+        <div style={featuresTitle}>The transfer portal</div>
         <div style={{
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
@@ -331,21 +304,21 @@ function MainLandingPage({ onApplyFilters }) {
           margin: '0 auto',
         }}>
           <div style={featureCard}>
-            <div style={featureImage}>📊</div>
-            <div style={featureTitle}>All data in one place</div>
+            <div style={featureImage}>🏆</div>
+            <div style={featureTitle}>All potential transfers</div>
             <div style={featureSubtitle}>
-              Stop switching between transfer portals, stats sites, youtube and more
+              The only portal with all leagues and high school players.
             </div>
           </div>
           <div style={featureCard}>
-            <div style={featureImage}>🔎</div>
+            <div style={featureImage}>🔍</div>
             <div style={featureTitle}>Easy Search</div>
             <div style={featureSubtitle}>
               Search for the player you need by filtering and smart search.
             </div>
           </div>
           <div style={featureCard}>
-            <div style={featureImage}>📁</div>
+            <div style={featureImage}>📋</div>
             <div style={featureTitle}>Tracking</div>
             <div style={featureSubtitle}>
               Save all of the players and conversations you're having inside draftme to keep track of your recruiting process.
@@ -357,18 +330,16 @@ function MainLandingPage({ onApplyFilters }) {
       <section id="pricing" style={pricingSection}>
         <h2 style={pricingTitle}>Pricing</h2>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2.5rem' }}>
-          <div style={pricingCard}>
-            <div style={{ color: '#fff', fontWeight: 700, fontSize: '1.18rem', marginBottom: 8 }}>Yearly</div>
-            <div style={pricingHighlight}>$1,800/yr</div>
-            <button
-              style={pricingButton}
-              onClick={() => handlePricingClick('yearly')}
-              disabled={pricingLoading === 'yearly'}
-            >
-              {pricingLoading === 'yearly' ? 'Redirecting…' : 'Get Started'}
-            </button>
-            {pricingError && <div style={{ color: '#ef4444', fontWeight: 600, fontSize: '1rem', marginTop: 8 }}>{pricingError}</div>}
-          </div>
+          <div style={{ color: '#fff', fontWeight: 700, fontSize: '1.18rem', marginBottom: 8 }}>Yearly</div>
+          <div style={pricingHighlight}>$1,800/yr</div>
+          <button
+            style={pricingButton}
+            onClick={() => handlePricingClick('yearly')}
+            disabled={pricingLoading === 'yearly'}
+          >
+            {pricingLoading === 'yearly' ? 'Redirecting…' : 'Get Started'}
+          </button>
+          {pricingError && <div style={{ color: '#ef4444', fontWeight: 600, fontSize: '1rem', marginTop: 8 }}>{pricingError}</div>}
         </div>
       </section>
     </div>
