@@ -34,6 +34,9 @@ const headerInner = {
   alignItems: 'center',
   justifyContent: 'space-between',
   padding: '0 2rem',
+  '@media (max-width: 768px)': {
+    padding: '0 1rem',
+  },
 };
 
 const headerButtonsStyle = {
@@ -94,6 +97,9 @@ const logoTextStyle = {
   color: '#f8fafc',
   textShadow: '0 2px 10px rgba(0,0,0,0.2)',
   fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  '@media (max-width: 768px)': {
+    fontSize: '1.2rem',
+  },
 };
 
 const footerStyle = {
@@ -107,13 +113,18 @@ const footerStyle = {
 };
 
 const footerContent = {
+  width: '100%',
   maxWidth: 1200,
   margin: '0 auto',
-  padding: '0 2rem',
-  textAlign: 'center',
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
+  padding: '0 2rem',
+  '@media (max-width: 768px)': {
+    flexDirection: 'column',
+    gap: '1.5rem',
+    textAlign: 'center',
+  },
 };
 
 const footerText = {
@@ -475,12 +486,12 @@ function AppContent() {
               © 2025 College Soccer Recruitment Portal. All rights reserved.
               <br />
               <a 
-                href="mailto:antoine@draftme.app" 
+                href="mailto:antoine.levy27@gmail.com" 
                 style={footerLink}
                 onMouseEnter={(e) => e.target.style.opacity = '0.8'}
                 onMouseLeave={(e) => e.target.style.opacity = '1'}
               >
-                Contact: antoine@draftme.app
+                Contact: antoine.levy27@gmail.com
               </a>
             </p>
           </div>

@@ -47,6 +47,10 @@ const heroSection = {
   background: 'none',
   position: 'relative',
   zIndex: 2,
+  '@media (max-width: 768px)': {
+    padding: '4rem 1rem 2rem 1rem',
+    minHeight: '60vh',
+  },
 };
 
 const heroHeader = {
@@ -111,13 +115,16 @@ const ctaButtonHover = {
 const featuresSection = {
   width: '100%',
   maxWidth: 1200,
+  margin: '0 auto',
+  padding: '6rem 2rem',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  padding: '6rem 2rem',
-  boxSizing: 'border-box',
   position: 'relative',
   zIndex: 2,
+  '@media (max-width: 768px)': {
+    padding: '4rem 1rem',
+  },
 };
 
 const featuresTitle = {
@@ -173,6 +180,12 @@ const featureCard = {
   width: '100%',
   minHeight: '300px',
   gap: '1rem',
+  '@media (max-width: 768px)': {
+    flexDirection: 'column',
+    padding: '1.5rem',
+    minHeight: 'auto',
+    gap: '1.5rem',
+  },
 };
 
 const featureCardHover = {
@@ -189,6 +202,13 @@ const featureImage = {
   width: 400,
   alignItems: 'flex-end',
   justifyContent: 'flex-end',
+  '@media (max-width: 768px)': {
+    width: '100%',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '1rem',
+  },
 };
 
 const featureTitle = {
@@ -223,6 +243,10 @@ const pricingSection = {
   alignItems: 'center',
   position: 'relative',
   zIndex: 2,
+  '@media (max-width: 768px)': {
+    padding: '2rem 1rem',
+    margin: '2rem auto 4rem auto',
+  },
 };
 
 const pricingTitle = {
@@ -329,6 +353,10 @@ const contactSection = {
   alignItems: 'center',
   position: 'relative',
   zIndex: 2,
+  '@media (max-width: 768px)': {
+    padding: '2rem 1rem',
+    margin: '2rem auto 4rem auto',
+  },
 };
 
 const contactTitle = {
@@ -567,10 +595,10 @@ function MainLandingPage({ onApplyFilters }) {
       leagueLogos: [naiaLogo, ncaaLogo, njcaaLogo],
       featureIcons: ['⚽', '📹', '🎓'],
       items: [
-        'The only portal with players from all leagues: NCAA, NAIA, NJCAA, CCCAA',
-        'Extensive data on players personal, athletic and academic details',
-        'Highlight videos and Full Game Clips',
-        'High School and International Players (WIP)'
+        'Players from all leagues: NCAA, NAIA, NJCAA, CCCAA',
+        'Personal, athletic & academic details',
+        'Highlight videos & game clips',
+        'High School & International Players (WIP)'
       ]
     },
     {
@@ -578,8 +606,8 @@ function MainLandingPage({ onApplyFilters }) {
       title: 'Advanced Search & Filters',
       images: [filtersImg, viewsImg],
       items: [
-        'Find the players you need based on their details',
-        'Discover new players with ease'
+        'Find players based on specific criteria',
+        'Discover new talent with ease'
       ]
     },
     {
@@ -587,9 +615,9 @@ function MainLandingPage({ onApplyFilters }) {
       title: 'Recruiting Management',
       images: [savedPlayersImg, messagesImg],
       items: [
-        'Save the players you are interested in recruiting',
-        'Message the players directly within the College Soccer Recruiting portal',
-        'Track your entire process within the College Soccer Recruiting Portal'
+        'Save players you\'re interested in',
+        'Message players directly',
+        'Track your entire recruiting process'
       ]
     }
   ];
@@ -622,7 +650,7 @@ function MainLandingPage({ onApplyFilters }) {
 
       {/* Features Section */}
       <section style={featuresSection}>
-        <h2 style={featuresTitle}>All in one college soccer transfer portal</h2>
+        <h2 style={featuresTitle}>All in One College Soccer Transfer Portal</h2>
         <p style={featuresSubtitle}>
           The most comprehensive transfer portal designed specifically for college coaches
         </p>
@@ -665,10 +693,10 @@ function MainLandingPage({ onApplyFilters }) {
                             src={logo}
                             alt=""
                             style={{
-                              width: '100px',
-                              maxWidth: '100px',
-                              height: '100px',
-                              maxHeight: '100px',
+                              width: isMobile ? '60px' : '100px',
+                              maxWidth: isMobile ? '60px' : '100px',
+                              height: isMobile ? '60px' : '100px',
+                              maxHeight: isMobile ? '60px' : '100px',
                               objectFit: 'contain',
                               borderRadius: '12px',
                               boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
@@ -705,10 +733,10 @@ function MainLandingPage({ onApplyFilters }) {
                               borderRadius: '12px',
                               background: 'rgba(30, 41, 59, 0.8)',
                               border: '1px solid rgba(239, 68, 68, 0.2)',
-        display: 'flex',
-        alignItems: 'center',
-          justifyContent: 'center',
-                              fontSize: icon === '⚽' ? '3rem' : icon === '🎓' ? '2.5rem' : '2.5rem',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: icon === '⚽' ? (isMobile ? '2rem' : '3rem') : (isMobile ? '1.5rem' : '2.5rem'),
                               cursor: 'pointer',
                               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                               boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
@@ -738,7 +766,7 @@ function MainLandingPage({ onApplyFilters }) {
                           src={image}
                           alt=""
                           style={{
-                            width: '350px',
+                            width: isMobile ? '280px' : '350px',
                             height: 'auto',
                             objectFit: 'contain',
                             borderRadius: '12px',
