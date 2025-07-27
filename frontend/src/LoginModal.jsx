@@ -8,7 +8,8 @@ const modalOverlayStyle = {
   left: 0,
   width: '100vw',
   height: '100vh',
-  background: 'rgba(0,0,0,0.7)',
+  background: 'rgba(0,0,0,0.8)',
+  backdropFilter: 'blur(8px)',
   zIndex: 2000,
   display: 'flex',
   alignItems: 'center',
@@ -16,95 +17,100 @@ const modalOverlayStyle = {
 };
 
 const modalContentStyle = {
-  background: 'rgba(24,24,27,0.98)', // dark modal
-  borderRadius: 18,
-  padding: '2rem 1.2rem', // reduced padding
-  maxWidth: 340, // reduced max width
+  background: 'rgba(30, 41, 59, 0.95)',
+  backdropFilter: 'blur(20px)',
+  borderRadius: '20px',
+  padding: '2.5rem 2rem',
+  maxWidth: 400,
   width: '95%',
-  boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
-  color: '#fff',
+  boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+  color: '#f8fafc',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  border: '1.5px solid #b91c1c',
-  boxSizing: 'border-box', // ensure padding is included in width
+  border: '1px solid rgba(239, 68, 68, 0.2)',
+  boxSizing: 'border-box',
 };
 
 const modalTitleStyle = {
-  fontWeight: 800,
-  fontSize: '1.7rem',
-  marginBottom: '1.5rem',
-  background: 'linear-gradient(90deg, #b91c1c 0%, #ef4444 100%)',
+  fontWeight: 700,
+  fontSize: 'clamp(1.5rem, 3vw, 2rem)',
+  marginBottom: '2rem',
+  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
   WebkitBackgroundClip: 'text',
-  color: 'transparent',
+  WebkitTextFillColor: 'transparent',
+  backgroundClip: 'text',
   textAlign: 'center',
+  fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  letterSpacing: '-0.02em',
 };
 
 const inputStyle = {
   width: '100%',
-  maxWidth: '100%', // never overflow modal
-  padding: '0.7rem 0.9rem', // reduced padding
-  borderRadius: '8px', // slightly less round
-  border: '2px solid #b91c1c',
+  maxWidth: '100%',
+  padding: '0.9rem 1.2rem',
+  borderRadius: '12px',
+  border: '1px solid rgba(239, 68, 68, 0.3)',
   fontSize: '1rem',
-  background: 'rgba(24,24,27,0.95)',
-  color: '#fff',
+  background: 'rgba(15, 23, 42, 0.8)',
+  color: '#f8fafc',
   fontWeight: 500,
   outline: 'none',
-  marginBottom: '1rem', // slightly less margin
-  transition: 'all 0.2s ease',
-  boxShadow: 'none',
-  boxSizing: 'border-box', // ensure padding is included in width
+  marginBottom: '1.2rem',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+  boxSizing: 'border-box',
+  fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 };
 
 const buttonStyle = {
   width: '100%',
-  padding: '0.9rem 0',
-  borderRadius: '2rem',
+  padding: '1rem 0',
+  borderRadius: '50px',
   border: 'none',
-  background: 'linear-gradient(90deg, #b91c1c 0%, #ef4444 100%)',
+  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
   color: 'white',
-  fontWeight: 800,
-  fontSize: '1.1rem',
-  letterSpacing: 1,
-  boxShadow: '0 4px 16px rgba(185,28,28,0.18)',
+  fontWeight: 600,
+  fontSize: '1rem',
+  letterSpacing: '0.02em',
+  boxShadow: '0 4px 16px rgba(239, 68, 68, 0.3)',
   cursor: 'pointer',
-  transition: 'background 0.2s, transform 0.1s',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   outline: 'none',
-  marginBottom: '1.2rem',
+  marginBottom: '1.5rem',
+  fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 };
 
 const switchModeStyle = {
   color: '#ef4444',
   fontWeight: 600,
-  fontSize: '1rem',
+  fontSize: '0.95rem',
   cursor: 'pointer',
   background: 'none',
   border: 'none',
-  marginTop: 8,
+  marginTop: '0.5rem',
   textDecoration: 'underline',
+  fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  transition: 'opacity 0.3s ease',
 };
 
 // Google/social button style
 const googleButtonStyle = {
   width: '100%',
-  padding: '0.8rem 0',
-  borderRadius: '2rem',
-  border: '2px solid #b91c1c',
-  background: 'rgba(24,24,27,0.95)',
-  color: '#fff',
-  fontWeight: 700,
-  fontSize: '1.05rem',
-  letterSpacing: 1,
-  boxShadow: 'none',
+  padding: '0.9rem 0',
+  borderRadius: '50px',
+  border: '1px solid rgba(239, 68, 68, 0.3)',
+  background: 'rgba(30, 41, 59, 0.8)',
+  color: '#f8fafc',
+  fontWeight: 600,
+  fontSize: '0.95rem',
+  letterSpacing: '0.02em',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
   cursor: 'pointer',
-  transition: 'background 0.2s, border 0.2s',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   outline: 'none',
   marginBottom: '1.2rem',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 10,
+  fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 };
 
 const closeButtonStyle = {

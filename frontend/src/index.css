@@ -1,11 +1,11 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-family: "Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.6;
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 40%, #c7d2fe 100%);
+  color: rgba(248, 250, 252, 0.87);
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -14,12 +14,14 @@
 }
 
 a {
-  font-weight: 500;
-  color: #646cff;
+  font-weight: 600;
+  color: #ef4444;
   text-decoration: inherit;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 a:hover {
-  color: #535bf2;
+  color: #dc2626;
+  opacity: 0.8;
 }
 
 body {
@@ -28,93 +30,113 @@ body {
   min-height: 100vh;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none;  /* IE and Edge */
+  font-family: "Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 body::-webkit-scrollbar, html::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
 
-h1 {
-  font-size: 3.2em;
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1.1;
 }
 
+h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+}
+
 button {
-  border-radius: 8px;
+  border-radius: 50px;
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  padding: 0.7rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
 }
 button:hover {
-  border-color: #646cff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 2px solid #ef4444;
+  outline-offset: 2px;
 }
 
 .mainContainer {
-  max-width: 900px;
+  max-width: 1200px;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem;
+  padding: 2rem;
   justify-content: center;
   padding-top: 8rem;
   box-sizing: border-box;
 }
+
 .optionsContainer {
   display: flex;
   flex-direction: row;
   gap: 2rem;
   width: 100%;
   justify-content: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   align-items: flex-start;
   box-sizing: border-box;
 }
+
 .filtersRow {
   display: flex;
   flex-direction: row;
   gap: 1.5rem;
   width: 100%;
   justify-content: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   align-items: flex-start;
   box-sizing: border-box;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 40%, #c7d2fe 100%);
+    color: #1e293b;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
   }
   a:hover {
-    color: #747bff;
+    color: #dc2626;
   }
   button {
-    background-color: #f9f9f9;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
   }
 }
 
 @media (max-width: 768px) {
   .flex-row, .optionsContainer, .filtersRow, .search-sort-bar {
     flex-direction: column !important;
-    gap: 1rem !important;
+    gap: 1.5rem !important;
     align-items: center !important;
     justify-content: center !important;
   }
   .mainContainer, .usl-player-cards-container {
-    padding: 0.5rem !important;
+    padding: 1rem !important;
     align-items: center !important;
   }
   h1, .headlineStyle {
-    font-size: 1.5em !important;
+    font-size: clamp(1.5rem, 4vw, 2.5rem) !important;
     text-align: center !important;
+  }
+  button {
+    padding: 0.8rem 1.8rem;
+    font-size: 1rem;
   }
 }

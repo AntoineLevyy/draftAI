@@ -12,9 +12,10 @@ import { getUnreadCount } from './services/chatService';
 
 const headerStyle = {
   width: '100%',
-  background: 'rgba(0,0,0,0.95)',
-  borderBottom: '2px solid #b91c1c', // red accent
-  padding: '1.1rem 0',
+  background: 'rgba(15, 23, 42, 0.95)',
+  backdropFilter: 'blur(10px)',
+  borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+  padding: '1.2rem 0',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
@@ -22,6 +23,7 @@ const headerStyle = {
   top: 0,
   left: 0,
   zIndex: 1000,
+  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
 };
 
 const headerInner = {
@@ -37,67 +39,69 @@ const headerInner = {
 const headerButtonsStyle = {
   display: 'flex',
   alignItems: 'center',
-  gap: '1rem',
+  gap: '1.2rem',
 };
 
 const signInButtonStyle = {
-  padding: '0.5rem 1.25rem',
-  borderRadius: '1.5rem',
-  border: '2px solid #b91c1c',
-  background: 'rgba(0,0,0,0.7)',
-  color: '#fff',
+  padding: '0.7rem 1.5rem',
+  borderRadius: '50px',
+  border: '1px solid rgba(239, 68, 68, 0.3)',
+  background: 'rgba(30, 41, 59, 0.8)',
+  color: '#f8fafc',
   fontWeight: 600,
-  fontSize: '0.875rem',
+  fontSize: '0.9rem',
   cursor: 'pointer',
-  transition: 'all 0.2s ease',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   outline: 'none',
-  letterSpacing: '0.01em',
+  letterSpacing: '0.02em',
+  fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 };
 
 const getStartedButtonStyle = {
-  padding: '0.5rem 1.5rem',
-  borderRadius: '1.5rem',
+  padding: '0.7rem 1.8rem',
+  borderRadius: '50px',
   border: 'none',
-  background: 'linear-gradient(90deg, #b91c1c 0%, #ef4444 100%)',
+  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
   color: 'white',
   fontWeight: 600,
-  fontSize: '0.875rem',
+  fontSize: '0.9rem',
   cursor: 'pointer',
-  boxShadow: '0 4px 16px rgba(185,28,28,0.3)',
-  transition: 'all 0.2s ease',
+  boxShadow: '0 4px 16px rgba(239, 68, 68, 0.3)',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   outline: 'none',
-  letterSpacing: '0.01em',
+  letterSpacing: '0.02em',
+  fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 };
-
-
 
 const logoContainerStyle = {
   display: 'flex',
   alignItems: 'center',
-  gap: '0.5rem',
+  gap: '0.8rem',
   textDecoration: 'none',
   cursor: 'pointer',
-  transition: 'opacity 0.2s',
+  transition: 'opacity 0.3s ease',
 };
 
 const logoImageStyle = {
-  height: '4rem',
+  height: '3.5rem',
   width: 'auto',
 };
 
 const logoTextStyle = {
-  fontWeight: 900,
-  fontSize: '1.5rem',
-  letterSpacing: '-1px',
-  color: '#fff',
-  textShadow: '0 2px 16px rgba(0,0,0,0.18)',
+  fontWeight: 700,
+  fontSize: '1.6rem',
+  letterSpacing: '-0.02em',
+  color: '#f8fafc',
+  textShadow: '0 2px 10px rgba(0,0,0,0.2)',
+  fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 };
 
 const footerStyle = {
   width: '100%',
-  background: 'rgba(0,0,0,0.95)',
-  borderTop: '2px solid #b91c1c', // red accent
-  padding: '1rem 0',
+  background: 'rgba(15, 23, 42, 0.95)',
+  backdropFilter: 'blur(10px)',
+  borderTop: '1px solid rgba(239, 68, 68, 0.2)',
+  padding: '1.5rem 0',
   position: 'relative',
   zIndex: 10,
 };
@@ -107,26 +111,32 @@ const footerContent = {
   margin: '0 auto',
   padding: '0 2rem',
   textAlign: 'center',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
 };
 
 const footerText = {
-  color: '#fff',
-  fontSize: '0.95rem',
-  lineHeight: '1.4',
-  marginBottom: '0.25rem',
+  color: '#cbd5e1',
+  fontSize: '0.9rem',
+  lineHeight: '1.5',
+  marginBottom: '0.5rem',
+  fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  fontWeight: 400,
 };
 
 const footerLink = {
   color: '#ef4444',
   textDecoration: 'none',
-  transition: 'opacity 0.2s',
+  transition: 'opacity 0.3s ease',
+  fontWeight: 600,
 };
 
 const mainContentStyle = {
   flex: 1,
   width: '100%',
   boxSizing: 'border-box',
-  paddingTop: '80px',
+  paddingTop: '90px',
   overflow: 'hidden',
   display: 'flex',
   flexDirection: 'column',
@@ -137,26 +147,28 @@ const appContainerStyle = {
   flexDirection: 'column',
   minHeight: '100vh',
   width: '100%',
-  background: 'linear-gradient(135deg, #18181b 0%, #111 100%)', // black gradient
+  background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
   overflow: 'hidden',
 };
 
 const unreadBadgeStyle = {
   position: 'absolute',
-  top: '-5px',
-  right: '-5px',
-  backgroundColor: '#dc3545',
+  top: '-6px',
+  right: '-6px',
+  backgroundColor: '#ef4444',
   color: '#fff',
   borderRadius: '50%',
-  padding: '2px 6px',
+  padding: '3px 6px',
   fontSize: '10px',
-  minWidth: '16px',
+  minWidth: '18px',
   textAlign: 'center',
-  fontWeight: 'bold'
+  fontWeight: 'bold',
+  fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
 };
 
 const profileButtonContainerStyle = {
-  position: 'relative'
+  position: 'relative',
 };
 
 function AppContent() {
@@ -458,18 +470,21 @@ function AppContent() {
       </main>
       <footer style={footerStyle}>
         <div style={footerContent}>
-          <p style={footerText}>
-            © 2025 draftme. All rights reserved.
-            <br />
-            <a 
-              href="mailto:antoine@draftme.app" 
-              style={footerLink}
-              onMouseEnter={(e) => e.target.style.opacity = '0.8'}
-              onMouseLeave={(e) => e.target.style.opacity = '1'}
-            >
-              Contact: antoine@draftme.app
-            </a>
-            <br />
+          <div style={{ flex: 1, textAlign: 'left' }}>
+            <p style={footerText}>
+              © 2025 College Soccer Recruitment Portal. All rights reserved.
+              <br />
+              <a 
+                href="mailto:antoine@draftme.app" 
+                style={footerLink}
+                onMouseEnter={(e) => e.target.style.opacity = '0.8'}
+                onMouseLeave={(e) => e.target.style.opacity = '1'}
+              >
+                Contact: antoine@draftme.app
+              </a>
+            </p>
+          </div>
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             {/* Only show "For Players" button for logged-out users and coaches */}
             {!user || !isPlayer ? (
               <button 
@@ -481,7 +496,7 @@ function AppContent() {
                   cursor: 'pointer',
                   fontSize: '0.95rem',
                   padding: '0.25rem 0',
-                  marginTop: '0.5rem'
+                  margin: 0
                 }}
                 onMouseEnter={(e) => e.target.style.opacity = '0.8'}
                 onMouseLeave={(e) => e.target.style.opacity = '1'}
@@ -489,7 +504,65 @@ function AppContent() {
                 For Players
               </button>
             ) : null}
-          </p>
+          </div>
+          <div style={{ flex: 1, display: 'flex', gap: '1.5rem', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <a 
+              href="https://x.com/CSTransfer" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{
+                ...footerLink,
+                fontSize: '1.5rem',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '40px',
+                height: '40px',
+                borderRadius: '8px',
+                background: 'rgba(255, 255, 255, 0.1)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.opacity = '0.8';
+                e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.opacity = '1';
+                e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+              }}
+            >
+              𝕏
+            </a>
+            <a 
+              href="https://www.linkedin.com/company/college-soccer-transfer-portal/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{
+                ...footerLink,
+                fontSize: '1.5rem',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '40px',
+                height: '40px',
+                borderRadius: '8px',
+                background: 'rgba(255, 255, 255, 0.1)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.opacity = '0.8';
+                e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.opacity = '1';
+                e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+              }}
+            >
+              in
+            </a>
+          </div>
         </div>
       </footer>
       <LoginModal 

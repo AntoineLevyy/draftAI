@@ -9,6 +9,7 @@ const modalOverlayStyle = {
   right: 0,
   bottom: 0,
   backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  backdropFilter: 'blur(8px)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -17,71 +18,85 @@ const modalOverlayStyle = {
 };
 
 const modalStyle = {
-  background: 'linear-gradient(135deg, #18181b 0%, #111 100%)',
-  borderRadius: '16px',
-  padding: '32px',
-  maxWidth: '400px',
+  background: 'rgba(30, 41, 59, 0.95)',
+  backdropFilter: 'blur(20px)',
+  borderRadius: '20px',
+  padding: '2.5rem 2rem',
+  maxWidth: '450px',
   width: '100%',
-  border: '2px solid #b91c1c',
-  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
+  border: '1px solid rgba(239, 68, 68, 0.2)',
+  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
 };
 
 const titleStyle = {
-  color: '#fff',
-  fontSize: '1.5rem',
+  color: '#f8fafc',
+  fontSize: 'clamp(1.3rem, 3vw, 1.8rem)',
   fontWeight: '700',
   textAlign: 'center',
-  marginBottom: '8px',
+  marginBottom: '0.5rem',
+  fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  letterSpacing: '-0.02em',
 };
 
 const subtitleStyle = {
-  color: '#9ca3af',
-  fontSize: '0.9rem',
+  color: '#94a3b8',
+  fontSize: '0.95rem',
   textAlign: 'center',
-  marginBottom: '32px',
+  marginBottom: '2rem',
+  fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  lineHeight: '1.5',
 };
 
 const formStyle = {
   display: 'flex',
   flexDirection: 'column',
-  gap: '16px',
+  gap: '1.2rem',
 };
 
 const inputStyle = {
-  padding: '12px 16px',
-  borderRadius: '8px',
-  border: '1px solid #374151',
-  backgroundColor: 'rgba(0, 0, 0, 0.3)',
-  color: '#fff',
-  fontSize: '0.9rem',
-  transition: 'all 0.2s ease',
+  padding: '0.9rem 1.2rem',
+  borderRadius: '12px',
+  border: '1px solid rgba(239, 68, 68, 0.3)',
+  backgroundColor: 'rgba(15, 23, 42, 0.8)',
+  color: '#f8fafc',
+  fontSize: '0.95rem',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
 };
 
 const buttonStyle = {
-  padding: '12px 24px',
-  borderRadius: '8px',
+  padding: '1rem 2rem',
+  borderRadius: '50px',
   border: 'none',
-  fontSize: '0.9rem',
+  fontSize: '0.95rem',
   fontWeight: '600',
   cursor: 'pointer',
-  transition: 'all 0.2s ease',
-  background: 'linear-gradient(90deg, #b91c1c 0%, #ef4444 100%)',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
   color: '#fff',
-  marginTop: '8px',
+  marginTop: '0.5rem',
+  fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  letterSpacing: '0.02em',
+  boxShadow: '0 4px 16px rgba(239, 68, 68, 0.3)',
 };
 
 const errorStyle = {
   color: '#ef4444',
-  fontSize: '0.8rem',
+  fontSize: '0.85rem',
   textAlign: 'center',
-  marginTop: '8px',
+  marginTop: '0.5rem',
+  fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  fontWeight: '500',
 };
 
 const successStyle = {
   color: '#10b981',
-  fontSize: '0.8rem',
+  fontSize: '0.85rem',
   textAlign: 'center',
-  marginTop: '8px',
+  marginTop: '0.5rem',
+  fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  fontWeight: '500',
 };
 
 const PlayerSignupModal = ({ isOpen, onClose, onSuccess, claimData }) => {

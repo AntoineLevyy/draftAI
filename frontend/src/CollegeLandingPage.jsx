@@ -5,7 +5,7 @@ import { apiBaseUrl } from './config';
 const bgStyle = {
   flex: 1,
   width: '100%',
-  background: 'linear-gradient(135deg, #18181b 0%, #111 100%)', // black gradient
+  background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -17,23 +17,26 @@ const bgStyle = {
 };
 
 const headlineStyle = {
-  fontWeight: 900,
-  fontSize: '2.4rem',
-  marginBottom: '1.2rem',
+  fontWeight: 700,
+  fontSize: 'clamp(2rem, 4vw, 3rem)',
+  marginBottom: '1.5rem',
   marginTop: 0,
-  color: '#fff',
-  letterSpacing: '-1px',
+  color: '#f8fafc',
+  letterSpacing: '-0.02em',
   textAlign: 'center',
-  textShadow: '0 2px 16px rgba(0,0,0,0.18)',
+  textShadow: '0 4px 20px rgba(0,0,0,0.3)',
+  fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 };
 
 const subtitleStyle = {
   fontSize: '1.1rem',
-  color: '#64748b',
-  marginBottom: '2rem',
+  color: '#94a3b8',
+  marginBottom: '2.5rem',
   fontWeight: 400,
-  lineHeight: '1.5',
-  textAlign: 'center'
+  lineHeight: '1.6',
+  textAlign: 'center',
+  fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  maxWidth: '600px',
 };
 
 const filterGroup = {
@@ -43,7 +46,6 @@ const filterGroup = {
   minWidth: 200,
   flex: 1,
   maxWidth: 220,
-  // Remove white card background for native look
   background: 'transparent',
   borderRadius: 0,
   padding: 0,
@@ -52,60 +54,63 @@ const filterGroup = {
 };
 
 const labelStyle = {
-  fontWeight: 700,
+  fontWeight: 600,
   marginBottom: '12px',
-  color: '#b91c1c', // red
+  color: '#ef4444',
   fontSize: '0.85rem',
-  letterSpacing: '0.025em',
+  letterSpacing: '0.02em',
   textTransform: 'uppercase',
+  fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 };
 
 const selectStyle = {
   width: '100%',
-  padding: '0.75rem 1rem',
-  borderRadius: '8px',
-  border: '2px solid #b91c1c', // red border
-  fontSize: '1rem',
-  background: 'rgba(24,24,27,0.95)', // dark background
-  color: '#fff',
+  padding: '0.8rem 1rem',
+  borderRadius: '12px',
+  border: '1px solid rgba(239, 68, 68, 0.3)',
+  fontSize: '0.95rem',
+  background: 'rgba(30, 41, 59, 0.8)',
+  backdropFilter: 'blur(10px)',
+  color: '#f8fafc',
   fontWeight: 500,
   outline: 'none',
   marginBottom: 0,
-  transition: 'all 0.2s ease',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   cursor: 'pointer',
-  boxShadow: 'none',
-  appearance: 'auto', // native dropdown
+  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+  appearance: 'auto',
   WebkitAppearance: 'auto',
   MozAppearance: 'auto',
+  fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 };
 
 const selectStyleActive = {
-  border: '2px solid #4f8cff',
-  background: 'rgba(255,255,255,0.95)',
-  boxShadow: '0 4px 16px rgba(79,140,255,0.15)',
+  border: '1px solid #ef4444',
+  background: 'rgba(30, 41, 59, 0.95)',
+  boxShadow: '0 4px 16px rgba(239, 68, 68, 0.2)',
   transform: 'translateY(-1px)',
 };
 
 const selectStyleHover = {
-  border: '2px solid rgba(79,140,255,0.4)',
-  background: 'rgba(255,255,255,0.95)',
-  boxShadow: '0 4px 12px rgba(79,140,255,0.12)',
+  border: '1px solid rgba(239, 68, 68, 0.5)',
+  background: 'rgba(30, 41, 59, 0.9)',
+  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.15)',
 };
 
 const buttonStyle = {
   padding: '1rem 2.5rem',
-  borderRadius: '2rem',
+  borderRadius: '50px',
   border: 'none',
-  background: 'linear-gradient(90deg, #b91c1c 0%, #ef4444 100%)', // red gradient
+  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
   color: 'white',
-  fontWeight: 800,
-  fontSize: '1.15rem',
+  fontWeight: 600,
+  fontSize: '1rem',
   cursor: 'pointer',
-  boxShadow: '0 4px 16px rgba(185,28,28,0.18)',
-  transition: 'all 0.2s ease',
+  boxShadow: '0 4px 16px rgba(239, 68, 68, 0.3)',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   outline: 'none',
-  letterSpacing: '0.01em',
-  marginTop: '1.2rem',
+  letterSpacing: '0.02em',
+  fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 };
 
 const buttonStyleHover = {

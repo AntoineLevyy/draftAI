@@ -26,6 +26,7 @@ const Profile = ({ onBack }) => {
     subscription: 'Yearly ($1,800/yr)'
   });
   const [editProfile, setEditProfile] = useState({ name: '', team: '' });
+  const [isEditing, setIsEditing] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -145,24 +146,63 @@ const Profile = ({ onBack }) => {
   const handleProfileSave = async () => {
     try {
       setSavingProfile(true);
-      const { error } = await supabase
+      
+      console.log('Saving profile for user:', user.id);
+      console.log('Profile data to save:', { name: editProfile.name, team: editProfile.team });
+      
+      // First check if the profile exists
+      const { data: existingProfile, error: checkError } = await supabase
         .from('user_profiles')
-        .update({
-          name: editProfile.name,
-          team: editProfile.team
-        })
-        .eq('user_id', user.id);
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Error checking existing profile:', checkError);
+        throw checkError;
+      }
+      
+      let result;
+      if (existingProfile) {
+        // Update existing profile
+        result = await supabase
+          .from('user_profiles')
+          .update({
+            name: editProfile.name,
+            team: editProfile.team
+          })
+          .eq('user_id', user.id);
+      } else {
+        // Insert new profile
+        result = await supabase
+          .from('user_profiles')
+          .insert({
+            user_id: user.id,
+            user_type: userProfile.userType,
+            name: editProfile.name,
+            team: editProfile.team,
+            email: userProfile.email,
+            subscription: userProfile.subscription
+          });
+      }
+      
+      if (result.error) {
+        console.error('Database error:', result.error);
+        throw result.error;
+      }
 
-      if (error) throw error;
-
+      console.log('Profile saved successfully:', result);
+      
       setUserProfile(prev => ({
         ...prev,
         name: editProfile.name,
         team: editProfile.team
       }));
+      
+      setIsEditing(false);
     } catch (error) {
       console.error('Error saving profile:', error);
-      alert('Failed to save profile. Please try again.');
+      alert(`Failed to save profile: ${error.message || 'Please try again.'}`);
     } finally {
       setSavingProfile(false);
     }
@@ -196,17 +236,20 @@ const Profile = ({ onBack }) => {
   };
 
   const tabButtonStyle = (active) => ({
-    padding: '12px 24px',
-    margin: '0 8px',
+    padding: '0.8rem 1.5rem',
+    margin: '0 0.5rem',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '50px',
     cursor: 'pointer',
-    fontSize: '16px',
+    fontSize: '0.95rem',
     fontWeight: '600',
-    transition: 'all 0.3s ease',
-    background: active ? 'linear-gradient(90deg, #b91c1c 0%, #ef4444 100%)' : 'rgba(0,0,0,0.7)',
-    color: active ? 'white' : '#fff',
-    position: 'relative'
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    background: active ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'rgba(30, 41, 59, 0.8)',
+    color: active ? 'white' : '#cbd5e1',
+    position: 'relative',
+    fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    letterSpacing: '0.02em',
+    boxShadow: active ? '0 4px 16px rgba(239, 68, 68, 0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
   });
 
   // Process saved players for display
@@ -246,164 +289,199 @@ const Profile = ({ onBack }) => {
   const containerStyle = {
     flex: 1,
     width: '100%',
-    background: 'linear-gradient(135deg, #18181b 0%, #111 100%)',
+    background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     padding: '2rem 1rem',
     minHeight: '100vh',
-    color: '#fff'
+    color: '#f8fafc',
+    fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   };
 
   const headerStyle = {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     width: '100%',
     maxWidth: 1200,
-    marginBottom: '2rem'
+    marginBottom: '2.5rem',
+    position: 'relative',
   };
 
   const backButtonStyle = {
-    background: 'none',
-    border: 'none',
+    background: 'rgba(30, 41, 59, 0.8)',
+    border: '1px solid rgba(239, 68, 68, 0.3)',
     color: '#ef4444',
-    fontSize: '1rem',
+    fontSize: '0.95rem',
     cursor: 'pointer',
-    padding: '0.5rem 1rem',
-    borderRadius: '8px',
-    transition: 'background 0.2s'
+    padding: '0.7rem 1.2rem',
+    borderRadius: '50px',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    fontWeight: '600',
+    letterSpacing: '0.02em',
+    position: 'absolute',
+    left: '0',
+    top: '50%',
+    transform: 'translateY(-50%)',
   };
 
   const titleStyle = {
-    fontSize: '2.5rem',
-    fontWeight: 900,
-    color: '#fff',
-    margin: 0
+    fontSize: 'clamp(2rem, 4vw, 3rem)',
+    fontWeight: '700',
+    color: '#f8fafc',
+    margin: 0,
+    fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    letterSpacing: '-0.02em',
+    textAlign: 'center',
   };
 
   const tabContainerStyle = {
-    marginBottom: '2rem',
+    marginBottom: '2.5rem',
     display: 'flex',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    gap: '0.5rem',
   };
 
   const profileSectionStyle = {
     width: '100%',
     maxWidth: 600,
-    background: 'rgba(24,24,27,0.95)',
-    borderRadius: '16px',
-    padding: '2rem',
-    marginBottom: '2.5rem',
-    border: '1px solid rgba(239,68,68,0.2)'
+    background: 'rgba(30, 41, 59, 0.8)',
+    backdropFilter: 'blur(10px)',
+    borderRadius: '20px',
+    padding: '2.5rem',
+    marginBottom: '3rem',
+    border: '1px solid rgba(239, 68, 68, 0.2)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
   };
 
   const savedPlayersSectionStyle = {
     width: '100%',
     maxWidth: 1200,
-    background: 'rgba(24,24,27,0.95)',
-    borderRadius: '16px',
-    padding: '2rem',
-    border: '1px solid rgba(239,68,68,0.2)'
+    background: 'rgba(30, 41, 59, 0.8)',
+    backdropFilter: 'blur(10px)',
+    borderRadius: '20px',
+    padding: '2.5rem',
+    border: '1px solid rgba(239, 68, 68, 0.2)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
   };
 
   const sectionTitleStyle = {
-    fontSize: '1.5rem',
-    fontWeight: 700,
+    fontSize: 'clamp(1.3rem, 3vw, 1.8rem)',
+    fontWeight: '700',
     color: '#ef4444',
-    marginBottom: '1.5rem',
-    borderBottom: '2px solid rgba(239,68,68,0.3)',
-    paddingBottom: '0.5rem'
+    marginBottom: '2rem',
+    borderBottom: '1px solid rgba(239, 68, 68, 0.3)',
+    paddingBottom: '1rem',
+    fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    letterSpacing: '-0.02em',
   };
 
   const profileGridStyle = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '1.5rem'
+    gap: '2rem',
   };
 
   const profileItemStyle = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '0.5rem'
+    gap: '0.8rem',
   };
 
   const labelStyle = {
     fontSize: '0.85rem',
-    fontWeight: 600,
-    color: '#9ca3af',
+    fontWeight: '600',
+    color: '#94a3b8',
     textTransform: 'uppercase',
-    letterSpacing: '0.5px'
+    letterSpacing: '0.02em',
+    fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   };
 
   const valueStyle = {
     fontSize: '1.1rem',
-    fontWeight: 500,
-    color: '#fff'
+    fontWeight: '500',
+    color: '#f8fafc',
+    fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   };
 
   const emailStyle = {
     fontSize: '1.1rem',
-    fontWeight: 500,
-    color: '#9ca3af',
-    fontStyle: 'italic'
+    fontWeight: '500',
+    color: '#94a3b8',
+    fontStyle: 'italic',
+    fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   };
 
   const signOutButtonStyle = {
-    background: 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)',
+    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
     color: 'white',
     border: 'none',
-    borderRadius: '12px',
-    padding: '0.75rem 1.5rem',
-    fontSize: '1rem',
+    borderRadius: '50px',
+    padding: '0.8rem 1.8rem',
+    fontSize: '0.95rem',
     fontWeight: 600,
     cursor: 'pointer',
-    transition: 'transform 0.2s',
-    marginTop: '1rem'
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    marginTop: '1.5rem',
+    fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    letterSpacing: '0.02em',
+    boxShadow: '0 4px 16px rgba(239, 68, 68, 0.3)',
   };
 
   const tableStyle = {
     width: '100%',
     minWidth: 900,
     borderCollapse: 'collapse',
-    background: 'rgba(24,24,27,0.95)',
-    borderRadius: '12px',
-    overflow: 'hidden'
+    background: 'rgba(15, 23, 42, 0.8)',
+    borderRadius: '16px',
+    overflow: 'hidden',
+    boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
   };
 
   const thStyle = {
-    background: 'rgba(239,68,68,0.1)',
+    background: 'rgba(239, 68, 68, 0.1)',
     color: '#ef4444',
     fontWeight: 600,
-    padding: '1rem',
+    padding: '1.2rem 1rem',
     textAlign: 'left',
-    borderBottom: '1px solid rgba(239,68,68,0.2)'
+    borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+    fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    fontSize: '0.9rem',
+    letterSpacing: '0.02em',
   };
 
   const tdStyle = {
-    padding: '1rem',
+    padding: '1.2rem 1rem',
     borderBottom: '1px solid rgba(255,255,255,0.1)',
-    color: '#fff',
-    cursor: 'pointer'
+    color: '#f8fafc',
+    cursor: 'pointer',
+    fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    fontSize: '0.95rem',
   };
 
   const playerImageStyle = {
     width: '40px',
     height: '40px',
     borderRadius: '50%',
-    objectFit: 'cover'
+    objectFit: 'cover',
+    border: '2px solid rgba(239, 68, 68, 0.3)',
   };
 
   const unsaveButtonStyle = {
-    background: 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)',
+    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
     color: 'white',
     border: 'none',
-    borderRadius: '8px',
-    padding: '0.5rem 1rem',
-    fontSize: '0.9rem',
+    borderRadius: '50px',
+    padding: '0.6rem 1.2rem',
+    fontSize: '0.85rem',
     fontWeight: 600,
     cursor: 'pointer',
-    transition: 'transform 0.2s'
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    letterSpacing: '0.02em',
+    boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
   };
 
   const modalStyle = {
@@ -413,72 +491,85 @@ const Profile = ({ onBack }) => {
     right: 0,
     bottom: 0,
     background: 'rgba(0,0,0,0.8)',
+    backdropFilter: 'blur(8px)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 1000
+    zIndex: 1000,
   };
 
   const modalContentStyle = {
-    background: '#232326',
-    borderRadius: '16px',
-    padding: '2rem',
-    maxWidth: '400px',
+    background: 'rgba(30, 41, 59, 0.95)',
+    backdropFilter: 'blur(20px)',
+    borderRadius: '20px',
+    padding: '2.5rem',
+    maxWidth: '450px',
     width: '90%',
-    textAlign: 'center'
+    textAlign: 'center',
+    border: '1px solid rgba(239, 68, 68, 0.2)',
+    boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
   };
 
   const cancelButtonStyle = {
-    background: 'rgba(255,255,255,0.1)',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '8px',
-    padding: '0.75rem 1.5rem',
-    fontSize: '1rem',
+    background: 'rgba(30, 41, 59, 0.8)',
+    color: '#cbd5e1',
+    border: '1px solid rgba(239, 68, 68, 0.3)',
+    borderRadius: '50px',
+    padding: '0.8rem 1.5rem',
+    fontSize: '0.95rem',
     fontWeight: 600,
     cursor: 'pointer',
-    margin: '0.5rem'
+    margin: '0.5rem',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    letterSpacing: '0.02em',
   };
 
   const inputStyle = {
     ...valueStyle,
-    background: 'rgba(0,0,0,0.2)',
-    border: '1px solid #ef4444',
-    borderRadius: 8,
-    padding: '0.5rem',
-    color: '#fff'
+    background: 'rgba(15, 23, 42, 0.8)',
+    border: '1px solid rgba(239, 68, 68, 0.3)',
+    borderRadius: '12px',
+    padding: '0.9rem 1.2rem',
+    color: '#f8fafc',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
   };
 
   const saveButtonStyle = {
     ...signOutButtonStyle,
-    background: 'linear-gradient(90deg, #10b981 0%, #059669 100%)',
-    marginLeft: 16
+    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+    marginLeft: '1rem',
+    boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)',
   };
 
   const editButtonStyle = {
     ...signOutButtonStyle,
-    background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
-    marginLeft: 16
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    marginLeft: '1rem',
+    boxShadow: '0 4px 16px rgba(102, 126, 234, 0.3)',
   };
 
   const actionButtonsStyle = {
     display: 'flex',
     gap: '1rem',
-    marginTop: '1rem'
+    marginTop: '1.5rem',
   };
 
   const unreadBadgeStyle = {
     position: 'absolute',
-    top: '-5px',
-    right: '-5px',
-    backgroundColor: '#dc3545',
+    top: '-6px',
+    right: '-6px',
+    backgroundColor: '#ef4444',
     color: '#fff',
     borderRadius: '50%',
-    padding: '2px 6px',
+    padding: '3px 6px',
     fontSize: '10px',
-    minWidth: '16px',
+    minWidth: '18px',
     textAlign: 'center',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontFamily: '"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
   };
 
   const actionButtonsContainerStyle = {
@@ -503,7 +594,7 @@ const Profile = ({ onBack }) => {
     <div style={containerStyle}>
       <div style={headerStyle}>
         <button style={backButtonStyle} onClick={onBack}>← Back</button>
-        <h1 style={titleStyle}>Profile</h1>
+        <h1 style={titleStyle}>Coach Profile</h1>
       </div>
 
       {/* Tab Navigation */}
@@ -546,7 +637,7 @@ const Profile = ({ onBack }) => {
             </div>
             <div style={profileItemStyle}>
               <label style={labelStyle}>Name</label>
-              {editProfile.name !== null ? (
+              {isEditing ? (
                 <input
                   type="text"
                   value={editProfile.name}
@@ -559,7 +650,7 @@ const Profile = ({ onBack }) => {
             </div>
             <div style={profileItemStyle}>
               <label style={labelStyle}>Team</label>
-              {editProfile.team !== null ? (
+              {isEditing ? (
                 <input
                   type="text"
                   value={editProfile.team}
@@ -580,17 +671,23 @@ const Profile = ({ onBack }) => {
             </div>
           </div>
           <div style={actionButtonsStyle}>
-            {editProfile.name !== null ? (
+            {isEditing ? (
               <>
                 <button style={saveButtonStyle} onClick={handleProfileSave} disabled={savingProfile}>
                   {savingProfile ? 'Saving...' : 'Save'}
                 </button>
-                <button style={cancelButtonStyle} onClick={() => setEditProfile({ name: null, team: null })}>
+                <button style={cancelButtonStyle} onClick={() => {
+                  setIsEditing(false);
+                  setEditProfile({ name: userProfile.name, team: userProfile.team });
+                }}>
                   Cancel
                 </button>
               </>
             ) : (
-              <button style={editButtonStyle} onClick={() => setEditProfile({ name: userProfile.name, team: userProfile.team })}>
+              <button style={editButtonStyle} onClick={() => {
+                setIsEditing(true);
+                setEditProfile({ name: userProfile.name, team: userProfile.team });
+              }}>
                 Edit Profile
               </button>
             )}

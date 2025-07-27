@@ -8,9 +8,18 @@ import csv
 import pandas as pd
 from dotenv import load_dotenv
 import jwt
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Email configuration
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+SENDER_EMAIL = os.getenv('SENDER_EMAIL')
+SENDER_PASSWORD = os.getenv('SENDER_PASSWORD')
 
 # Initialize Supabase using direct HTTP requests
 SUPABASE_AVAILABLE = True
@@ -1460,6 +1469,75 @@ def get_unread_count():
     except Exception as e:
         print(f"Error getting unread count: {e}")
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/contact', methods=['POST'])
+def contact():
+    try:
+        data = request.json
+        name = data.get('name')
+        email = data.get('email')
+        inquiry = data.get('inquiry')
+        to_email = data.get('to', 'antoine.levy27@gmail.com')
+        
+        print(f"Contact form received: {name}, {email}, {inquiry}")
+        
+        if not all([name, email, inquiry]):
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        # Check if email credentials are configured
+        print(f"SENDER_EMAIL configured: {bool(SENDER_EMAIL)}")
+        print(f"SENDER_PASSWORD configured: {bool(SENDER_PASSWORD)}")
+        
+        if not SENDER_EMAIL or not SENDER_PASSWORD:
+            print("Email credentials not configured. Logging contact form submission instead.")
+            print(f"Contact Form Submission:")
+            print(f"Name: {name}")
+            print(f"Email: {email}")
+            print(f"Message: {inquiry}")
+            print(f"To: {to_email}")
+            print("-" * 50)
+            return jsonify({'message': 'Contact form submitted successfully'}), 200
+        
+        print(f"Attempting to send email from {SENDER_EMAIL} to {to_email}")
+        
+        # Create email message
+        msg = MIMEMultipart()
+        msg['From'] = SENDER_EMAIL
+        msg['To'] = to_email
+        msg['Subject'] = f"New Contact Form Submission from {name}"
+        
+        body = f"""
+        New contact form submission from DraftMe:
+        
+        Name: {name}
+        Email: {email}
+        Message: {inquiry}
+        
+        This message was sent from the DraftMe contact form.
+        """
+        
+        msg.attach(MIMEText(body, 'plain'))
+        
+        # Send email
+        print("Connecting to SMTP server...")
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server.starttls()
+        print("Logging in to SMTP...")
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        text = msg.as_string()
+        print("Sending email...")
+        server.sendmail(SENDER_EMAIL, to_email, text)
+        server.quit()
+        
+        print(f"Email sent successfully to {to_email}")
+        return jsonify({'message': 'Email sent successfully'}), 200
+        
+    except Exception as e:
+        print(f"Error sending email: {str(e)}")
+        print(f"Error type: {type(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'Failed to send email'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001) 
