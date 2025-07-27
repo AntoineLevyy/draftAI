@@ -401,6 +401,8 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
     const nationality = raw['Nationality'] || '';
     const position = raw['Position'] || player.position || '';
     const photoUrl = player.photo_url || '';
+    const xUsername = raw['X Username'] || '';
+    const instagramUsername = raw['Instagram Username'] || '';
 
     // Grouped sections
     return (
@@ -474,6 +476,7 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
             <div className="league-badge">{division}</div>
           )}
           <div className="claimed-section-group">
+            {/* Top row: Personal and Academic side by side */}
             <div className="claimed-section">
               <h4 className="claimed-section-title">Personal</h4>
               <div><span className="info-label">Nationality:</span><span className="info-value">{nationality}</span></div>
@@ -489,6 +492,7 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
               <div><span className="info-label">Finances:</span><span className="info-value">{finances}</span></div>
               <div><span className="info-label">Available:</span><span className="info-value">{available}</span></div>
             </div>
+            {/* Bottom row: Athletic and Contact side by side */}
             <div className="claimed-section">
               <h4 className="claimed-section-title">Athletic</h4>
               <div><span className="info-label">Current School:</span><span className="info-value">{currentSchool}</span></div>
@@ -500,8 +504,15 @@ const CollegePlayerCard = React.memo(({ player, getPlayerImage, getClubImage, tr
             <div className="claimed-section">
               <h4 className="claimed-section-title">Contact</h4>
               <div><span className="info-label">Email:</span><span className="info-value">{email}</span></div>
+              {xUsername && xUsername !== 'none' && (
+                <div><span className="info-label">X:</span><span className="info-value">@{xUsername}</span></div>
+              )}
+              {instagramUsername && instagramUsername !== 'none' && (
+                <div><span className="info-label">Instagram:</span><span className="info-value">@{instagramUsername}</span></div>
+              )}
             </div>
-            <div className="claimed-section claimed-footage-section">
+            {/* Footage section spans full width */}
+            <div className="claimed-section claimed-footage-section" style={{ flex: '1 1 100%' }}>
               <button
                 className="claimed-view-footage-button"
                 onClick={() => setShowFootage((v) => !v)}
@@ -915,6 +926,8 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal, isClaimMode = 
     }
   }, [user]);
 
+
+
   // Function to refresh saved players list
   const refreshSavedPlayers = useCallback(async () => {
     console.log('=== REFRESH SAVED PLAYERS STARTED ===');
@@ -1170,6 +1183,18 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal, isClaimMode = 
         }
       });
   }, [players, searchTerm, sortBy, sortOrder, currentFilters, expandYear, getMainPositionCategory, type, stateFilter, gradYearFilter, claimedFilter, claimedPosition, claimedEligibility, claimedAwards, claimedLeague, minGpa]);
+
+  // Reset tinder index when filtered results change
+  useEffect(() => {
+    if (viewMode === 'tinder') {
+      console.log('Resetting tinder index due to filter change. New length:', filteredAndSortedPlayers.length);
+      setTinderIndex(0);
+      setTinderAnimating(false);
+      setTinderDecision(null);
+      setDragDelta(0);
+      setDragStart(null);
+    }
+  }, [filteredAndSortedPlayers.length, viewMode]);
 
   const formatMinutes = useCallback((minutes) => {
     if (!minutes) return '0';
@@ -1449,18 +1474,6 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal, isClaimMode = 
               <>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
                   <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
-                    League
-                  </label>
-                  <select
-                    value={currentFilters.league}
-                    onChange={e => setLocalFilters(f => ({ ...f, league: e.target.value }))}
-                    className="filter-select"
-                  >
-                    {leagues.map(lg => <option key={lg} value={lg}>{lg}</option>)}
-                  </select>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
-                  <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
                     Position
                   </label>
                   <select
@@ -1488,7 +1501,7 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal, isClaimMode = 
             {/* Add other unclaimed filters as needed */}
           </>
         )}
-        {/* Common filters for both claimed and unclaimed */}
+        {/* League filter - different logic based on claimed status */}
         {claimedFilter === 'claimed' && (
           <>
             {/* League filter for claimed players (shows "Division Transferring From" data as "League") */}
@@ -1508,7 +1521,7 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal, isClaimMode = 
         )}
         {(claimedFilter === 'unclaimed' || claimedFilter === 'all') && type === 'transfer' && (
           <>
-            {/* League filter for unclaimed transfer players */}
+            {/* League filter for unclaimed transfer players or when showing all */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 150 }}>
               <label style={{ fontWeight: 600, marginBottom: '8px', color: '#ef4444', fontSize: '0.8rem', textTransform: 'uppercase' }}>
                 League
@@ -1639,7 +1652,13 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal, isClaimMode = 
 
       {viewMode === 'tinder' ? (
         <div className="tinder-mode-container">
-          {tinderIndex >= filteredAndSortedPlayers.length ? (
+          {console.log('Tinder Mode Debug:', { tinderIndex, length: filteredAndSortedPlayers.length, currentPlayer: filteredAndSortedPlayers[tinderIndex] })}
+          {filteredAndSortedPlayers.length === 0 ? (
+            <div className="tinder-complete">
+              <h2>No players match your current filters</h2>
+              <button className="toggle-text-btn" onClick={() => setViewMode('grid')}>Back to Grid</button>
+            </div>
+          ) : tinderIndex >= filteredAndSortedPlayers.length ? (
             <div className="tinder-complete">
               <h2>You're all caught up!</h2>
               <button className="toggle-text-btn" onClick={() => setTinderIndex(0)}>Restart</button>
@@ -1648,7 +1667,7 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal, isClaimMode = 
           ) : (
             <div className="tinder-swipe-layout">
               <button className="tinder-swipe-btn left" onClick={async () => {
-                if (tinderAnimating) return;
+                if (tinderAnimating || !filteredAndSortedPlayers[tinderIndex]) return;
                 setTinderDecision('skip');
                 setTinderAnimating(true);
                 setTimeout(() => {
@@ -1756,29 +1775,35 @@ const CollegePlayerCards = ({ filters, onBack, onShowSignupModal, isClaimMode = 
                 }}
               >
                 <div className="tinder-card-inner ultra-wide compact" style={{ maxWidth: 420, margin: '0 auto' }}>
-                  <CollegePlayerCard
-                    player={filteredAndSortedPlayers[tinderIndex]}
-                    getPlayerImage={getPlayerImage}
-                    getClubImage={getClubImage}
-                    translatePosition={translatePosition}
-                    formatMinutes={formatMinutes}
-                    isValidPlayer={isValidPlayer}
-                    handleViewFootage={handleViewFootage}
-                    selectedLeague={currentFilters.league || 'All'}
-                    loadingVideos={loadingVideos}
-                    savedPlayerIds={savedPlayerIds}
-                    onSaveToggle={refreshSavedPlayers}
-                    onShowSignupModal={onShowSignupModal}
-                    isClaimMode={isClaimMode}
-                    onClaimProfile={handleClaimProfile}
-                  />
+                  {filteredAndSortedPlayers[tinderIndex] ? (
+                    <CollegePlayerCard
+                      player={filteredAndSortedPlayers[tinderIndex]}
+                      getPlayerImage={getPlayerImage}
+                      getClubImage={getClubImage}
+                      translatePosition={translatePosition}
+                      formatMinutes={formatMinutes}
+                      isValidPlayer={isValidPlayer}
+                      handleViewFootage={handleViewFootage}
+                      selectedLeague={currentFilters.league || 'All'}
+                      loadingVideos={loadingVideos}
+                      savedPlayerIds={savedPlayerIds}
+                      onSaveToggle={refreshSavedPlayers}
+                      onShowSignupModal={onShowSignupModal}
+                      isClaimMode={isClaimMode}
+                      onClaimProfile={handleClaimProfile}
+                    />
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '20px', color: '#fff' }}>
+                      Loading...
+                    </div>
+                  )}
                   {tinderAnimating && (
                     <div className={`tinder-overlay ${tinderDecision}`}>{tinderDecision === 'save' ? 'Saved' : 'Skipped'}</div>
                   )}
                 </div>
               </div>
               <button className="tinder-swipe-btn right" onClick={async () => {
-                if (tinderAnimating) return;
+                if (tinderAnimating || !filteredAndSortedPlayers[tinderIndex]) return;
                 if (user) {
                   setTinderDecision('save');
                   setTinderAnimating(true);

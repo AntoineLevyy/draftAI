@@ -295,13 +295,24 @@ const ClaimProfileForm = ({ player, onClose, onComplete }) => {
           </div>
           <div style={fieldStyle}>
             <label style={labelStyle}>Division Transferring From *</label>
-            <input
-              type="text"
+            <select
               value={formData.divisionTransferringFrom}
               onChange={(e) => updateField('divisionTransferringFrom', e.target.value)}
               style={inputStyle}
               required
-            />
+            >
+              <option value="">Select Division</option>
+              <option value="NJCAA Division 1">NJCAA Division 1</option>
+              <option value="NJCAA Division 2">NJCAA Division 2</option>
+              <option value="NJCAA Division 3">NJCAA Division 3</option>
+              <option value="NCAA Division 1">NCAA Division 1</option>
+              <option value="NCAA Division 2">NCAA Division 2</option>
+              <option value="NCAA Division 3">NCAA Division 3</option>
+              <option value="NAIA">NAIA</option>
+              <option value="CCCAA">CCCAA</option>
+              <option value="NWAC">NWAC</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
           <div style={fieldStyle}>
             <label style={labelStyle}>Years of Eligibility Left</label>
@@ -365,6 +376,34 @@ const ClaimProfileForm = ({ player, onClose, onComplete }) => {
               style={inputStyle}
               placeholder="Link to full game footage"
             />
+          </div>
+          <div style={fieldStyle}>
+            <label style={labelStyle}>Profile Photo</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  // Convert to base64 for storage
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    updateField('profilePhoto', e.target.result);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+              style={{
+                ...inputStyle,
+                padding: '8px',
+                backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                border: '2px dashed #374151',
+                cursor: 'pointer'
+              }}
+            />
+            <small style={{ color: '#9ca3af', fontSize: '0.8rem', marginTop: '4px', display: 'block' }}>
+              Upload a professional headshot or action photo (JPG, PNG)
+            </small>
           </div>
           <div style={fieldStyle}>
             <label style={labelStyle}>Why Are You Transferring?</label>

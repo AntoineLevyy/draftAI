@@ -220,7 +220,11 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
   const claimedPositions = useMemo(() => {
     const positions = new Set();
     allPlayers.forEach(p => { 
-      if (p.claimed && p.position) positions.add(p.position); 
+      if (p.claimed) {
+        // Handle both claimed and unclaimed data structures
+        const position = p.position || p.Position;
+        if (position) positions.add(position); 
+      }
     });
     return ['All', ...Array.from(positions).sort()];
   }, [allPlayers]);
@@ -228,7 +232,11 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
   const claimedLeagues = useMemo(() => {
     const leagues = new Set();
     allPlayers.forEach(p => { 
-      if (p.claimed && p.league) leagues.add(p.league); 
+      if (p.claimed) {
+        // Handle both claimed and unclaimed data structures
+        const league = p.league || p['Division Transferring From'];
+        if (league) leagues.add(league); 
+      }
     });
     return ['All', ...Array.from(leagues).sort()];
   }, [allPlayers]);
@@ -236,7 +244,11 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
   const claimedEligibilities = useMemo(() => {
     const eligibilities = new Set();
     allPlayers.forEach(p => { 
-      if (p.claimed && p.eligibility) eligibilities.add(p.eligibility); 
+      if (p.claimed) {
+        // Handle both claimed and unclaimed data structures
+        const eligibility = p.eligibility || p['Years of Eligibility Left'];
+        if (eligibility) eligibilities.add(eligibility); 
+      }
     });
     return ['All', ...Array.from(eligibilities).sort()];
   }, [allPlayers]);
@@ -244,10 +256,16 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
   const claimedAwardsList = useMemo(() => {
     const awards = new Set();
     allPlayers.forEach(p => { 
-      if (p.claimed && p.awards) awards.add(p.awards); 
+      if (p.claimed) {
+        // Handle both claimed and unclaimed data structures
+        const award = p.awards || p['Individual Awards'];
+        if (award) awards.add(award); 
+      }
     });
     return ['All', ...Array.from(awards).sort()];
   }, [allPlayers]);
+
+
 
   // Compute unique states, positions, grad years from high school players
   const highSchoolStates = useMemo(() => {
@@ -444,6 +462,7 @@ function CollegeLandingPage({ onApplyFilters, onBack }) {
                 </div>
               </>
             )}
+
             {/* Unclaimed-specific filters */}
             {(claimedFilter === 'unclaimed' || claimedFilter === 'all') && type === 'transfer' && (
               <>

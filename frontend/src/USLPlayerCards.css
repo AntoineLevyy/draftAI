@@ -121,6 +121,108 @@ body, html {
   gap: 15px;
   width: 100%;
 }
+
+/* Unified claimed player card styling for all views */
+.claimed-player-card {
+  background: #232326;
+  color: #fff;
+  min-width: 360px;
+}
+
+.claimed-player-card .card-body,
+.claimed-player-card .claimed-section-group,
+.claimed-player-card .claimed-section,
+.claimed-player-card h3,
+.claimed-player-card h4,
+.claimed-player-card b,
+.claimed-player-card a {
+  color: #fff !important;
+}
+
+.claimed-section-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 10px;
+}
+
+.claimed-section {
+  flex: 1 1 calc(50% - 9px);
+  min-width: 160px;
+  background: transparent;
+  border-radius: 0;
+  padding: 0 0 8px 0;
+  margin-bottom: 6px;
+  box-shadow: none;
+  border: none;
+}
+
+.claimed-section h4 {
+  margin: 0 0 8px 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ef4444 !important;
+  letter-spacing: 0.5px;
+  text-transform: none;
+}
+
+.claimed-section b {
+  font-weight: 600;
+  color: #fff;
+}
+
+.claimed-section .info-label {
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.85rem;
+  margin-right: 6px;
+}
+
+.claimed-section .info-value {
+  color: #fff;
+  font-size: 0.85rem;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.claimed-section a {
+  color: #fff;
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+.claimed-footage-section {
+  flex: 1 1 100%;
+  margin-top: 8px;
+}
+
+.claimed-view-footage-button {
+  width: 100%;
+  padding: 8px;
+  background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.claimed-view-footage-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.claimed-player-card .claimed-section-title,
+.claimed-section h4.claimed-section-title {
+  color: #ef4444 !important;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  letter-spacing: 0.5px;
+}
 .player-card {
   background: #232326;
   border-radius: 15px;
@@ -556,7 +658,7 @@ body, html {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.8);
+  background: transparent;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -579,30 +681,14 @@ body, html {
   align-items: center;
 }
 
-/* Ensure modal cards look exactly like grid cards */
-.player-modal .player-card {
-  width: 100%;
-  max-width: 400px;
-  margin: 0;
-  background: #232326;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  overflow: visible;
-}
-
+/* Modal card sizing */
+.player-modal .player-card,
 .player-modal .claimed-player-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   margin: 0;
-  background: #232326;
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  overflow: visible;
-}
-
-/* Ensure claimed section content can scroll if needed */
-.player-modal .claimed-section-group {
-  max-height: none;
   overflow: visible;
 }
 .player-modal .close-modal-button {
@@ -616,87 +702,4 @@ body, html {
   cursor: pointer;
   z-index: 10;
 } 
-.claimed-player-card {
-  background: #232326;
-  color: #fff;
-}
-.claimed-player-card .card-body,
-.claimed-player-card .claimed-section-group,
-.claimed-player-card .claimed-section,
-.claimed-player-card h3,
-.claimed-player-card h4,
-.claimed-player-card b,
-.claimed-player-card a {
-  color: #fff !important;
-}
-.claimed-section-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  margin-top: 10px;
-}
-.claimed-section {
-  flex: 1 1 180px;
-  background: transparent;
-  border-radius: 0;
-  padding: 0 0 10px 0;
-  min-width: 160px;
-  margin-bottom: 8px;
-  box-shadow: none;
-  border: none;
-}
-.claimed-section h4 {
-  margin: 0 0 8px 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #ef4444 !important;
-  letter-spacing: 0.5px;
-  text-transform: none;
-}
-.claimed-section b {
-  font-weight: 600;
-  color: #fff;
-}
-.claimed-section .info-label {
-  font-weight: 600;
-  color: #fff;
-  font-size: 0.85rem;
-  margin-right: 6px;
-}
-.claimed-section .info-value {
-  color: #fff;
-  font-size: 0.85rem;
-}
-.claimed-section a {
-  color: #fff;
-  text-decoration: underline;
-  word-break: break-all;
-}
-.claimed-footage-section {
-  margin-top: 10px;
-}
-.claimed-view-footage-button {
-  width: 100%;
-  padding: 8px;
-  background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-}
-.claimed-view-footage-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-} 
-.claimed-player-card .claimed-section-title,
-.claimed-section h4.claimed-section-title {
-  color: #ef4444 !important;
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-  letter-spacing: 0.5px;
-} 
+ 

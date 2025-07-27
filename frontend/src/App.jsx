@@ -312,6 +312,11 @@ function AppContent() {
     window.history.pushState({}, '', '/forplayers');
   };
 
+  const handleForCoachesClick = () => {
+    setCurrentView('main');
+    window.history.pushState({}, '', '/');
+  };
+
   const handleClaimClick = () => {
     // Only allow claim flow for logged-out users
     if (user) {
@@ -496,10 +501,10 @@ function AppContent() {
             </p>
           </div>
           <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            {/* Only show "For Players" button for logged-out users and coaches */}
-            {!user || !isPlayer ? (
+            {/* Only show navigation button for logged-out users */}
+            {!user && (
               <button 
-                onClick={handleForPlayersClick}
+                onClick={currentView === 'forplayers' ? handleForCoachesClick : handleForPlayersClick}
                 style={{
                   ...footerLink,
                   background: 'none',
@@ -512,9 +517,9 @@ function AppContent() {
                 onMouseEnter={(e) => e.target.style.opacity = '0.8'}
                 onMouseLeave={(e) => e.target.style.opacity = '1'}
               >
-                For Players
+                {currentView === 'forplayers' ? 'For Coaches' : 'For Players'}
               </button>
-            ) : null}
+            )}
           </div>
           <div style={{ flex: 1, display: 'flex', gap: '1.5rem', alignItems: 'center', justifyContent: 'flex-end' }}>
             <a 
