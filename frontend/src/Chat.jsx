@@ -89,14 +89,46 @@ const Chat = ({ embedded = false }) => {
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedConversation) return;
 
+    const messageContent = newMessage.trim();
+    setNewMessage(''); // Clear input immediately for better UX
+
     try {
       setSending(true);
-      await sendMessage(selectedConversation.id, newMessage.trim());
-      setNewMessage('');
-      // Messages will be updated via real-time subscription
+      
+      // Create optimistic message
+      const optimisticMessage = {
+        id: `temp-${Date.now()}`,
+        conversation_id: selectedConversation.id,
+        sender_id: user.id,
+        content: messageContent,
+        created_at: new Date().toISOString(),
+        is_optimistic: true // Flag to identify optimistic messages
+      };
+      
+      // Add optimistic message to UI immediately
+      setMessages(prev => [...prev, optimisticMessage]);
+      
+      // Send message to server
+      const sentMessage = await sendMessage(selectedConversation.id, messageContent);
+      
+      // Replace optimistic message with real message
+      setMessages(prev => prev.map(msg => 
+        msg.is_optimistic && msg.content === messageContent 
+          ? { ...sentMessage, is_optimistic: false }
+          : msg
+      ));
+      
     } catch (error) {
       console.error('Error sending message:', error);
       alert('Failed to send message. Please try again.');
+      
+      // Remove optimistic message on error
+      setMessages(prev => prev.filter(msg => 
+        !(msg.is_optimistic && msg.content === messageContent)
+      ));
+      
+      // Restore the message in input
+      setNewMessage(messageContent);
     } finally {
       setSending(false);
     }
@@ -401,7 +433,9 @@ const contentStyle = {
   display: 'flex',
   flex: 1,
   gap: '20px',
-  minHeight: 0
+  minHeight: 0,
+  maxHeight: '70vh', // Limit to 70% of viewport height
+  overflow: 'hidden' // Prevent overflow
 };
 
 const conversationsStyle = {
@@ -512,7 +546,9 @@ const messagesAreaStyle = {
   flexDirection: 'column',
   border: '1px solid #333',
   borderRadius: '8px',
-  backgroundColor: '#1a1a1a'
+  backgroundColor: '#1a1a1a',
+  maxHeight: '600px', // Limit overall height
+  minHeight: '400px'  // Ensure minimum height
 };
 
 const messagesHeaderStyle = {
@@ -551,7 +587,9 @@ const messagesContainerStyle = {
   overflowY: 'auto',
   display: 'flex',
   flexDirection: 'column',
-  gap: '10px'
+  gap: '10px',
+  maxHeight: '400px', // Limit height to prevent infinite growth
+  minHeight: '200px'  // Ensure minimum height for usability
 };
 
 const emptyMessagesStyle = {
